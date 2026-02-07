@@ -9,6 +9,7 @@ import weeklyRoutes from "./routes/weekly.js";
 import studentRoutes from "./routes/student.js";
 import adminRoutes from "./routes/admin.js";
 import chatRoutes from "./routes/chat.js";
+import vocabRoutes from "./routes/vocab.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/weekly", weeklyRoutes);
 app.use("/api", studentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/vocab", vocabRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ ok: true });

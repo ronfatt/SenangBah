@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vocabulary Engine · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <div class="row between">
+        <h1 id="missionTitle">🧩 Vocabulary Engine</h1>
+        <div class="actions">
+          <a class="btn ghost" href="/dashboard.html">Dashboard</a>
+          <button class="btn ghost" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+      <p class="sub">1 word. 1 sentence. 2 minutes.</p>
+      <p class="muted" id="stepInfo">Step 1 of 3</p>
+      <button class="btn primary" id="startBtn">Start</button>
+    </section>
+
+    <section class="card" id="taskCard" style="display:none;">
+      <h2 id="taskTitle"></h2>
+      <p id="taskInstructions"></p>
+      <div id="taskItems"></div>
+      <div id="inputArea"></div>
+      <p class="helper" id="wordHelper">✅ 8–15 words is enough.</p>
+      <button class="btn primary" id="submitBtn">👉 Check my sentence</button>
+      <p class="muted" id="progressInfo"></p>
+    </section>
+
+    <section class="card" id="doneCard" style="display:none;">
+      <h2>Done for today.</h2>
+      <p>⭐ Vocabulary Power +1</p>
+      <p>🔓 Come back tomorrow for a new word.</p>
+    </section>
+  </main>
+
+  <script src="/vocab.js"></script>
+</body>
+</html>

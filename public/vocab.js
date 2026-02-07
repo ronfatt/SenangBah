@@ -1,0 +1,167 @@
+let sessionId = null;
+let currentStep = null;
+let currentData = null;
+
+const startBtn = document.getElementById('startBtn');
+const submitBtn = document.getElementById('submitBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const taskCard = document.getElementById('taskCard');
+const doneCard = document.getElementById('doneCard');
+
+const taskTitle = document.getElementById('taskTitle');
+const taskInstructions = document.getElementById('taskInstructions');
+const taskItems = document.getElementById('taskItems');
+const inputArea = document.getElementById('inputArea');
+const progressInfo = document.getElementById('progressInfo');
+const stepInfo = document.getElementById('stepInfo');
+const wordHelper = document.getElementById('wordHelper');
+
+async function postJSON(url, data) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return { ok: res.ok, data: await res.json() };
+}
+
+function clearNode(el) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+function renderTask(data) {
+  currentData = data;
+  taskCard.style.display = 'block';
+  doneCard.style.display = 'none';
+
+  taskTitle.textContent = data.title || 'Word Focus';
+  taskInstructions.textContent = data.instructions || '';
+  clearNode(taskItems);
+  clearNode(inputArea);
+
+  const item = data.items?.[0];
+  if (item) {
+    const prompt = document.createElement('p');
+    prompt.className = 'prompt';
+    prompt.textContent = item.prompt;
+    taskItems.appendChild(prompt);
+
+    if (item.hints?.length) {
+      const hint = document.createElement('p');
+      hint.className = 'hint';
+      hint.textContent = 'Hint: ' + item.hints[0];
+      taskItems.appendChild(hint);
+    }
+  }
+
+  if (data.task_type === 'mcq') {
+    wordHelper.style.display = 'none';
+    const choices = item?.choices || [];
+    choices.forEach((choice, i) => {
+      const label = document.createElement('label');
+      label.className = 'choice';
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'mcq';
+      radio.value = choice;
+      if (i === 0) radio.checked = true;
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(choice));
+      inputArea.appendChild(label);
+    });
+  } else {
+    wordHelper.style.display = 'block';
+    const textarea = document.createElement('textarea');
+    textarea.id = 'textAnswer';
+    textarea.rows = 3;
+    textarea.placeholder = 'Write 1 sentence only.';
+    inputArea.appendChild(textarea);
+
+    const wc = document.createElement('div');
+    wc.className = 'muted';
+    wc.id = 'wordCount';
+    wc.textContent = '0 words';
+    inputArea.appendChild(wc);
+
+    textarea.addEventListener('input', () => {
+      const words = textarea.value.trim().split(/\s+/).filter(Boolean).length;
+      wc.textContent = `${words} words`;
+    });
+  }
+
+  if (data.next_question) {
+    progressInfo.textContent = data.next_question;
+  } else {
+    progressInfo.textContent = `Step: ${currentStep}`;
+  }
+}
+
+function getStudentAnswer() {
+  if (currentData?.task_type === 'mcq') {
+    const selected = document.querySelector('input[name="mcq"]:checked');
+    return selected ? selected.value : '';
+  }
+  const textarea = document.getElementById('textAnswer');
+  return textarea ? textarea.value : '';
+}
+
+function updateStepInfo(step) {
+  const order = ['vocab_warmup', 'vocab_apply', 'vocab_reinforce'];
+  const idx = order.indexOf(step);
+  const stepNum = idx === -1 ? 1 : idx + 1;
+  stepInfo.textContent = `Step ${stepNum} of 3`;
+}
+
+startBtn.addEventListener('click', async () => {
+  const res = await postJSON('/api/vocab/start', {});
+  if (!res.ok) return alert(res.data?.error || 'Failed to start');
+  if (res.data.done && !res.data.step) {
+    taskCard.style.display = 'none';
+    doneCard.style.display = 'block';
+    return;
+  }
+  sessionId = res.data.session_id;
+  currentStep = res.data.step;
+  updateStepInfo(currentStep);
+  renderTask(res.data.data);
+});
+
+submitBtn.addEventListener('click', async () => {
+  if (!sessionId || !currentStep) return;
+  const answer = getStudentAnswer();
+  const res = await postJSON('/api/vocab/next', {
+    session_id: sessionId,
+    step: currentStep,
+    student_answer: answer
+  });
+  if (!res.ok) return alert(res.data?.error || 'Submit failed');
+
+  if (res.data.done && !res.data.step) {
+    taskCard.style.display = 'none';
+    doneCard.style.display = 'block';
+    return;
+  }
+
+  currentStep = res.data.step;
+  updateStepInfo(currentStep);
+  renderTask(res.data.data);
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await postJSON('/api/auth/logout', {});
+  window.location.href = '/login.html';
+});
+
+async function ensureAuth() {
+  try {
+    const res = await fetch('/api/me');
+    if (!res.ok) {
+      window.location.href = '/login.html';
+      return;
+    }
+  } catch {
+    window.location.href = '/login.html';
+  }
+}
+
+ensureAuth();
