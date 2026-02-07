@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login · SPM English Booster</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <h1>Login</h1>
+      <form id="loginForm" class="form">
+        <label>Email
+          <input type="email" name="email" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" required />
+        </label>
+        <button class="btn primary" type="submit">Login</button>
+        <p id="loginError" class="error"></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h1>Create account</h1>
+      <form id="registerForm" class="form">
+        <label>Name
+          <input type="text" name="name" required />
+        </label>
+        <label>Email
+          <input type="email" name="email" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" required />
+        </label>
+        <label>Estimated Band
+          <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
+        </label>
+        <button class="btn primary" type="submit">Create & Start</button>
+        <p id="registerError" class="error"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    async function postJSON(url, data) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return { ok: res.ok, data: await res.json() };
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginError = document.getElementById('loginError');
+    const registerError = document.getElementById('registerError');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      const formData = new FormData(loginForm);
+      const payload = Object.fromEntries(formData.entries());
+      const res = await postJSON('/api/auth/login', payload);
+      if (!res.ok) {
+        loginError.textContent = res.data?.error || 'Login failed';
+        return;
+      }
+      window.location.href = '/app.html';
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      registerError.textContent = '';
+      const formData = new FormData(registerForm);
+      const payload = Object.fromEntries(formData.entries());
+      payload.estimated_band = Number(payload.estimated_band || 4);
+      payload.form = 5;
+      const res = await postJSON('/api/auth/register', payload);
+      if (!res.ok) {
+        registerError.textContent = res.data?.error || 'Registration failed';
+        return;
+      }
+      window.location.href = '/app.html';
+    });
+  </script>
+</body>
+</html>

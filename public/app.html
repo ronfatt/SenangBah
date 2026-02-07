@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Today · SPM English Booster</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <div class="row between">
+        <h1>Today’s 10‑Minute SPM Training</h1>
+        <button class="btn ghost" id="logoutBtn">Logout</button>
+      </div>
+      <p class="muted" id="dayInfo">Day 1 of 14 · Writing Focus</p>
+      <button class="btn primary" id="startBtn">Start</button>
+    </section>
+
+    <section class="card" id="taskCard" style="display:none;">
+      <h2 id="taskTitle"></h2>
+      <p id="taskInstructions"></p>
+      <div id="taskItems"></div>
+      <div id="inputArea"></div>
+      <button class="btn primary" id="submitBtn">Submit</button>
+      <p class="muted" id="progressInfo"></p>
+    </section>
+
+    <section class="card" id="doneCard" style="display:none;">
+      <h2>Done for today.</h2>
+      <p>⭐ Today’s SPM Power +1</p>
+      <p>📈 Writing Band Progress Bar</p>
+      <p>🔓 Unlock Tomorrow’s Drill</p>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

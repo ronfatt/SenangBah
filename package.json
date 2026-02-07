@@ -1,0 +1,21 @@
+{
+  "name": "spm-writing-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nanoid": "^5.0.7",
+    "openai": "^4.73.0",
+    "sqlite3": "^5.1.7",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
