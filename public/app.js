@@ -45,6 +45,25 @@ function extractTargetPhrase(text) {
   return '';
 }
 
+function inferTopic(text) {
+  if (!text) return '';
+  const lower = text.toLowerCase();
+  const about = text.match(/about\s+([a-zA-Z\s]{3,40})[\.,!]/);
+  if (about && about[1]) return about[1].trim();
+  const on = text.match(/on\s+([a-zA-Z\s]{3,40})[\.,!]/);
+  if (on && on[1]) return on[1].trim();
+  const related = text.match(/related to\s+([a-zA-Z\s]{3,40})[\.,!]/);
+  if (related && related[1]) return related[1].trim();
+
+  if (lower.includes('technology')) return 'technology';
+  if (lower.includes('education')) return 'education';
+  if (lower.includes('health')) return 'health';
+  if (lower.includes('environment')) return 'the environment';
+  if (lower.includes('school')) return 'school life';
+  if (lower.includes('social media')) return 'social media';
+  return '';
+}
+
 function renderTask(data) {
   currentData = data;
   taskCard.style.display = 'block';
@@ -58,10 +77,12 @@ function renderTask(data) {
 
   const item = data.items?.[0];
   if (item) {
-    const prompt = document.createElement('p');
-    prompt.className = 'prompt';
-    prompt.textContent = item.prompt;
-    taskItems.appendChild(prompt);
+    if (data.task_type !== 'mcq') {
+      const prompt = document.createElement('p');
+      prompt.className = 'prompt';
+      prompt.textContent = item.prompt;
+      taskItems.appendChild(prompt);
+    }
 
     if (item.hints?.length) {
       const hint = document.createElement('p');
@@ -72,6 +93,7 @@ function renderTask(data) {
   }
 
   const targetPhrase = extractTargetPhrase(item?.prompt || data.instructions || '');
+  const topic = inferTopic(item?.prompt || data.instructions || '');
   if (data.task_type === 'mcq') {
     taskInstructions.textContent = 'Choose the best sentence.';
   } else if (data.task_type === 'fill_blank') {
@@ -84,7 +106,9 @@ function renderTask(data) {
       : 'Rewrite ONE sentence. Keep it short.';
   }
   const phraseForStart = targetPhrase || 'In addition';
-  const exampleText = `Example start: ${phraseForStart}, it helps people in daily life…`;
+  const exampleText = topic
+    ? `Example start: ${phraseForStart}, ${topic} helps people in daily life…`
+    : `Example start: ${phraseForStart}, it helps people in daily life…`;
 
   if (data.task_type === 'mcq') {
     exampleStart.textContent = '';
