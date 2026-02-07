@@ -114,10 +114,17 @@ router.get("/suggestions", requireAuth, async (req, res) => {
   const user = await get("SELECT * FROM users WHERE id = ?", [req.user.id]);
   const weaknesses = JSON.parse(user?.weaknesses || "[]");
 
-  const base = [
+  const pool = [
     "How do I make my sentence clearer?",
     "Give me a stronger verb for this sentence.",
-    "How can I add one simple example?"
+    "How can I add one simple example?",
+    "How do I start a sentence with a connector?",
+    "How can I make my point more specific?",
+    "Is this sentence too long?",
+    "How can I shorten this sentence?",
+    "Give me a simple topic sentence.",
+    "How do I write a stronger conclusion?",
+    "Can you check my sentence for clarity?"
   ];
 
   const map = {
@@ -135,13 +142,24 @@ router.get("/suggestions", requireAuth, async (req, res) => {
     ]
   };
 
-  const suggestions = [...base];
+  const suggestions = [...pool];
   weaknesses.forEach((w) => {
     if (map[w]) suggestions.push(...map[w]);
   });
 
-  const unique = Array.from(new Set(suggestions)).slice(0, 6);
-  res.json({ suggestions: unique });
+  const unique = Array.from(new Set(suggestions));
+  const seed = new Date().toISOString().slice(0, 10) + req.user.id;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  const shuffled = unique.sort((a, b) => {
+    const av = (a.length * 131 + hash) % 97;
+    const bv = (b.length * 131 + hash) % 97;
+    return av - bv;
+  });
+  const daily = shuffled.slice(0, 6);
+  res.json({ suggestions: daily });
 });
 
 export default router;

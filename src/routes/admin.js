@@ -56,4 +56,58 @@ router.get("/users", requireAdmin, async (req, res) => {
   res.json({ users });
 });
 
+router.get("/chat-summary", requireAdmin, async (req, res) => {
+  const rows = await all(
+    `SELECT u.id, u.name, u.email,
+            COUNT(c.id) as chat_count,
+            MAX(c.created_at) as last_chat
+     FROM users u
+     LEFT JOIN chat_messages c ON c.user_id = u.id
+     GROUP BY u.id
+     ORDER BY chat_count DESC`
+  );
+  res.json({ items: rows });
+});
+
+router.get("/chat-export", requireAdmin, async (req, res) => {
+  const rows = await all(
+    `SELECT u.email, u.name, c.question, c.answer, c.english_question, c.quick_tip, c.created_at
+     FROM chat_messages c
+     JOIN users u ON u.id = c.user_id
+     ORDER BY c.created_at DESC`
+  );
+
+  const header = [
+    "email",
+    "name",
+    "question",
+    "answer",
+    "english_question",
+    "quick_tip",
+    "created_at"
+  ];
+  const escape = (v) => {
+    const s = String(v ?? "").replace(/\"/g, '\"\"');
+    return `\"${s}\"`;
+  };
+  const lines = [header.join(",")];
+  rows.forEach((r) => {
+    lines.push(
+      [
+        r.email,
+        r.name,
+        r.question,
+        r.answer,
+        r.english_question,
+        r.quick_tip,
+        r.created_at
+      ].map(escape).join(",")
+    );
+  });
+  const csv = lines.join("\\n");
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", "attachment; filename=chat_export.csv");
+  res.send(csv);
+});
+
 export default router;

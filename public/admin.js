@@ -2,6 +2,7 @@ const adminLoginForm = document.getElementById('adminLoginForm');
 const adminLoginMsg = document.getElementById('adminLoginMsg');
 const adminLoginCard = document.getElementById('adminLoginCard');
 const adminTableCard = document.getElementById('adminTableCard');
+const chatSummaryCard = document.getElementById('chatSummaryCard');
 const adminLogout = document.getElementById('adminLogout');
 
 async function postJSON(url, data) {
@@ -39,12 +40,30 @@ function renderTable(users) {
   });
 }
 
+function renderChatTable(items) {
+  const tbody = document.querySelector('#chatTable tbody');
+  tbody.innerHTML = '';
+  items.forEach((u) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.name || ''}</td>
+      <td>${u.email || ''}</td>
+      <td>${u.chat_count || 0}</td>
+      <td>${u.last_chat || '-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 async function load() {
   const data = await fetchUsers();
+  const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
   if (!data) return;
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
+  chatSummaryCard.style.display = 'block';
   renderTable(data.users || []);
+  if (chat?.items) renderChatTable(chat.items);
 }
 
 adminLoginForm.addEventListener('submit', async (e) => {
@@ -63,6 +82,7 @@ adminLoginForm.addEventListener('submit', async (e) => {
 adminLogout.addEventListener('click', async () => {
   await postJSON('/api/admin/logout', {});
   adminTableCard.style.display = 'none';
+  chatSummaryCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
 });
 
