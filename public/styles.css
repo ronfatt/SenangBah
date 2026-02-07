@@ -111,6 +111,43 @@ textarea { resize: vertical; }
 
 .feedback { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border); }
 
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.module {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  background: #fffaf3;
+}
+
+.module.hero {
+  background: #fff1e6;
+  border-color: #ffd2b3;
+}
+
+.tag {
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  width: max-content;
+}
+
 @media (max-width: 640px) {
   .hero h1 { font-size: 26px; }
   .row.between { flex-direction: column; align-items: flex-start; }

@@ -28,6 +28,8 @@ router.post("/register", async (req, res) => {
     name,
     form = 5,
     estimated_band = 4,
+    class_name = "",
+    teacher_name = "",
     weaknesses = ["limited_vocab", "sentence_variety", "idea_development"],
     strengths = ["basic_grammar_ok"]
   } = req.body || {};
@@ -43,9 +45,21 @@ router.post("/register", async (req, res) => {
   const id = nanoid();
 
   await run(
-    `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
-    [id, email, hash, name, form, estimated_band, JSON.stringify(weaknesses), JSON.stringify(strengths), nowIso()]
+    `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at, class_name, teacher_name)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    [
+      id,
+      email,
+      hash,
+      name,
+      form,
+      estimated_band,
+      JSON.stringify(weaknesses),
+      JSON.stringify(strengths),
+      nowIso(),
+      class_name,
+      teacher_name
+    ]
   );
 
   const token = signToken({ id, email, name });

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card hero">
+      <p class="eyebrow">SenangBah</p>
+      <h1>SPM English Hub</h1>
+      <p class="sub">One place for your SPM English growth. Start with Writing.</p>
+      <div class="actions">
+        <a class="btn primary" href="/app.html">Start 14‑Day Writing Booster</a>
+        <button class="btn ghost" id="logoutBtn">Logout</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Your Profile</h2>
+      <p class="muted">Fill this once. We use it to personalize drills.</p>
+      <form id="profileForm" class="form">
+        <label>Name
+          <input type="text" name="name" required />
+        </label>
+        <label>Class
+          <input type="text" name="class_name" placeholder="e.g. 5 Amanah" />
+        </label>
+        <label>Teacher Name
+          <input type="text" name="teacher_name" placeholder="e.g. Ms. Lim" />
+        </label>
+        <label>Estimated Band
+          <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
+        </label>
+        <button class="btn primary" type="submit">Save Profile</button>
+        <p id="profileMsg" class="muted"></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Modules</h2>
+      <div class="grid">
+        <div class="module hero">
+          <div>
+            <p class="tag">🔥 14‑Day Writing Booster</p>
+            <p>Daily 10–15 min. Upgrade by editing. Band‑focused.</p>
+          </div>
+          <a class="btn primary" href="/app.html">Open</a>
+        </div>
+
+        <div class="module">
+          <div>
+            <p class="tag">🎤 Speaking Confidence Lab</p>
+            <p>Launch soon</p>
+          </div>
+          <span class="pill">Coming</span>
+        </div>
+
+        <div class="module">
+          <div>
+            <p class="tag">👂 Listening Smart Drills</p>
+            <p>Launch soon</p>
+          </div>
+          <span class="pill">Coming</span>
+        </div>
+
+        <div class="module">
+          <div>
+            <p class="tag">📖 Reading Decoder</p>
+            <p>Launch soon</p>
+          </div>
+          <span class="pill">Coming</span>
+        </div>
+
+        <div class="module">
+          <div>
+            <p class="tag">🧠 Grammar (Hidden, Not Boring)</p>
+            <p>Launch soon</p>
+          </div>
+          <span class="pill">Coming</span>
+        </div>
+
+        <div class="module">
+          <div>
+            <p class="tag">🧩 Vocabulary Engine</p>
+            <p>Launch soon</p>
+          </div>
+          <span class="pill">Coming</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>

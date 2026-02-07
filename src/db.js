@@ -38,6 +38,17 @@ db.serialize(() => {
     created_at TEXT NOT NULL
   )`);
 
+  db.all("PRAGMA table_info(users)", (err, rows) => {
+    if (err) return;
+    const cols = new Set(rows.map((r) => r.name));
+    if (!cols.has("class_name")) {
+      db.run("ALTER TABLE users ADD COLUMN class_name TEXT");
+    }
+    if (!cols.has("teacher_name")) {
+      db.run("ALTER TABLE users ADD COLUMN teacher_name TEXT");
+    }
+  });
+
   db.run(`CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,

@@ -68,7 +68,7 @@
         loginError.textContent = res.data?.error || 'Login failed';
         return;
       }
-      window.location.href = '/app.html';
+      window.location.href = '/dashboard.html';
     });
 
     registerForm.addEventListener('submit', async (e) => {
@@ -83,7 +83,7 @@
         registerError.textContent = res.data?.error || 'Registration failed';
         return;
       }
-      window.location.href = '/app.html';
+      window.location.href = '/dashboard.html';
     });
   </script>
 </body>
