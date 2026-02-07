@@ -272,6 +272,15 @@ textarea { resize: vertical; }
   color: var(--muted);
 }
 
+.star-badge {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.small {
+  font-size: 12px;
+}
+
 .table-wrap { overflow-x: auto; }
 
 .table {

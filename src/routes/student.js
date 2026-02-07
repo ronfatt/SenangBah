@@ -49,7 +49,8 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     today_started: todayStarted,
     today_done: todayRow?.current_step === "done",
     completed_days: completedSessions,
-    completion_rate: Math.round((completedSessions / 14) * 100)
+    completion_rate: Math.round((completedSessions / 14) * 100),
+    total_stars: completedSessions
   });
 });
 

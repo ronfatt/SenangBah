@@ -5,6 +5,7 @@ const dayStatus = document.getElementById('dayStatus');
 const focusStatus = document.getElementById('focusStatus');
 const progressFill = document.getElementById('progressFill');
 const progressLabel = document.getElementById('progressLabel');
+const starCount = document.getElementById('starCount');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -40,6 +41,9 @@ async function loadDashboardStatus() {
     const percent = Math.min(100, Math.max(0, Math.round((completed / total) * 100)));
     progressFill.style.width = `${percent}%`;
     progressLabel.textContent = `Progress: ${completed}/${total}`;
+  }
+  if (starCount) {
+    starCount.textContent = data.total_stars ?? (data.completed_days || 0);
   }
 }
 
