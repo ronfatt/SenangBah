@@ -27,6 +27,10 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     `SELECT COUNT(DISTINCT date) as day_count FROM sessions WHERE user_id = ?`,
     [userId]
   );
+  const completed = await get(
+    `SELECT COUNT(DISTINCT date) as completed_count FROM sessions WHERE user_id = ? AND current_step = 'done'`,
+    [userId]
+  );
   const today = new Date().toISOString().slice(0, 10);
   const todayRow = await get(
     `SELECT current_step FROM sessions WHERE user_id = ? AND date = ?`,
@@ -34,6 +38,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   );
 
   const completedDays = Number(sessions?.day_count || 0);
+  const completedSessions = Number(completed?.completed_count || 0);
   const todayStarted = Boolean(todayRow);
   const dayIndex = todayStarted ? completedDays : Math.min(completedDays + 1, 14);
 
@@ -42,7 +47,9 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     total_days: 14,
     focus: "Writing Focus",
     today_started: todayStarted,
-    today_done: todayRow?.current_step === "done"
+    today_done: todayRow?.current_step === "done",
+    completed_days: completedSessions,
+    completion_rate: Math.round((completedSessions / 14) * 100)
   });
 });
 

@@ -20,6 +20,10 @@ const dayInfo = document.getElementById('dayInfo');
 const taskItems = document.getElementById('taskItems');
 const inputArea = document.getElementById('inputArea');
 const progressInfo = document.getElementById('progressInfo');
+const chatBox = document.getElementById('chatBox');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatHint = document.getElementById('chatHint');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -317,3 +321,46 @@ async function loadMissionStatus() {
 }
 
 loadMissionStatus();
+
+function appendChatLine(text, who) {
+  if (!chatBox) return;
+  const line = document.createElement('div');
+  line.className = `chat-line ${who}`;
+  line.textContent = text;
+  chatBox.appendChild(line);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendChat() {
+  const q = (chatInput?.value || '').trim();
+  if (!q) return;
+  appendChatLine(q, 'user');
+  chatInput.value = '';
+  chatHint.textContent = 'Thinking...';
+  const res = await postJSON('/api/chat', { question: q });
+  if (!res.ok) {
+    chatHint.textContent = 'Try again.';
+    return;
+  }
+  const data = res.data;
+  appendChatLine(data.answer || '...', 'ai');
+  if (data.english_question) {
+    appendChatLine(`English version: ${data.english_question}`, 'ai');
+  }
+  if (data.quick_tip) {
+    appendChatLine(`Tip: ${data.quick_tip}`, 'ai');
+  }
+  chatHint.textContent = '';
+}
+
+if (chatSend) {
+  chatSend.addEventListener('click', sendChat);
+}
+if (chatInput) {
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendChat();
+    }
+  });
+}

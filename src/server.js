@@ -8,6 +8,7 @@ import trainingRoutes from "./routes/training.js";
 import weeklyRoutes from "./routes/weekly.js";
 import studentRoutes from "./routes/student.js";
 import adminRoutes from "./routes/admin.js";
+import chatRoutes from "./routes/chat.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/api/training", trainingRoutes);
 app.use("/api/weekly", weeklyRoutes);
 app.use("/api", studentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ ok: true });

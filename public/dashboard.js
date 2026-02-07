@@ -3,6 +3,8 @@ const profileMsg = document.getElementById('profileMsg');
 const logoutBtn = document.getElementById('logoutBtn');
 const dayStatus = document.getElementById('dayStatus');
 const focusStatus = document.getElementById('focusStatus');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -32,6 +34,13 @@ async function loadDashboardStatus() {
   const data = await res.json();
   dayStatus.textContent = `Day ${data.day_index} of ${data.total_days}`;
   focusStatus.textContent = data.focus || 'Writing Focus';
+  if (progressFill && progressLabel) {
+    const completed = data.completed_days || 0;
+    const total = data.total_days || 14;
+    const percent = Math.min(100, Math.max(0, Math.round((completed / total) * 100)));
+    progressFill.style.width = `${percent}%`;
+    progressLabel.textContent = `Progress: ${completed}/${total}`;
+  }
 }
 
 profileForm.addEventListener('submit', async (e) => {

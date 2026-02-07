@@ -96,3 +96,20 @@ export const jsonSchemaWrapper = {
   strict: true,
   schema: outputSchema
 };
+
+export const chatSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["answer", "english_question", "quick_tip"],
+  properties: {
+    answer: { type: "string" },
+    english_question: { type: "string" },
+    quick_tip: { type: "string" }
+  }
+};
+
+export const chatSchemaWrapper = {
+  name: "spm_chat_response",
+  strict: true,
+  schema: chatSchema
+};
