@@ -21,7 +21,14 @@ const DEFAULT_CONTENT = {
   constraints: {
     time_minutes: 10,
     word_limit: 60
-  }
+  },
+  topic_snapshot: [
+    "Most teens use phones for homework and chats every day.",
+    "Too much screen time can reduce sleep.",
+    "Tech is useful if used with clear rules."
+  ],
+  angle_choices: ["Benefit", "Risk"],
+  band6_move: "Add 1 specific example (e.g., homework, sleep, distraction)."
 };
 
 const DEFAULT_HISTORY = {

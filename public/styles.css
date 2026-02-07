@@ -194,6 +194,59 @@ textarea { resize: vertical; }
   font-weight: 600;
 }
 
+.snapshot {
+  background: #fff8f1;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 8px 0 12px;
+}
+
+.snapshot-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.snapshot-line {
+  color: var(--muted);
+}
+
+.angles {
+  margin: 6px 0 12px;
+}
+
+.angles-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.angles-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.angle-btn {
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.angle-btn.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.band-move {
+  color: #0b6b2b;
+  font-weight: 700;
+  margin: 6px 0 10px;
+}
+
 .grid {
   display: grid;
   gap: 12px;

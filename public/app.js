@@ -20,6 +20,9 @@ const dayInfo = document.getElementById('dayInfo');
 const taskItems = document.getElementById('taskItems');
 const inputArea = document.getElementById('inputArea');
 const progressInfo = document.getElementById('progressInfo');
+const topicSnapshot = document.getElementById('topicSnapshot');
+const angleChoices = document.getElementById('angleChoices');
+const bandMove = document.getElementById('bandMove');
 const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const chatSend = document.getElementById('chatSend');
@@ -78,6 +81,9 @@ function renderTask(data) {
   taskNudge.textContent = 'You don’t need to be perfect.';
   clearNode(taskItems);
   clearNode(inputArea);
+  clearNode(topicSnapshot);
+  clearNode(angleChoices);
+  clearNode(bandMove);
   inputArea.style.display = 'block';
 
   const item = data.items?.[0];
@@ -165,6 +171,50 @@ function renderTask(data) {
     exampleStart.style.display = 'none';
     wordHelper.style.display = 'none';
     inputArea.style.display = 'none';
+  }
+
+  // Topic snapshot
+  const snapshot = data?.content?.topic_snapshot || data?.content?.topicSnapshot;
+  if (Array.isArray(snapshot) && snapshot.length) {
+    const title = document.createElement('div');
+    title.className = 'snapshot-title';
+    title.textContent = 'Topic Snapshot (10 sec)';
+    topicSnapshot.appendChild(title);
+    snapshot.slice(0, 3).forEach((s) => {
+      const line = document.createElement('div');
+      line.className = 'snapshot-line';
+      line.textContent = '• ' + s;
+      topicSnapshot.appendChild(line);
+    });
+  }
+
+  // Angle choices
+  const angles = data?.content?.angle_choices || data?.content?.angleChoices;
+  if (Array.isArray(angles) && angles.length) {
+    const title = document.createElement('div');
+    title.className = 'angles-title';
+    title.textContent = 'Pick ONE angle:';
+    angleChoices.appendChild(title);
+    const row = document.createElement('div');
+    row.className = 'angles-row';
+    angles.slice(0, 3).forEach((a) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'angle-btn';
+      btn.textContent = a;
+      btn.addEventListener('click', () => {
+        angleChoices.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      row.appendChild(btn);
+    });
+    angleChoices.appendChild(row);
+  }
+
+  // Band 6 move
+  const move = data?.content?.band6_move || data?.content?.band6Move;
+  if (move) {
+    bandMove.textContent = `Band 6 move: ${move}`;
   }
 
   // Feedback rendering only on feedback step
