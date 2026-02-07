@@ -24,6 +24,7 @@ const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const chatSend = document.getElementById('chatSend');
 const chatHint = document.getElementById('chatHint');
+const chatSuggestions = document.getElementById('chatSuggestions');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -331,6 +332,45 @@ function appendChatLine(text, who) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+function renderSuggestions(items) {
+  if (!chatSuggestions) return;
+  chatSuggestions.innerHTML = '';
+  items.forEach((q) => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.type = 'button';
+    chip.textContent = q;
+    chip.addEventListener('click', () => {
+      chatInput.value = q;
+      chatInput.focus();
+    });
+    chatSuggestions.appendChild(chip);
+  });
+}
+
+async function loadChatHistory() {
+  const res = await fetch('/api/chat/history');
+  if (!res.ok) return;
+  const data = await res.json();
+  (data.items || []).forEach((item) => {
+    appendChatLine(item.question, 'user');
+    appendChatLine(item.answer || '...', 'ai');
+    if (item.english_question) {
+      appendChatLine(`English version: ${item.english_question}`, 'ai');
+    }
+    if (item.quick_tip) {
+      appendChatLine(`Tip: ${item.quick_tip}`, 'ai');
+    }
+  });
+}
+
+async function loadChatSuggestions() {
+  const res = await fetch('/api/chat/suggestions');
+  if (!res.ok) return;
+  const data = await res.json();
+  renderSuggestions(data.suggestions || []);
+}
+
 async function sendChat() {
   const q = (chatInput?.value || '').trim();
   if (!q) return;
@@ -339,7 +379,13 @@ async function sendChat() {
   chatHint.textContent = 'Thinking...';
   const res = await postJSON('/api/chat', { question: q });
   if (!res.ok) {
-    chatHint.textContent = 'Try again.';
+    if (res.data?.error === 'limit_reached') {
+      chatHint.textContent = 'Daily chat limit reached. Try tomorrow.';
+    } else if (res.data?.error === 'slow_down') {
+      chatHint.textContent = 'Wait a few seconds and try again.';
+    } else {
+      chatHint.textContent = 'Try again.';
+    }
     return;
   }
   const data = res.data;
@@ -364,3 +410,6 @@ if (chatInput) {
     }
   });
 }
+
+loadChatHistory();
+loadChatSuggestions();
