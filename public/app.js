@@ -10,6 +10,13 @@ const doneCard = document.getElementById('doneCard');
 
 const taskTitle = document.getElementById('taskTitle');
 const taskInstructions = document.getElementById('taskInstructions');
+const taskNudge = document.getElementById('taskNudge');
+const exampleStart = document.getElementById('exampleStart');
+const wordHelper = document.getElementById('wordHelper');
+const tomorrowHint = document.getElementById('tomorrowHint');
+const missionTitle = document.getElementById('missionTitle');
+const missionSubtitle = document.getElementById('missionSubtitle');
+const dayInfo = document.getElementById('dayInfo');
 const taskItems = document.getElementById('taskItems');
 const inputArea = document.getElementById('inputArea');
 const progressInfo = document.getElementById('progressInfo');
@@ -27,19 +34,32 @@ function clearNode(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
+function extractTargetPhrase(text) {
+  if (!text) return '';
+  const fancy = text.match(/“([^”]+)”/);
+  if (fancy && fancy[1]) return fancy[1];
+  const straight = text.match(/\"([^\"]+)\"/);
+  if (straight && straight[1]) return straight[1];
+  const single = text.match(/'([^']+)'/);
+  if (single && single[1]) return single[1];
+  return '';
+}
+
 function renderTask(data) {
   currentData = data;
   taskCard.style.display = 'block';
   doneCard.style.display = 'none';
 
-  taskTitle.textContent = data.title || 'Today';
-  taskInstructions.textContent = data.instructions || '';
+  taskTitle.textContent = 'Your task (1 step only):';
+  taskNudge.textContent = 'You don’t need to be perfect.';
   clearNode(taskItems);
   clearNode(inputArea);
+  inputArea.style.display = 'block';
 
   const item = data.items?.[0];
   if (item) {
     const prompt = document.createElement('p');
+    prompt.className = 'prompt';
     prompt.textContent = item.prompt;
     taskItems.appendChild(prompt);
 
@@ -51,7 +71,25 @@ function renderTask(data) {
     }
   }
 
+  const targetPhrase = extractTargetPhrase(item?.prompt || data.instructions || '');
   if (data.task_type === 'mcq') {
+    taskInstructions.textContent = 'Choose the best sentence.';
+  } else if (data.task_type === 'fill_blank') {
+    taskInstructions.textContent = targetPhrase
+      ? `Use “${targetPhrase}” to complete ONE sentence.`
+      : 'Complete ONE sentence. Keep it short.';
+  } else {
+    taskInstructions.textContent = targetPhrase
+      ? `Rewrite ONE sentence using “${targetPhrase}”.`
+      : 'Rewrite ONE sentence. Keep it short.';
+  }
+  const phraseForStart = targetPhrase || 'In addition';
+  const exampleText = `Example start: ${phraseForStart}, it helps people in daily life…`;
+
+  if (data.task_type === 'mcq') {
+    exampleStart.textContent = '';
+    exampleStart.style.display = 'none';
+    wordHelper.style.display = 'none';
     const choices = item?.choices || [];
     choices.forEach((choice, i) => {
       const label = document.createElement('label');
@@ -66,10 +104,20 @@ function renderTask(data) {
       inputArea.appendChild(label);
     });
   } else {
+    if (targetPhrase) {
+      exampleStart.style.display = 'block';
+      exampleStart.textContent = exampleText;
+    } else {
+      exampleStart.style.display = 'none';
+      exampleStart.textContent = '';
+    }
+    wordHelper.style.display = 'block';
     const textarea = document.createElement('textarea');
     textarea.id = 'textAnswer';
     textarea.rows = 4;
-    textarea.placeholder = 'Type here...';
+    textarea.placeholder = targetPhrase
+      ? `Start with “${phraseForStart},” and write 1 sentence only.`
+      : 'Write 1 sentence only.';
     inputArea.appendChild(textarea);
 
     const wc = document.createElement('div');
@@ -84,8 +132,14 @@ function renderTask(data) {
     });
   }
 
-  // Feedback rendering when available
-  if (data.feedback) {
+  if (currentStep === 'feedback') {
+    exampleStart.style.display = 'none';
+    wordHelper.style.display = 'none';
+    inputArea.style.display = 'none';
+  }
+
+  // Feedback rendering only on feedback step
+  if (currentStep === 'feedback' && data.feedback) {
     const hasFeedback = (data.feedback.what_you_did_well || []).length ||
       (data.feedback.fix_this_next || []).length ||
       data.feedback.band_lift_sentence;
@@ -107,7 +161,7 @@ function renderTask(data) {
 
       if ((data.feedback.fix_this_next || []).length) {
         const h = document.createElement('h3');
-        h.textContent = 'One thing holding you back';
+        h.textContent = '🔧 One small upgrade to level up';
         fb.appendChild(h);
         data.feedback.fix_this_next.forEach(t => {
           const p = document.createElement('p');
@@ -120,6 +174,9 @@ function renderTask(data) {
         const h = document.createElement('h3');
         h.textContent = 'Band lift sentence';
         fb.appendChild(h);
+        const lead = document.createElement('p');
+        lead.textContent = '✨ This sentence can help push your writing towards Band 6';
+        fb.appendChild(lead);
         const p = document.createElement('p');
         p.textContent = data.feedback.band_lift_sentence;
         fb.appendChild(p);
@@ -137,7 +194,14 @@ function renderTask(data) {
       }
 
       taskItems.appendChild(fb);
+      fb.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  if (currentStep === 'feedback') {
+    tomorrowHint.textContent = 'Tomorrow: 👉 Make your sentence more specific (2 minutes)';
+  } else {
+    tomorrowHint.textContent = '';
   }
 
   if (data.next_question) {
@@ -192,7 +256,7 @@ submitBtn.addEventListener('click', async () => {
     // feedback shown, next submit ends session
     submitBtn.textContent = 'Finish';
   } else {
-    submitBtn.textContent = 'Submit';
+    submitBtn.textContent = '👉 Check my sentence';
   }
 });
 
@@ -214,3 +278,18 @@ async function ensureAuth() {
 }
 
 ensureAuth();
+
+async function loadMissionStatus() {
+  try {
+    const res = await fetch('/api/dashboard');
+    if (!res.ok) return;
+    const data = await res.json();
+    missionTitle.textContent = `🎯 Today’s Mission (Day ${data.day_index} of ${data.total_days})`;
+    dayInfo.textContent = data.focus || 'Writing Focus';
+    missionSubtitle.textContent = 'Just ONE sentence. Takes less than 2 minutes.';
+  } catch {
+    // ignore
+  }
+}
+
+loadMissionStatus();

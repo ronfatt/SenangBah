@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.js";
 import trainingRoutes from "./routes/training.js";
 import weeklyRoutes from "./routes/weekly.js";
 import studentRoutes from "./routes/student.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/training", trainingRoutes);
 app.use("/api/weekly", weeklyRoutes);
 app.use("/api", studentRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ ok: true });

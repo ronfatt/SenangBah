@@ -1,6 +1,8 @@
 const profileForm = document.getElementById('profileForm');
 const profileMsg = document.getElementById('profileMsg');
 const logoutBtn = document.getElementById('logoutBtn');
+const dayStatus = document.getElementById('dayStatus');
+const focusStatus = document.getElementById('focusStatus');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -24,6 +26,14 @@ async function loadProfile() {
   profileForm.estimated_band.value = data.estimated_band || 4;
 }
 
+async function loadDashboardStatus() {
+  const res = await fetch('/api/dashboard');
+  if (!res.ok) return;
+  const data = await res.json();
+  dayStatus.textContent = `Day ${data.day_index} of ${data.total_days}`;
+  focusStatus.textContent = data.focus || 'Writing Focus';
+}
+
 profileForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   profileMsg.textContent = '';
@@ -44,3 +54,4 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 loadProfile();
+loadDashboardStatus();

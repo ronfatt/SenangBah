@@ -21,6 +21,31 @@ router.get("/me", requireAuth, async (req, res) => {
   });
 });
 
+router.get("/dashboard", requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  const sessions = await get(
+    `SELECT COUNT(DISTINCT date) as day_count FROM sessions WHERE user_id = ?`,
+    [userId]
+  );
+  const today = new Date().toISOString().slice(0, 10);
+  const todayRow = await get(
+    `SELECT current_step FROM sessions WHERE user_id = ? AND date = ?`,
+    [userId, today]
+  );
+
+  const completedDays = Number(sessions?.day_count || 0);
+  const todayStarted = Boolean(todayRow);
+  const dayIndex = todayStarted ? completedDays : Math.min(completedDays + 1, 14);
+
+  res.json({
+    day_index: dayIndex,
+    total_days: 14,
+    focus: "Writing Focus",
+    today_started: todayStarted,
+    today_done: todayRow?.current_step === "done"
+  });
+});
+
 router.post("/profile", requireAuth, async (req, res) => {
   const { name, class_name, teacher_name, form, estimated_band } = req.body || {};
 

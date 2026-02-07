@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card hero">
+      <p class="eyebrow">Admin</p>
+      <h1>Student Overview</h1>
+      <p class="sub">Monitor usage and completion rate.</p>
+      <div class="actions">
+        <button class="btn ghost" id="adminLogout">Logout</button>
+      </div>
+    </section>
+
+    <section class="card" id="adminLoginCard">
+      <h2>Admin Access</h2>
+      <form id="adminLoginForm" class="form">
+        <label>Admin Key
+          <input type="password" name="key" required />
+        </label>
+        <button class="btn primary" type="submit">Enter</button>
+        <p id="adminLoginMsg" class="muted"></p>
+      </form>
+    </section>
+
+    <section class="card" id="adminTableCard" style="display:none;">
+      <h2>Students</h2>
+      <div class="table-wrap">
+        <table class="table" id="adminTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Class</th>
+              <th>Teacher</th>
+              <th>Band</th>
+              <th>Sessions</th>
+              <th>Completed</th>
+              <th>Completion %</th>
+              <th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

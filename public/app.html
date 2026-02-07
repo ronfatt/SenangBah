@@ -10,22 +10,27 @@
   <main class="shell">
     <section class="card">
       <div class="row between">
-        <h1>Today’s 10‑Minute SPM Training</h1>
+        <h1 id="missionTitle">🎯 Today’s Mission (Day 1 of 14)</h1>
         <div class="actions">
           <a class="btn ghost" href="/dashboard.html">Dashboard</a>
           <button class="btn ghost" id="logoutBtn">Logout</button>
         </div>
       </div>
-      <p class="muted" id="dayInfo">Day 1 of 14 · Writing Focus</p>
+      <p class="sub" id="missionSubtitle">Just ONE sentence. Takes less than 2 minutes.</p>
+      <p class="muted" id="dayInfo">Writing Focus</p>
       <button class="btn primary" id="startBtn">Start</button>
     </section>
 
     <section class="card" id="taskCard" style="display:none;">
-      <h2 id="taskTitle"></h2>
+      <h2 id="taskTitle">Your task (1 step only):</h2>
       <p id="taskInstructions"></p>
+      <p class="muted" id="taskNudge">You don’t need to be perfect.</p>
       <div id="taskItems"></div>
+      <div class="example" id="exampleStart"></div>
       <div id="inputArea"></div>
-      <button class="btn primary" id="submitBtn">Submit</button>
+      <p class="helper" id="wordHelper">✅ 8–15 words is enough.</p>
+      <button class="btn primary" id="submitBtn">👉 Check my sentence</button>
+      <div class="tomorrow" id="tomorrowHint"></div>
       <p class="muted" id="progressInfo"></p>
     </section>
 
