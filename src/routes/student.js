@@ -42,6 +42,18 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   const todayStarted = Boolean(todayRow);
   const dayIndex = todayStarted ? completedDays : Math.min(completedDays + 1, 14);
 
+  const vocabToday = await get(
+    `SELECT current_step FROM vocab_sessions WHERE user_id = ? AND date = ?`,
+    [userId, today]
+  );
+  const vocabCompleted = await get(
+    `SELECT COUNT(DISTINCT date) as completed_count FROM vocab_sessions WHERE user_id = ? AND current_step = 'done'`,
+    [userId]
+  );
+
+  const vocabDoneToday = vocabToday?.current_step === "done";
+  const vocabStars = Number(vocabCompleted?.completed_count || 0);
+
   res.json({
     day_index: dayIndex,
     total_days: 14,
@@ -50,7 +62,9 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     today_done: todayRow?.current_step === "done",
     completed_days: completedSessions,
     completion_rate: Math.round((completedSessions / 14) * 100),
-    total_stars: completedSessions
+    total_stars: completedSessions,
+    vocab_today_done: vocabDoneToday,
+    vocab_total_stars: vocabStars
   });
 });
 

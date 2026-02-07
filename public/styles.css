@@ -330,6 +330,30 @@ textarea { resize: vertical; }
   color: var(--ink);
 }
 
+.mini-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 8px 0 16px;
+}
+
+.mini-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.mini-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.mini-meta {
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .small {
   font-size: 12px;
 }

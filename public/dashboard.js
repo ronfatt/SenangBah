@@ -6,6 +6,10 @@ const focusStatus = document.getElementById('focusStatus');
 const progressFill = document.getElementById('progressFill');
 const progressLabel = document.getElementById('progressLabel');
 const starCount = document.getElementById('starCount');
+const writingMeta = document.getElementById('writingMeta');
+const writingStars = document.getElementById('writingStars');
+const vocabMeta = document.getElementById('vocabMeta');
+const vocabStars = document.getElementById('vocabStars');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -44,6 +48,18 @@ async function loadDashboardStatus() {
   }
   if (starCount) {
     starCount.textContent = data.total_stars ?? (data.completed_days || 0);
+  }
+  if (writingMeta) {
+    writingMeta.textContent = `Day ${data.day_index} of ${data.total_days}`;
+  }
+  if (writingStars) {
+    writingStars.textContent = data.total_stars ?? 0;
+  }
+  if (vocabMeta) {
+    vocabMeta.textContent = data.vocab_today_done ? 'Today: Done' : 'Today: Not done';
+  }
+  if (vocabStars) {
+    vocabStars.textContent = data.vocab_total_stars ?? 0;
   }
 }
 
