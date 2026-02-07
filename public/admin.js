@@ -3,7 +3,11 @@ const adminLoginMsg = document.getElementById('adminLoginMsg');
 const adminLoginCard = document.getElementById('adminLoginCard');
 const adminTableCard = document.getElementById('adminTableCard');
 const chatSummaryCard = document.getElementById('chatSummaryCard');
+const adminDeleteCard = document.getElementById('adminDeleteCard');
 const adminLogout = document.getElementById('adminLogout');
+const deleteForm = document.getElementById('deleteForm');
+const deleteMsg = document.getElementById('deleteMsg');
+const resetByEmailBtn = document.getElementById('resetByEmail');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -35,6 +39,10 @@ function renderTable(users) {
       <td>${u.completed_sessions || 0}</td>
       <td>${u.completion_rate || 0}%</td>
       <td>${u.last_active || '-'}</td>
+      <td>
+        <button class="btn ghost" data-action="reset" data-id="${u.id}">Reset</button>
+        <button class="btn primary" data-action="delete" data-id="${u.id}">Delete</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -62,6 +70,7 @@ async function load() {
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
   chatSummaryCard.style.display = 'block';
+  adminDeleteCard.style.display = 'block';
   renderTable(data.users || []);
   if (chat?.items) renderChatTable(chat.items);
 }
@@ -83,7 +92,58 @@ adminLogout.addEventListener('click', async () => {
   await postJSON('/api/admin/logout', {});
   adminTableCard.style.display = 'none';
   chatSummaryCard.style.display = 'none';
+  adminDeleteCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
+});
+
+deleteForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  deleteMsg.textContent = '';
+  const formData = new FormData(deleteForm);
+  const payload = Object.fromEntries(formData.entries());
+  if (!payload.email) return;
+  const res = await postJSON('/api/admin/delete-user', payload);
+  if (!res.ok) {
+    deleteMsg.textContent = res.data?.error || 'Delete failed';
+    return;
+  }
+  deleteMsg.textContent = 'Deleted.';
+  await load();
+});
+
+if (resetByEmailBtn) {
+  resetByEmailBtn.addEventListener('click', async () => {
+    deleteMsg.textContent = '';
+    const formData = new FormData(deleteForm);
+    const payload = Object.fromEntries(formData.entries());
+    if (!payload.email) return;
+    if (!confirm('Reset all progress for this student?')) return;
+    const res = await postJSON('/api/admin/reset-user', payload);
+    if (!res.ok) {
+      deleteMsg.textContent = res.data?.error || 'Reset failed';
+      return;
+    }
+    deleteMsg.textContent = 'Reset done.';
+    await load();
+  });
+}
+
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.getAttribute('data-id');
+  const action = btn.getAttribute('data-action');
+  if (!id) return;
+  if (action === 'reset') {
+    if (!confirm('Reset all progress for this student?')) return;
+    await postJSON('/api/admin/reset-user', { user_id: id });
+    await load();
+  }
+  if (action === 'delete') {
+    if (!confirm('Delete this student permanently?')) return;
+    await postJSON('/api/admin/delete-user', { user_id: id });
+    await load();
+  }
 });
 
 load();

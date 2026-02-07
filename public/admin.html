@@ -43,6 +43,7 @@
               <th>Completed</th>
               <th>Completion %</th>
               <th>Last Active</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -68,6 +69,20 @@
           <tbody></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="card" id="adminDeleteCard" style="display:none;">
+      <h2>Reset or Delete (By Email)</h2>
+      <form id="deleteForm" class="form">
+        <label>Email
+          <input type="email" name="email" placeholder="student@email.com" required />
+        </label>
+        <div class="actions">
+          <button class="btn ghost" type="button" id="resetByEmail">Reset Data</button>
+          <button class="btn primary" type="submit">Delete Student</button>
+        </div>
+        <p class="muted" id="deleteMsg"></p>
+      </form>
     </section>
   </main>
 

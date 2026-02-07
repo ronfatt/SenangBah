@@ -1,6 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { get, all } from "../db.js";
+import { get, all, run } from "../db.js";
 import { requireAdmin } from "../middleware/admin.js";
 
 const router = express.Router();
@@ -108,6 +108,63 @@ router.get("/chat-export", requireAdmin, async (req, res) => {
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", "attachment; filename=chat_export.csv");
   res.send(csv);
+});
+
+router.post("/delete-user", requireAdmin, async (req, res) => {
+  const { email, user_id } = req.body || {};
+  if (!email && !user_id) return res.status(400).json({ error: "missing_identifier" });
+
+  const user = user_id
+    ? await get("SELECT id FROM users WHERE id = ?", [user_id])
+    : await get("SELECT id FROM users WHERE email = ?", [email]);
+  if (!user) return res.status(404).json({ error: "not_found" });
+
+  const userId = user.id;
+  await run("BEGIN");
+  try {
+    await run(
+      "DELETE FROM responses WHERE session_id IN (SELECT id FROM sessions WHERE user_id = ?)",
+      [userId]
+    );
+    await run("DELETE FROM sessions WHERE user_id = ?", [userId]);
+    await run("DELETE FROM weekly_checkpoints WHERE user_id = ?", [userId]);
+    await run("DELETE FROM chat_messages WHERE user_id = ?", [userId]);
+    await run("DELETE FROM users WHERE id = ?", [userId]);
+    await run("COMMIT");
+  } catch (e) {
+    await run("ROLLBACK");
+    return res.status(500).json({ error: "delete_failed" });
+  }
+
+  res.json({ ok: true });
+});
+
+router.post("/reset-user", requireAdmin, async (req, res) => {
+  const { email, user_id } = req.body || {};
+  if (!email && !user_id) return res.status(400).json({ error: "missing_identifier" });
+
+  const user = user_id
+    ? await get("SELECT id FROM users WHERE id = ?", [user_id])
+    : await get("SELECT id FROM users WHERE email = ?", [email]);
+  if (!user) return res.status(404).json({ error: "not_found" });
+
+  const userId = user.id;
+  await run("BEGIN");
+  try {
+    await run(
+      "DELETE FROM responses WHERE session_id IN (SELECT id FROM sessions WHERE user_id = ?)",
+      [userId]
+    );
+    await run("DELETE FROM sessions WHERE user_id = ?", [userId]);
+    await run("DELETE FROM weekly_checkpoints WHERE user_id = ?", [userId]);
+    await run("DELETE FROM chat_messages WHERE user_id = ?", [userId]);
+    await run("COMMIT");
+  } catch (e) {
+    await run("ROLLBACK");
+    return res.status(500).json({ error: "reset_failed" });
+  }
+
+  res.json({ ok: true });
 });
 
 export default router;
