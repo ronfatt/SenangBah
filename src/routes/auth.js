@@ -48,11 +48,15 @@ router.post("/register", async (req, res) => {
   let teacherId = null;
   if (teacher_code) {
     const normalized = String(teacher_code).trim().toUpperCase();
-    const teacher = await get("SELECT id FROM teachers WHERE code = ?", [normalized]);
+    const teacher = await get("SELECT id, name FROM teachers WHERE code = ?", [normalized]);
     if (!teacher) return res.status(400).json({ error: "invalid_teacher_code" });
     teacherId = teacher.id;
+    if (!teacher_name) {
+      req.body.teacher_name = teacher.name;
+    }
   }
 
+  const finalTeacherName = teacher_name || req.body.teacher_name || "";
   await run(
     `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at, class_name, teacher_name)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
@@ -67,7 +71,7 @@ router.post("/register", async (req, res) => {
       JSON.stringify(strengths),
       nowIso(),
       class_name,
-      teacher_name
+      finalTeacherName
     ]
   );
 

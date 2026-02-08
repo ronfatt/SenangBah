@@ -5,6 +5,7 @@ const teacherRegisterMsg = document.getElementById('teacherRegisterMsg');
 const teacherAuthCard = document.getElementById('teacherAuthCard');
 const teacherInfoCard = document.getElementById('teacherInfoCard');
 const teacherStudentsCard = document.getElementById('teacherStudentsCard');
+const teacherEssaysCard = document.getElementById('teacherEssaysCard');
 const teacherCode = document.getElementById('teacherCode');
 const teacherLogout = document.getElementById('teacherLogout');
 
@@ -24,8 +25,10 @@ async function loadTeacher() {
   teacherAuthCard.style.display = 'none';
   teacherInfoCard.style.display = 'block';
   teacherStudentsCard.style.display = 'block';
+  teacherEssaysCard.style.display = 'block';
   teacherCode.textContent = `${data.code} (School: ${data.school_code || 'senang'})`;
   await loadStudents();
+  await loadEssays();
   return true;
 }
 
@@ -46,6 +49,27 @@ async function loadStudents() {
       <td>${s.completed_sessions || 0}</td>
       <td>${s.completion_rate || 0}%</td>
       <td>${s.last_active || '-'}</td>
+      <td><button class="btn ghost" data-reset="${s.id}">Reset</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadEssays() {
+  const res = await fetch('/api/teacher/essay-uploads');
+  if (!res.ok) return;
+  const data = await res.json();
+  const tbody = document.querySelector('#teacherEssayTable tbody');
+  tbody.innerHTML = '';
+  (data.items || []).forEach((e) => {
+    const tr = document.createElement('tr');
+    const band = e.analysis?.analysis?.band_estimate_range || '';
+    tr.innerHTML = `
+      <td>${e.student_name || ''}</td>
+      <td>${e.student_email || ''}</td>
+      <td><a href="${e.file_path}" target="_blank">View</a></td>
+      <td>${band}</td>
+      <td>${e.created_at || ''}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -84,6 +108,17 @@ teacherLogout.addEventListener('click', async () => {
   teacherAuthCard.style.display = 'block';
   teacherInfoCard.style.display = 'none';
   teacherStudentsCard.style.display = 'none';
+  teacherEssaysCard.style.display = 'none';
+});
+
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-reset]');
+  if (!btn) return;
+  const id = btn.getAttribute('data-reset');
+  if (!id) return;
+  if (!confirm('Reset all progress for this student?')) return;
+  await postJSON('/api/teacher/reset-student', { user_id: id });
+  await loadStudents();
 });
 
 loadTeacher();

@@ -46,9 +46,10 @@
           <label>Estimated Band
             <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
           </label>
-          <label>Teacher Code
-            <input type="text" name="teacher_code" placeholder="e.g. ABCD1234" />
-          </label>
+        <label>Teacher Code
+          <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
+        </label>
+        <p class="muted small" id="teacherNamePreview"></p>
         </div>
         <div id="teacherFields" style="display:none;">
           <label>School Code
@@ -77,6 +78,8 @@
     const registerError = document.getElementById('registerError');
     const studentFields = document.getElementById('studentFields');
     const teacherFields = document.getElementById('teacherFields');
+    const teacherCodeInput = document.getElementById('teacherCodeInput');
+    const teacherNamePreview = document.getElementById('teacherNamePreview');
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -119,6 +122,26 @@
         teacherFields.style.display = role === 'teacher' ? 'block' : 'none';
       });
     });
+
+    let teacherLookupTimer;
+    if (teacherCodeInput) {
+      teacherCodeInput.addEventListener('input', () => {
+        if (teacherLookupTimer) clearTimeout(teacherLookupTimer);
+        const code = teacherCodeInput.value.trim();
+        if (!code) {
+          teacherNamePreview.textContent = '';
+          return;
+        }
+        teacherLookupTimer = setTimeout(async () => {
+          const res = await postJSON('/api/teacher/teacher-name', { teacher_code: code });
+          if (!res.ok) {
+            teacherNamePreview.textContent = 'Teacher code not found';
+            return;
+          }
+          teacherNamePreview.textContent = `Teacher: ${res.data?.name || ''}`;
+        }, 400);
+      });
+    }
   </script>
 </body>
 </html>
