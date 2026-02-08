@@ -374,6 +374,12 @@ textarea { resize: vertical; }
   font-size: 12px;
 }
 
+.code {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
 .table-wrap { overflow-x: auto; }
 
 .table {

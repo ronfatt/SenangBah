@@ -47,7 +47,19 @@ db.serialize(() => {
     if (!cols.has("teacher_name")) {
       db.run("ALTER TABLE users ADD COLUMN teacher_name TEXT");
     }
+    if (!cols.has("teacher_id")) {
+      db.run("ALTER TABLE users ADD COLUMN teacher_id TEXT");
+    }
   });
+
+  db.run(`CREATE TABLE IF NOT EXISTS teachers (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    name TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL
+  )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,

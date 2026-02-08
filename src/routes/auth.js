@@ -30,6 +30,7 @@ router.post("/register", async (req, res) => {
     estimated_band = 4,
     class_name = "",
     teacher_name = "",
+    teacher_code = "",
     weaknesses = ["limited_vocab", "sentence_variety", "idea_development"],
     strengths = ["basic_grammar_ok"]
   } = req.body || {};
@@ -43,6 +44,13 @@ router.post("/register", async (req, res) => {
 
   const hash = await bcrypt.hash(password, 10);
   const id = nanoid();
+
+  let teacherId = null;
+  if (teacher_code) {
+    const teacher = await get("SELECT id FROM teachers WHERE code = ?", [teacher_code]);
+    if (!teacher) return res.status(400).json({ error: "invalid_teacher_code" });
+    teacherId = teacher.id;
+  }
 
   await run(
     `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at, class_name, teacher_name)
@@ -61,6 +69,10 @@ router.post("/register", async (req, res) => {
       teacher_name
     ]
   );
+
+  if (teacherId) {
+    await run("UPDATE users SET teacher_id = ? WHERE id = ?", [teacherId, id]);
+  }
 
   const token = signToken({ id, email, name });
   res.cookie("token", token, cookieOptions);

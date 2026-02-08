@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teacher Dashboard · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card hero">
+      <p class="eyebrow">Teacher</p>
+      <h1>Teacher Dashboard</h1>
+      <p class="sub">Manage your students using your unique class code.</p>
+      <div class="actions">
+        <button class="btn ghost" id="teacherLogout">Logout</button>
+      </div>
+    </section>
+
+    <section class="card" id="teacherAuthCard">
+      <h2>Teacher Login</h2>
+      <form id="teacherLoginForm" class="form">
+        <label>Email
+          <input type="email" name="email" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" required />
+        </label>
+        <button class="btn primary" type="submit">Login</button>
+        <p id="teacherLoginMsg" class="muted"></p>
+      </form>
+
+      <h2>Create Teacher Account</h2>
+      <form id="teacherRegisterForm" class="form">
+        <label>Name
+          <input type="text" name="name" required />
+        </label>
+        <label>Email
+          <input type="email" name="email" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" required />
+        </label>
+        <button class="btn primary" type="submit">Create</button>
+        <p id="teacherRegisterMsg" class="muted"></p>
+      </form>
+    </section>
+
+    <section class="card" id="teacherInfoCard" style="display:none;">
+      <h2>Your Teacher Code</h2>
+      <p class="code" id="teacherCode"></p>
+      <p class="muted">Students must enter this code when registering.</p>
+    </section>
+
+    <section class="card" id="teacherStudentsCard" style="display:none;">
+      <h2>Your Students</h2>
+      <div class="table-wrap">
+        <table class="table" id="teacherTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Class</th>
+              <th>Band</th>
+              <th>Sessions</th>
+              <th>Completed</th>
+              <th>Completion %</th>
+              <th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/teacher.js"></script>
+</body>
+</html>
