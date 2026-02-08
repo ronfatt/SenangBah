@@ -360,6 +360,16 @@ textarea { resize: vertical; }
   font-weight: 600;
 }
 
+.essay-result {
+  margin-top: 12px;
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+
+.essay-result h4 {
+  margin: 10px 0 4px;
+}
+
 .small {
   font-size: 12px;
 }

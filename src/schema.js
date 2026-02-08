@@ -113,3 +113,49 @@ export const chatSchemaWrapper = {
   strict: true,
   schema: chatSchema
 };
+
+export const handwritingSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "extracted_text",
+    "analysis",
+    "explanation"
+  ],
+  properties: {
+    extracted_text: { type: "string" },
+    analysis: {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "band_estimate_range",
+        "strengths",
+        "weaknesses",
+        "improvements",
+        "band_lift_sentence"
+      ],
+      properties: {
+        band_estimate_range: { type: "string" },
+        strengths: { type: "array", items: { type: "string" } },
+        weaknesses: { type: "array", items: { type: "string" } },
+        improvements: { type: "array", items: { type: "string" } },
+        band_lift_sentence: { type: "string" }
+      }
+    },
+    explanation: {
+      type: "object",
+      additionalProperties: false,
+      required: ["zh", "ms"],
+      properties: {
+        zh: { type: "string" },
+        ms: { type: "string" }
+      }
+    }
+  }
+};
+
+export const handwritingSchemaWrapper = {
+  name: "spm_handwriting_response",
+  strict: true,
+  schema: handwritingSchema
+};

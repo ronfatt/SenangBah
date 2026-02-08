@@ -10,6 +10,7 @@ import studentRoutes from "./routes/student.js";
 import adminRoutes from "./routes/admin.js";
 import chatRoutes from "./routes/chat.js";
 import vocabRoutes from "./routes/vocab.js";
+import essayRoutes from "./routes/essay.js";
 
 dotenv.config();
 
@@ -23,6 +24,10 @@ const publicDir = path.join(__dirname, "..", "public");
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(express.static(publicDir));
+const uploadDir = process.env.UPLOAD_DIR || (process.env.RAILWAY_VOLUME_MOUNT_PATH
+  ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "uploads")
+  : path.join(__dirname, "..", "uploads"));
+app.use("/uploads", express.static(uploadDir));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/training", trainingRoutes);
@@ -31,6 +36,11 @@ app.use("/api", studentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/vocab", vocabRoutes);
+app.use("/api/essay", essayRoutes);
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(publicDir, "admin.html"));
+});
 
 app.get("/health", (req, res) => {
   res.json({ ok: true });

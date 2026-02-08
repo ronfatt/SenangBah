@@ -115,6 +115,17 @@ db.serialize(() => {
     created_at TEXT NOT NULL,
     FOREIGN KEY(session_id) REFERENCES vocab_sessions(id)
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS essay_uploads (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    original_name TEXT NOT NULL,
+    extracted_text TEXT NOT NULL,
+    analysis_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 });
 
 export function run(sql, params = []) {

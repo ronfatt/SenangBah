@@ -66,6 +66,19 @@
     </section>
 
     <section class="card">
+      <h2>Upload Handwritten Essay</h2>
+      <p class="muted">Upload a clear photo (max 2MB). AI will analyze and give feedback.</p>
+      <form id="essayForm" class="form" enctype="multipart/form-data">
+        <label>Photo
+          <input type="file" id="essayFile" accept="image/*" required />
+        </label>
+        <button class="btn primary" type="submit">Analyze My Essay</button>
+        <p id="essayMsg" class="muted"></p>
+      </form>
+      <div id="essayResult" class="essay-result"></div>
+    </section>
+
+    <section class="card">
       <h2>Modules</h2>
       <div class="grid">
         <div class="module hero">
