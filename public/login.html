@@ -10,6 +10,10 @@
   <main class="shell">
     <section class="card">
       <h1>Login</h1>
+      <div class="toggle">
+        <label><input type="radio" name="loginRole" value="student" checked /> Student</label>
+        <label><input type="radio" name="loginRole" value="teacher" /> Teacher</label>
+      </div>
       <form id="loginForm" class="form">
         <label>Email
           <input type="email" name="email" required />
@@ -24,6 +28,10 @@
 
     <section class="card">
       <h1>Create account</h1>
+      <div class="toggle">
+        <label><input type="radio" name="registerRole" value="student" checked /> Student</label>
+        <label><input type="radio" name="registerRole" value="teacher" /> Teacher</label>
+      </div>
       <form id="registerForm" class="form">
         <label>Name
           <input type="text" name="name" required />
@@ -34,12 +42,19 @@
         <label>Password
           <input type="password" name="password" required />
         </label>
-        <label>Estimated Band
-          <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
-        </label>
-        <label>Teacher Code
-          <input type="text" name="teacher_code" placeholder="e.g. ABCD1234" />
-        </label>
+        <div id="studentFields">
+          <label>Estimated Band
+            <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
+          </label>
+          <label>Teacher Code
+            <input type="text" name="teacher_code" placeholder="e.g. ABCD1234" />
+          </label>
+        </div>
+        <div id="teacherFields" style="display:none;">
+          <label>School Code
+            <input type="text" name="school_code" value="senang" />
+          </label>
+        </div>
         <button class="btn primary" type="submit">Create & Start</button>
         <p id="registerError" class="error"></p>
       </form>
@@ -60,18 +75,22 @@
     const registerForm = document.getElementById('registerForm');
     const loginError = document.getElementById('loginError');
     const registerError = document.getElementById('registerError');
+    const studentFields = document.getElementById('studentFields');
+    const teacherFields = document.getElementById('teacherFields');
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.textContent = '';
       const formData = new FormData(loginForm);
       const payload = Object.fromEntries(formData.entries());
-      const res = await postJSON('/api/auth/login', payload);
+      const loginRole = document.querySelector('input[name=\"loginRole\"]:checked')?.value || 'student';
+      const url = loginRole === 'teacher' ? '/api/teacher/login' : '/api/auth/login';
+      const res = await postJSON(url, payload);
       if (!res.ok) {
         loginError.textContent = res.data?.error || 'Login failed';
         return;
       }
-      window.location.href = '/dashboard.html';
+      window.location.href = loginRole === 'teacher' ? '/teacher' : '/dashboard.html';
     });
 
     registerForm.addEventListener('submit', async (e) => {
@@ -79,14 +98,26 @@
       registerError.textContent = '';
       const formData = new FormData(registerForm);
       const payload = Object.fromEntries(formData.entries());
-      payload.estimated_band = Number(payload.estimated_band || 4);
-      payload.form = 5;
-      const res = await postJSON('/api/auth/register', payload);
+      const registerRole = document.querySelector('input[name=\"registerRole\"]:checked')?.value || 'student';
+      if (registerRole === 'student') {
+        payload.estimated_band = Number(payload.estimated_band || 4);
+        payload.form = 5;
+      }
+      const url = registerRole === 'teacher' ? '/api/teacher/register' : '/api/auth/register';
+      const res = await postJSON(url, payload);
       if (!res.ok) {
         registerError.textContent = res.data?.error || 'Registration failed';
         return;
       }
-      window.location.href = '/dashboard.html';
+      window.location.href = registerRole === 'teacher' ? '/teacher' : '/dashboard.html';
+    });
+
+    document.querySelectorAll('input[name=\"registerRole\"]').forEach((el) => {
+      el.addEventListener('change', () => {
+        const role = document.querySelector('input[name=\"registerRole\"]:checked')?.value || 'student';
+        studentFields.style.display = role === 'student' ? 'block' : 'none';
+        teacherFields.style.display = role === 'teacher' ? 'block' : 'none';
+      });
     });
   </script>
 </body>

@@ -58,8 +58,28 @@ db.serialize(() => {
     password_hash TEXT NOT NULL,
     name TEXT NOT NULL,
     code TEXT UNIQUE NOT NULL,
+    school_code TEXT NOT NULL,
     created_at TEXT NOT NULL
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS school_codes (
+    code TEXT PRIMARY KEY,
+    school_name TEXT,
+    created_at TEXT NOT NULL
+  )`);
+
+  db.all("PRAGMA table_info(teachers)", (err, rows) => {
+    if (err) return;
+    const cols = new Set(rows.map((r) => r.name));
+    if (!cols.has("school_code")) {
+      db.run("ALTER TABLE teachers ADD COLUMN school_code TEXT NOT NULL DEFAULT 'senang'");
+    }
+  });
+
+  db.run(
+    "INSERT OR IGNORE INTO school_codes (code, school_name, created_at) VALUES (?, ?, datetime('now'))",
+    ["senang", "Default"]
+  );
 
   db.run(`CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,

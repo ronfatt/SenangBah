@@ -167,4 +167,19 @@ router.post("/reset-user", requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+router.post("/school-code", requireAdmin, async (req, res) => {
+  const { code, school_name = "" } = req.body || {};
+  if (!code) return res.status(400).json({ error: "missing_code" });
+  const normalized = String(code).trim().toLowerCase();
+  try {
+    await run(
+      "INSERT INTO school_codes (code, school_name, created_at) VALUES (?, ?, datetime('now'))",
+      [normalized, school_name]
+    );
+    res.json({ ok: true });
+  } catch {
+    res.status(400).json({ error: "code_exists" });
+  }
+});
+
 export default router;

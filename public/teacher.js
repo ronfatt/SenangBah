@@ -24,7 +24,7 @@ async function loadTeacher() {
   teacherAuthCard.style.display = 'none';
   teacherInfoCard.style.display = 'block';
   teacherStudentsCard.style.display = 'block';
-  teacherCode.textContent = data.code;
+  teacherCode.textContent = `${data.code} (School: ${data.school_code || 'senang'})`;
   await loadStudents();
   return true;
 }

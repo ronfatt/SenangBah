@@ -84,6 +84,20 @@
         <p class="muted" id="deleteMsg"></p>
       </form>
     </section>
+
+    <section class="card" id="schoolCodeCard" style="display:none;">
+      <h2>Create School Code</h2>
+      <form id="schoolCodeForm" class="form">
+        <label>School Code
+          <input type="text" name="code" placeholder="e.g. SENANG" required />
+        </label>
+        <label>School Name (optional)
+          <input type="text" name="school_name" placeholder="e.g. SMK Senang" />
+        </label>
+        <button class="btn primary" type="submit">Create Code</button>
+        <p class="muted" id="schoolCodeMsg"></p>
+      </form>
+    </section>
   </main>
 
   <script src="/admin.js"></script>

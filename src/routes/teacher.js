@@ -23,8 +23,9 @@ function signTeacherToken(teacher) {
 }
 
 router.post("/register", async (req, res) => {
-  const { email, password, name } = req.body || {};
+  const { email, password, name, school_code = "" } = req.body || {};
   if (!email || !password || !name) return res.status(400).json({ error: "missing_fields" });
+  if (!school_code) return res.status(400).json({ error: "missing_school_code" });
 
   const existing = await get("SELECT id FROM teachers WHERE email = ?", [email]);
   if (existing) return res.status(409).json({ error: "email_taken" });
@@ -33,10 +34,14 @@ router.post("/register", async (req, res) => {
   const id = nanoid();
   const code = nanoid(8).toUpperCase();
 
+  const normalizedSchool = String(school_code).trim().toLowerCase();
+  const school = await get("SELECT code FROM school_codes WHERE code = ?", [normalizedSchool]);
+  if (!school) return res.status(400).json({ error: "invalid_school_code" });
+
   await run(
-    `INSERT INTO teachers (id, email, password_hash, name, code, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)` ,
-    [id, email, hash, name, code, nowIso()]
+    `INSERT INTO teachers (id, email, password_hash, name, code, school_code, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)` ,
+    [id, email, hash, name, code, normalizedSchool, nowIso()]
   );
 
   const token = signTeacherToken({ id, email, name });
@@ -56,7 +61,7 @@ router.post("/login", async (req, res) => {
 
   const token = signTeacherToken(teacher);
   res.cookie("teacher_token", token, cookieOptions);
-  res.json({ ok: true, code: teacher.code });
+  res.json({ ok: true, code: teacher.code, school_code: teacher.school_code });
 });
 
 router.post("/logout", (req, res) => {
@@ -65,7 +70,7 @@ router.post("/logout", (req, res) => {
 });
 
 router.get("/me", requireTeacher, async (req, res) => {
-  const teacher = await get("SELECT id, email, name, code FROM teachers WHERE id = ?", [req.teacher.id]);
+  const teacher = await get("SELECT id, email, name, code, school_code FROM teachers WHERE id = ?", [req.teacher.id]);
   if (!teacher) return res.status(401).json({ error: "unauthorized" });
   res.json(teacher);
 });

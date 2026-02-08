@@ -47,7 +47,8 @@ router.post("/register", async (req, res) => {
 
   let teacherId = null;
   if (teacher_code) {
-    const teacher = await get("SELECT id FROM teachers WHERE code = ?", [teacher_code]);
+    const normalized = String(teacher_code).trim().toUpperCase();
+    const teacher = await get("SELECT id FROM teachers WHERE code = ?", [normalized]);
     if (!teacher) return res.status(400).json({ error: "invalid_teacher_code" });
     teacherId = teacher.id;
   }

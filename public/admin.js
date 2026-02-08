@@ -8,6 +8,9 @@ const adminLogout = document.getElementById('adminLogout');
 const deleteForm = document.getElementById('deleteForm');
 const deleteMsg = document.getElementById('deleteMsg');
 const resetByEmailBtn = document.getElementById('resetByEmail');
+const schoolCodeCard = document.getElementById('schoolCodeCard');
+const schoolCodeForm = document.getElementById('schoolCodeForm');
+const schoolCodeMsg = document.getElementById('schoolCodeMsg');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -71,6 +74,7 @@ async function load() {
   adminTableCard.style.display = 'block';
   chatSummaryCard.style.display = 'block';
   adminDeleteCard.style.display = 'block';
+  schoolCodeCard.style.display = 'block';
   renderTable(data.users || []);
   if (chat?.items) renderChatTable(chat.items);
 }
@@ -93,6 +97,7 @@ adminLogout.addEventListener('click', async () => {
   adminTableCard.style.display = 'none';
   chatSummaryCard.style.display = 'none';
   adminDeleteCard.style.display = 'none';
+  schoolCodeCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
 });
 
@@ -145,5 +150,21 @@ document.addEventListener('click', async (e) => {
     await load();
   }
 });
+
+if (schoolCodeForm) {
+  schoolCodeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    schoolCodeMsg.textContent = '';
+    const formData = new FormData(schoolCodeForm);
+    const payload = Object.fromEntries(formData.entries());
+    const res = await postJSON('/api/admin/school-code', payload);
+    if (!res.ok) {
+      schoolCodeMsg.textContent = res.data?.error || 'Create failed';
+      return;
+    }
+    schoolCodeMsg.textContent = 'Created.';
+    schoolCodeForm.reset();
+  });
+}
 
 load();
