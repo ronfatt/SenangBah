@@ -53,6 +53,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
 
   const vocabDoneToday = vocabToday?.current_step === "done";
   const vocabStars = Number(vocabCompleted?.completed_count || 0);
+  const totalStars = completedSessions + vocabStars;
 
   res.json({
     day_index: dayIndex,
@@ -62,7 +63,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     today_done: todayRow?.current_step === "done",
     completed_days: completedSessions,
     completion_rate: Math.round((completedSessions / 14) * 100),
-    total_stars: completedSessions,
+    total_stars: totalStars,
     vocab_today_done: vocabDoneToday,
     vocab_total_stars: vocabStars
   });
