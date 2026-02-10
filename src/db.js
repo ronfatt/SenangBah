@@ -158,6 +158,27 @@ db.serialize(() => {
     created_at TEXT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS grammar_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    current_step TEXT NOT NULL,
+    grammar_info TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS grammar_responses (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    step TEXT NOT NULL,
+    prompt_json TEXT NOT NULL,
+    model_json TEXT NOT NULL,
+    student_answer TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(session_id) REFERENCES grammar_sessions(id)
+  )`);
 });
 
 export function run(sql, params = []) {

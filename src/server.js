@@ -13,6 +13,7 @@ import vocabRoutes from "./routes/vocab.js";
 import essayRoutes from "./routes/essay.js";
 import teacherRoutes from "./routes/teacher.js";
 import teacherExtraRoutes from "./routes/teacher-extra.js";
+import grammarRoutes from "./routes/grammar.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/vocab", vocabRoutes);
 app.use("/api/essay", essayRoutes);
 app.use("/api/teacher", teacherRoutes);
 app.use("/api/teacher", teacherExtraRoutes);
+app.use("/api/grammar", grammarRoutes);
 
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(publicDir, "admin.html"));

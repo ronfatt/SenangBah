@@ -16,6 +16,12 @@ export const DEV_PROMPTS = {
   vocab_apply: `Create a 3-minute vocab apply task.\nUse the SAME content.target_word and meaning.\nTitle format: \"Word Focus: <word>\".\nTask: student writes ONE sentence using the target word.\nProvide one hint (e.g., add a simple example).\nSet task_type: \"rewrite\".\nReturn JSON only in shared schema.`,
 
   vocab_reinforce: `Create a 2-minute vocab reinforce task.\nUse the SAME content.target_word.\nTitle format: \"Word Focus: <word>\".\nTask: 1 fill_blank sentence where the target word fits.\nSet task_type: \"fill_blank\".\nReturn JSON only in shared schema.`
+  ,
+  grammar_warmup: `Create a 2-minute grammar warmup.\nUse content.weak_sentence and content.better_sentence.\nTask: MCQ (A/B/C). Ask which sentence sounds more correct/natural.\nUse 3 choices max, include the weak and better sentence.\nTitle: \"Grammar Quick Check\".\nReturn JSON only in shared schema.`,
+
+  grammar_fix: `Create a 3-minute grammar fix task.\nShow the weak sentence and ask the student to fix ONE part.\nProvide 1 hint from content.hint.\nTask_type: \"rewrite\".\nTitle: \"Fix the Weak Line\".\nReturn JSON only in shared schema.`,
+
+  grammar_reinforce: `Create a 2-minute grammar reinforce task.\nCreate one new short sentence with the same pattern.\nTask_type: \"fill_blank\" or \"rewrite\".\nTitle: \"One More Fix\".\nReturn JSON only in shared schema.`
 };
 
 export function getDeveloperPrompt(mode) {

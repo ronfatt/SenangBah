@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grammar Lab · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <div class="row between">
+        <h1>🧠 Grammar (Hidden, Not Boring)</h1>
+        <div class="actions">
+          <a class="btn ghost" href="/dashboard.html">Dashboard</a>
+          <button class="btn ghost" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+      <p class="sub">Fix 1 weak line. 2–6 minutes.</p>
+      <p class="muted" id="stepInfo">Step 1 of 3</p>
+      <button class="btn primary" id="startBtn">Start</button>
+    </section>
+
+    <section class="card" id="taskCard" style="display:none;">
+      <h2 id="taskTitle"></h2>
+      <p id="taskInstructions"></p>
+      <div id="taskItems"></div>
+      <div id="inputArea"></div>
+      <button class="btn primary" id="submitBtn">👉 Check my fix</button>
+      <p class="muted" id="progressInfo"></p>
+    </section>
+
+    <section class="card" id="doneCard" style="display:none;">
+      <h2>Done for today.</h2>
+      <p>⭐ Grammar Power +1</p>
+      <p>🔓 Come back tomorrow.</p>
+    </section>
+  </main>
+
+  <script src="/grammar.js"></script>
+</body>
+</html>

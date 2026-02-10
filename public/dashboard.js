@@ -57,7 +57,7 @@ async function loadDashboardStatus() {
     writingMeta.textContent = `Day ${data.day_index} of ${data.total_days}`;
   }
   if (writingStars) {
-    writingStars.textContent = data.total_stars ?? 0;
+    writingStars.textContent = data.completed_days ?? 0;
   }
   if (vocabMeta) {
     vocabMeta.textContent = data.vocab_today_done ? 'Today: Done' : 'Today: Not done';
