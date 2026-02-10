@@ -53,7 +53,12 @@ router.get("/dashboard", requireAuth, async (req, res) => {
 
   const vocabDoneToday = vocabToday?.current_step === "done";
   const vocabStars = Number(vocabCompleted?.completed_count || 0);
-  const totalStars = completedSessions + vocabStars;
+  const grammarCompleted = await get(
+    `SELECT COUNT(DISTINCT date) as completed_count FROM grammar_sessions WHERE user_id = ? AND current_step = 'done'`,
+    [userId]
+  );
+  const grammarStars = Number(grammarCompleted?.completed_count || 0);
+  const totalStars = completedSessions + vocabStars + grammarStars;
 
   res.json({
     day_index: dayIndex,
@@ -64,6 +69,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     completed_days: completedSessions,
     completion_rate: Math.round((completedSessions / 14) * 100),
     total_stars: totalStars,
+    grammar_total_stars: grammarStars,
     vocab_today_done: vocabDoneToday,
     vocab_total_stars: vocabStars
   });

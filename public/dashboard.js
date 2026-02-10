@@ -10,6 +10,7 @@ const writingMeta = document.getElementById('writingMeta');
 const writingStars = document.getElementById('writingStars');
 const vocabMeta = document.getElementById('vocabMeta');
 const vocabStars = document.getElementById('vocabStars');
+const grammarStars = document.getElementById('grammarStars');
 const essayForm = document.getElementById('essayForm');
 const essayFile = document.getElementById('essayFile');
 const essayMsg = document.getElementById('essayMsg');
@@ -64,6 +65,9 @@ async function loadDashboardStatus() {
   }
   if (vocabStars) {
     vocabStars.textContent = data.vocab_total_stars ?? 0;
+  }
+  if (grammarStars) {
+    grammarStars.textContent = data.grammar_total_stars ?? 0;
   }
 }
 

@@ -8,30 +8,16 @@ import { runMode } from "../orchestrator.js";
 const router = express.Router();
 
 const GRAMMAR_BANK = [
-  {
-    rule: "subject_verb",
-    title: "Fix the verb",
-    weak: "She go to school every day.",
-    fix_hint: "Change the verb to match the subject.",
-    better: "She goes to school every day.",
-    pattern: "Simple present (he/she/it + s)"
-  },
-  {
-    rule: "article",
-    title: "Add the article",
-    weak: "He has idea about the topic.",
-    fix_hint: "Add the right article.",
-    better: "He has an idea about the topic.",
-    pattern: "a / an before singular noun"
-  },
-  {
-    rule: "connector",
-    title: "Make it flow",
-    weak: "It is useful. It can save time.",
-    fix_hint: "Join with a connector.",
-    better: "It is useful because it can save time.",
-    pattern: "because / so / although"
-  }
+  { rule: "subject_verb", title: "Fix the verb", weak: "She go to school every day.", fix_hint: "Change the verb to match the subject.", better: "She goes to school every day.", pattern: "Simple present (he/she/it + s)" },
+  { rule: "article", title: "Add the article", weak: "He has idea about the topic.", fix_hint: "Add the right article.", better: "He has an idea about the topic.", pattern: "a / an before singular noun" },
+  { rule: "connector", title: "Make it flow", weak: "It is useful. It can save time.", fix_hint: "Join with a connector.", better: "It is useful because it can save time.", pattern: "because / so / although" },
+  { rule: "plural", title: "Make it plural", weak: "Many student use phone in class.", fix_hint: "Fix plural nouns.", better: "Many students use phones in class.", pattern: "plural nouns" },
+  { rule: "tense_past", title: "Past tense", weak: "Yesterday, I go to the library.", fix_hint: "Use past tense.", better: "Yesterday, I went to the library.", pattern: "past tense" },
+  { rule: "preposition", title: "Fix the preposition", weak: "She is good in English.", fix_hint: "Use the right preposition.", better: "She is good at English.", pattern: "good at / interested in" },
+  { rule: "countable", title: "Countable noun", weak: "I have much homework and many time.", fix_hint: "Use correct countable/uncountable.", better: "I have much homework and little time.", pattern: "much/little vs many/few" },
+  { rule: "comparison", title: "Comparative form", weak: "This method is more easy.", fix_hint: "Use the correct comparative.", better: "This method is easier.", pattern: "comparatives" },
+  { rule: "pronoun", title: "Pronoun fix", weak: "Ali and me went to school.", fix_hint: "Use the correct subject pronoun.", better: "Ali and I went to school.", pattern: "I / me" },
+  { rule: "fragment", title: "Fix the fragment", weak: "Because it was raining.", fix_hint: "Make it a full sentence.", better: "We stayed inside because it was raining.", pattern: "complete sentence" }
 ];
 
 function pickGrammarForToday() {
