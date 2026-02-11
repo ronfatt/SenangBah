@@ -74,6 +74,7 @@ function renderPilotTable(items) {
   items.forEach((item) => {
     const tr = document.createElement('tr');
     const summary = item?.self_intro_analysis?.overall_comment || '-';
+    const canApprove = item.status !== 'APPROVED';
     tr.innerHTML = `
       <td>${item.created_at || ''}</td>
       <td>${item.full_name || ''}</td>
@@ -83,6 +84,7 @@ function renderPilotTable(items) {
       <td>${item.plan_choice || ''}</td>
       <td>${item.status || ''}</td>
       <td>${summary}</td>
+      <td>${canApprove ? `<button class="btn primary" data-action="approvePilot" data-id="${item.id}">Approve</button>` : '-'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -173,6 +175,15 @@ document.addEventListener('click', async (e) => {
   if (action === 'delete') {
     if (!confirm('Delete this student permanently?')) return;
     await postJSON('/api/admin/delete-user', { user_id: id });
+    await load();
+  }
+  if (action === 'approvePilot') {
+    if (!confirm('Approve this application?')) return;
+    const res = await postJSON('/api/admin/pilot-approve', { id });
+    if (!res.ok) {
+      alert(res.data?.error || 'Approve failed');
+      return;
+    }
     await load();
   }
 });

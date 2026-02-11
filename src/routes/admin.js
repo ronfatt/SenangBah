@@ -198,4 +198,22 @@ router.get("/pilot-registrations", requireAdmin, async (_req, res) => {
   res.json({ items });
 });
 
+router.post("/pilot-approve", requireAdmin, async (req, res) => {
+  const { id } = req.body || {};
+  if (!id) return res.status(400).json({ error: "missing_id" });
+
+  const target = await get("SELECT id, status FROM pilot_registrations WHERE id = ?", [id]);
+  if (!target) return res.status(404).json({ error: "not_found" });
+  if (target.status === "APPROVED") return res.json({ ok: true });
+
+  const row = await get(
+    "SELECT COUNT(*) AS approved FROM pilot_registrations WHERE status = 'APPROVED'"
+  );
+  const approved = Number(row?.approved || 0);
+  if (approved >= 100) return res.status(400).json({ error: "seats_full" });
+
+  await run("UPDATE pilot_registrations SET status = 'APPROVED' WHERE id = ?", [id]);
+  res.json({ ok: true });
+});
+
 export default router;

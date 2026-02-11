@@ -18,6 +18,7 @@ const progressFill = document.getElementById("progressFill");
 const stepLabel = document.getElementById("stepLabel");
 const reviewPool = document.getElementById("reviewPool");
 const seatsLeft = document.getElementById("seatsLeft");
+const totalApplications = document.getElementById("totalApplications");
 const diagnosticBtn = document.getElementById("diagnosticBtn");
 const diagnosticHint = document.getElementById("diagnosticHint");
 const diagnosticInlineResult = document.getElementById("diagnosticInlineResult");
@@ -141,7 +142,6 @@ form.addEventListener("submit", async (event) => {
         intro_too_short: "Please write at least 30 words for your self-introduction sample.",
         invalid_email: "Please use a valid email address.",
         invalid_role: "Please choose a valid role.",
-        invalid_previous_result_type: "Please choose Form 4 or Diagnostic test.",
         invalid_plan_choice: "Please choose a plan."
       };
       throw new Error(map[data.error] || "Unable to submit now. Try again.");
@@ -282,6 +282,7 @@ async function loadMeta() {
     const data = await response.json();
     reviewPool.textContent = data.review_pool_count;
     seatsLeft.textContent = data.seats_left;
+    totalApplications.textContent = data.total_applications;
   } catch {
     // ignore
   }

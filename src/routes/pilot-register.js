@@ -66,17 +66,22 @@ async function analyzeIntro({ role, intro }) {
 
 router.get("/meta", async (_req, res) => {
   const row = await get(
-    "SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'UNDER_REVIEW' THEN 1 ELSE 0 END) AS under_review FROM pilot_registrations"
+    `SELECT COUNT(*) AS total,
+            SUM(CASE WHEN status = 'UNDER_REVIEW' THEN 1 ELSE 0 END) AS under_review,
+            SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS approved
+     FROM pilot_registrations`
   );
 
   const total = Number(row?.total || 0);
   const underReview = Number(row?.under_review || 0);
+  const approved = Number(row?.approved || 0);
 
   res.json({
     total_applications: total,
     review_pool_count: underReview,
     pilot_limit: PILOT_LIMIT,
-    seats_left: Math.max(PILOT_LIMIT - underReview, 0)
+    approved_count: approved,
+    seats_left: Math.max(PILOT_LIMIT - approved, 0)
   });
 });
 
@@ -155,11 +160,7 @@ router.post("/submit", async (req, res) => {
     return res.status(409).json({ error: "email_already_registered" });
   }
 
-  const seatsRow = await get(
-    "SELECT COUNT(*) AS under_review FROM pilot_registrations WHERE status = 'UNDER_REVIEW'"
-  );
-  const underReview = Number(seatsRow?.under_review || 0);
-  const status = underReview < PILOT_LIMIT ? "UNDER_REVIEW" : "WAITLIST";
+  const status = "UNDER_REVIEW";
 
   let introAnalysis = null;
   if (self_intro_analysis && typeof self_intro_analysis === "object") {
@@ -197,10 +198,7 @@ router.post("/submit", async (req, res) => {
     application_id: id,
     status,
     intro_analysis: introAnalysis,
-    message:
-      status === "UNDER_REVIEW"
-        ? "Application received. We will review and contact you."
-        : "Application received. You are on the waitlist now."
+    message: "Application received and added to the review pool. We will contact you after screening."
   });
 });
 
