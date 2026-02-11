@@ -83,7 +83,6 @@ router.post("/submit", async (req, res) => {
     !cleanSchool ||
     !cleanEmail ||
     !cleanPhone ||
-    !cleanAddress ||
     !cleanPreviousType ||
     !cleanPreviousResult ||
     !cleanIntro ||
