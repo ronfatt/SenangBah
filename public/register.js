@@ -268,6 +268,14 @@ diagnosticBtn.addEventListener("click", async () => {
 
 const introTextarea = document.querySelector('textarea[name="self_intro_text"]');
 if (introTextarea) {
+  const blockClipboard = (event) => {
+    event.preventDefault();
+    errorText.textContent = "Please type your own writing. Copy/paste is disabled for this diagnostic.";
+  };
+  introTextarea.addEventListener("paste", blockClipboard);
+  introTextarea.addEventListener("drop", blockClipboard);
+  introTextarea.addEventListener("cut", blockClipboard);
+
   introTextarea.addEventListener("input", () => {
     diagnosticAnalysis = null;
     diagnosticInlineResult.classList.add("hidden");
