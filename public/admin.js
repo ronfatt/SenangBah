@@ -11,6 +11,7 @@ const resetByEmailBtn = document.getElementById('resetByEmail');
 const schoolCodeCard = document.getElementById('schoolCodeCard');
 const schoolCodeForm = document.getElementById('schoolCodeForm');
 const schoolCodeMsg = document.getElementById('schoolCodeMsg');
+const pilotCard = document.getElementById('pilotCard');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -66,17 +67,41 @@ function renderChatTable(items) {
   });
 }
 
+function renderPilotTable(items) {
+  const tbody = document.querySelector('#pilotTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  items.forEach((item) => {
+    const tr = document.createElement('tr');
+    const summary = item?.self_intro_analysis?.overall_comment || '-';
+    tr.innerHTML = `
+      <td>${item.created_at || ''}</td>
+      <td>${item.full_name || ''}</td>
+      <td>${item.role || ''}</td>
+      <td>${item.email || ''}</td>
+      <td>${item.school_name || ''}</td>
+      <td>${item.plan_choice || ''}</td>
+      <td>${item.status || ''}</td>
+      <td>${summary}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 async function load() {
   const data = await fetchUsers();
   const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
+  const pilot = await fetch('/api/admin/pilot-registrations').then(r => r.ok ? r.json() : null);
   if (!data) return;
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
   chatSummaryCard.style.display = 'block';
   adminDeleteCard.style.display = 'block';
   schoolCodeCard.style.display = 'block';
+  pilotCard.style.display = 'block';
   renderTable(data.users || []);
   if (chat?.items) renderChatTable(chat.items);
+  if (pilot?.items) renderPilotTable(pilot.items);
 }
 
 adminLoginForm.addEventListener('submit', async (e) => {
@@ -98,6 +123,7 @@ adminLogout.addEventListener('click', async () => {
   chatSummaryCard.style.display = 'none';
   adminDeleteCard.style.display = 'none';
   schoolCodeCard.style.display = 'none';
+  pilotCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
 });
 

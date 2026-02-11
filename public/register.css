@@ -277,6 +277,10 @@ button.ghost {
   background: #f3f8ff;
 }
 
+#diagnosticBtn {
+  margin-top: 12px;
+}
+
 .analysisBox h4 {
   margin-top: 0;
   margin-bottom: 10px;

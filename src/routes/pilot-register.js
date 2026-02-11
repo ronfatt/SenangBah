@@ -28,6 +28,42 @@ function clean(value) {
   return String(value || "").trim();
 }
 
+function fallbackAnalysis() {
+  return {
+    strengths: ["Your submission is complete and clear enough for review."],
+    weaknesses: ["AI analysis is temporarily unavailable. Please try again later."],
+    grammar: ["We could not process grammar checks now."],
+    sentence_fixes: [],
+    overall_comment:
+      "We received your writing sample. Our team will still review your application."
+  };
+}
+
+async function analyzeIntro({ role, intro }) {
+  if (!process.env.OPENAI_API_KEY) return fallbackAnalysis();
+
+  try {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const response = await openai.chat.completions.create({
+      model: MODEL,
+      temperature: 0.2,
+      messages: [
+        { role: "system", content: INTRO_ANALYSIS_SYSTEM },
+        {
+          role: "user",
+          content:
+            `Applicant role: ${role}\n` +
+            `Essay:\n${intro}`
+        }
+      ],
+      response_format: { type: "json_schema", json_schema: pilotIntroAnalysisSchemaWrapper }
+    });
+    return JSON.parse(response?.choices?.[0]?.message?.content || "{}");
+  } catch {
+    return fallbackAnalysis();
+  }
+}
+
 router.get("/meta", async (_req, res) => {
   const row = await get(
     "SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'UNDER_REVIEW' THEN 1 ELSE 0 END) AS under_review FROM pilot_registrations"
@@ -44,6 +80,19 @@ router.get("/meta", async (_req, res) => {
   });
 });
 
+router.post("/diagnose", async (req, res) => {
+  const cleanRole = clean(req.body?.role).toLowerCase() || "student";
+  const cleanIntro = clean(req.body?.self_intro_text);
+
+  if (!cleanIntro) return res.status(400).json({ error: "missing_intro" });
+  if (cleanIntro.split(/\s+/).length < 30) {
+    return res.status(400).json({ error: "intro_too_short" });
+  }
+
+  const analysis = await analyzeIntro({ role: cleanRole, intro: cleanIntro });
+  res.json({ ok: true, intro_analysis: analysis });
+});
+
 router.post("/submit", async (req, res) => {
   const {
     role,
@@ -53,9 +102,8 @@ router.post("/submit", async (req, res) => {
     email,
     phone,
     address,
-    previous_result_type,
-    previous_result,
     self_intro_text,
+    self_intro_analysis,
     plan_choice
   } = req.body || {};
 
@@ -65,8 +113,6 @@ router.post("/submit", async (req, res) => {
   const cleanEmail = clean(email).toLowerCase();
   const cleanPhone = clean(phone);
   const cleanAddress = clean(address);
-  const cleanPreviousType = clean(previous_result_type).toLowerCase();
-  const cleanPreviousResult = clean(previous_result);
   const cleanIntro = clean(self_intro_text);
   const cleanPlan = clean(plan_choice).toLowerCase();
   const numericAge = Number(age);
@@ -83,8 +129,6 @@ router.post("/submit", async (req, res) => {
     !cleanSchool ||
     !cleanEmail ||
     !cleanPhone ||
-    !cleanPreviousType ||
-    !cleanPreviousResult ||
     !cleanIntro ||
     !cleanPlan
   ) {
@@ -93,10 +137,6 @@ router.post("/submit", async (req, res) => {
 
   if (cleanIntro.split(/\s+/).length < 30) {
     return res.status(400).json({ error: "intro_too_short" });
-  }
-
-  if (!["form4", "diagnostic"].includes(cleanPreviousType)) {
-    return res.status(400).json({ error: "invalid_previous_result_type" });
   }
 
   if (!["one_to_one", "ai_assisted"].includes(cleanPlan)) {
@@ -121,45 +161,11 @@ router.post("/submit", async (req, res) => {
   const underReview = Number(seatsRow?.under_review || 0);
   const status = underReview < PILOT_LIMIT ? "UNDER_REVIEW" : "WAITLIST";
 
-  let introAnalysis = {
-    strengths: [],
-    weaknesses: [],
-    grammar: [],
-    sentence_fixes: [],
-    overall_comment: ""
-  };
-
-  try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("missing_openai_key");
-    }
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: INTRO_ANALYSIS_SYSTEM },
-        {
-          role: "user",
-          content:
-            `Student role: ${cleanRole}\n` +
-            `Previous result type: ${cleanPreviousType}\n` +
-            `Previous result detail: ${cleanPreviousResult}\n` +
-            `Essay:\n${cleanIntro}`
-        }
-      ],
-      response_format: { type: "json_schema", json_schema: pilotIntroAnalysisSchemaWrapper }
-    });
-    introAnalysis = JSON.parse(response?.choices?.[0]?.message?.content || "{}");
-  } catch {
-    introAnalysis = {
-      strengths: ["Your submission is complete and clear enough for review."],
-      weaknesses: ["AI analysis is temporarily unavailable. Please try again later."],
-      grammar: ["We could not process grammar checks now."],
-      sentence_fixes: [],
-      overall_comment:
-        "We received your writing sample. Our team will still review your application."
-    };
+  let introAnalysis = null;
+  if (self_intro_analysis && typeof self_intro_analysis === "object") {
+    introAnalysis = self_intro_analysis;
+  } else {
+    introAnalysis = await analyzeIntro({ role: cleanRole, intro: cleanIntro });
   }
 
   const id = nanoid();
@@ -176,8 +182,8 @@ router.post("/submit", async (req, res) => {
       cleanEmail,
       cleanPhone,
       cleanAddress,
-      cleanPreviousType,
-      cleanPreviousResult,
+      "ai_diagnostic",
+      "Self-introduction diagnostic",
       cleanIntro,
       JSON.stringify(introAnalysis),
       cleanPlan,

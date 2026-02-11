@@ -182,4 +182,20 @@ router.post("/school-code", requireAdmin, async (req, res) => {
   }
 });
 
+router.get("/pilot-registrations", requireAdmin, async (_req, res) => {
+  const rows = await all(
+    `SELECT id, role, full_name, age, school_name, email, phone, address,
+            self_intro_text, self_intro_analysis_json, plan_choice, status, created_at
+     FROM pilot_registrations
+     ORDER BY created_at DESC`
+  );
+
+  const items = rows.map((r) => ({
+    ...r,
+    self_intro_analysis: r.self_intro_analysis_json ? JSON.parse(r.self_intro_analysis_json) : null
+  }));
+
+  res.json({ items });
+});
+
 export default router;

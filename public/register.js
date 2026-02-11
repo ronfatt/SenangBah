@@ -18,13 +18,22 @@ const progressFill = document.getElementById("progressFill");
 const stepLabel = document.getElementById("stepLabel");
 const reviewPool = document.getElementById("reviewPool");
 const seatsLeft = document.getElementById("seatsLeft");
+const diagnosticBtn = document.getElementById("diagnosticBtn");
+const diagnosticHint = document.getElementById("diagnosticHint");
+const diagnosticInlineResult = document.getElementById("diagnosticInlineResult");
+const diagStrengths = document.getElementById("diagStrengths");
+const diagWeaknesses = document.getElementById("diagWeaknesses");
+const diagGrammar = document.getElementById("diagGrammar");
+const diagFixes = document.getElementById("diagFixes");
+const diagComment = document.getElementById("diagComment");
 
 let currentStep = 1;
+let diagnosticAnalysis = null;
 
 const labels = {
   1: "Step 1 of 4 · Choose role",
   2: "Step 2 of 4 · Student information",
-  3: "Step 3 of 4 · Previous exam result",
+  3: "Step 3 of 4 · AI diagnostic",
   4: "Step 4 of 4 · Choose preferred plan"
 };
 
@@ -48,6 +57,11 @@ function validateStep(step) {
     return Boolean(roleInput.value);
   }
 
+  if (step === 3) {
+    const intro = document.querySelector('textarea[name="self_intro_text"]');
+    return Boolean(String(intro?.value || "").trim()) && Boolean(diagnosticAnalysis);
+  }
+
   const activeStep = document.querySelector(`.step[data-step=\"${step}\"]`);
   const inputs = [...activeStep.querySelectorAll("input, select, textarea")]
     .filter((node) => node.required);
@@ -69,7 +83,7 @@ function showStepError(step) {
   const tips = {
     1: "Please choose Student, Parent, or Teacher.",
     2: "Please complete all student information fields.",
-    3: "Please provide your previous exam result details.",
+    3: "Please run AI Diagnostic after writing your self-introduction.",
     4: "Please choose one preferred plan."
   };
   errorText.textContent = tips[step] || "Please complete this step.";
@@ -105,6 +119,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   const payload = Object.fromEntries(new FormData(form).entries());
+  payload.self_intro_analysis = diagnosticAnalysis;
 
   submitBtn.disabled = true;
   submitBtn.textContent = "Submitting...";
@@ -122,6 +137,7 @@ form.addEventListener("submit", async (event) => {
       const map = {
         email_already_registered: "This email already submitted an application.",
         missing_fields: "Please fill every required field.",
+        missing_intro: "Please write your self-introduction first.",
         intro_too_short: "Please write at least 30 words for your self-introduction sample.",
         invalid_email: "Please use a valid email address.",
         invalid_role: "Please choose a valid role.",
@@ -178,6 +194,85 @@ function renderAnalysis(analysis) {
   }
 
   analysisComment.textContent = analysis.overall_comment || "";
+}
+
+function renderInlineDiagnostic(analysis) {
+  if (!analysis) return;
+  diagnosticInlineResult.classList.remove("hidden");
+  renderList(diagStrengths, analysis.strengths || []);
+  renderList(diagWeaknesses, analysis.weaknesses || []);
+  renderList(diagGrammar, analysis.grammar || []);
+  diagFixes.innerHTML = "";
+
+  for (const item of analysis.sentence_fixes || []) {
+    const node = document.createElement("div");
+    node.className = "fixItem";
+    const original = document.createElement("p");
+    const improved = document.createElement("p");
+    const reason = document.createElement("p");
+    original.textContent = `Original: ${item.original || "-"}`;
+    improved.textContent = `Improved: ${item.improved || "-"}`;
+    reason.textContent = `Why: ${item.reason || "-"}`;
+    node.appendChild(original);
+    node.appendChild(improved);
+    node.appendChild(reason);
+    diagFixes.appendChild(node);
+  }
+
+  diagComment.textContent = analysis.overall_comment || "";
+}
+
+diagnosticBtn.addEventListener("click", async () => {
+  const intro = document.querySelector('textarea[name="self_intro_text"]');
+  const text = String(intro?.value || "").trim();
+  const role = roleInput.value || "student";
+
+  diagnosticAnalysis = null;
+  diagnosticInlineResult.classList.add("hidden");
+  errorText.textContent = "";
+
+  if (!text) {
+    errorText.textContent = "Please write your self-introduction first.";
+    return;
+  }
+
+  diagnosticBtn.disabled = true;
+  diagnosticBtn.textContent = "Running...";
+  diagnosticHint.textContent = "Analyzing your writing...";
+
+  try {
+    const response = await fetch("/api/pilot-registration/diagnose", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, self_intro_text: text })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      const map = {
+        missing_intro: "Please write your self-introduction first.",
+        intro_too_short: "Please write at least 30 words."
+      };
+      throw new Error(map[data.error] || "Diagnostic failed. Please try again.");
+    }
+    diagnosticAnalysis = data.intro_analysis || null;
+    renderInlineDiagnostic(diagnosticAnalysis);
+    diagnosticHint.textContent = "Diagnostic ready. You can click Next now.";
+  } catch (err) {
+    diagnosticHint.textContent = "Diagnostic not ready. Please try again.";
+    errorText.textContent = err.message;
+  } finally {
+    diagnosticBtn.disabled = false;
+    diagnosticBtn.textContent = "Run AI Diagnostic";
+  }
+});
+
+const introTextarea = document.querySelector('textarea[name="self_intro_text"]');
+if (introTextarea) {
+  introTextarea.addEventListener("input", () => {
+    diagnosticAnalysis = null;
+    diagnosticInlineResult.classList.add("hidden");
+    diagnosticHint.textContent = "Complete diagnostic first, then you can click Next.";
+  });
 }
 
 async function loadMeta() {

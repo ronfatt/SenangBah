@@ -92,36 +92,42 @@
           </div>
 
           <div class="step" data-step="3">
-            <h2>Previous Exam Result</h2>
-            <p class="helper">Use your latest data: Form 4 exam or Diagnostic test.</p>
+            <h2>AI-Assist Diagnostic Section</h2>
+            <p class="helper">
+              Write a self-introduction. AI will analyze your writing quality before you continue.
+            </p>
             <div class="fieldGrid">
-              <label>
-                Result Type
-                <select name="previous_result_type" required>
-                  <option value="">Select one</option>
-                  <option value="form4">Form 4 Result</option>
-                  <option value="diagnostic">Diagnostic Test</option>
-                </select>
-              </label>
-              <label class="full">
-                Result Details
-                <textarea
-                  name="previous_result"
-                  rows="5"
-                  maxlength="500"
-                  placeholder="Example: English 62/100, writing weak in idea development, target Band 6"
-                  required
-                ></textarea>
-              </label>
               <label class="full">
                 Self-Introduction Writing Sample (No word limit)
                 <textarea
                   name="self_intro_text"
                   rows="8"
-                  placeholder="Write a short introduction about yourself, your goals, and your English learning challenges."
+                  placeholder="You can talk about: your school life, family, interests, study goals, and your English challenges."
                   required
                 ></textarea>
               </label>
+            </div>
+            <button type="button" class="ghost" id="diagnosticBtn">Run AI Diagnostic</button>
+            <p class="helper" id="diagnosticHint">Complete diagnostic first, then you can click Next.</p>
+            <div id="diagnosticInlineResult" class="analysisBox hidden">
+              <h4>AI Diagnostic Result</h4>
+              <div class="analysisCol">
+                <p><strong>Strengths</strong></p>
+                <ul id="diagStrengths"></ul>
+              </div>
+              <div class="analysisCol">
+                <p><strong>Weaknesses</strong></p>
+                <ul id="diagWeaknesses"></ul>
+              </div>
+              <div class="analysisCol">
+                <p><strong>Grammar & Language</strong></p>
+                <ul id="diagGrammar"></ul>
+              </div>
+              <div class="analysisCol">
+                <p><strong>3 Sentence Upgrades</strong></p>
+                <div id="diagFixes"></div>
+              </div>
+              <p id="diagComment"></p>
             </div>
           </div>
 
