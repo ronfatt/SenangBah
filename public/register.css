@@ -60,10 +60,35 @@ body {
   opacity: 0.88;
 }
 
+.valueGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.valueCard {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.valueCard h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.valueCard p {
+  margin: 0;
+  opacity: 0.88;
+  font-size: 14px;
+}
+
 .stats {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 12px;
 }
 
@@ -89,6 +114,32 @@ body {
   border: 1px solid var(--line);
   border-radius: 24px;
   padding: 22px;
+}
+
+.proofStrip {
+  margin-bottom: 16px;
+}
+
+.proofStrip h3 {
+  margin: 0 0 10px;
+}
+
+.proofGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.proofCard {
+  border: 1px solid #dfd5c5;
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.proofCard p {
+  margin: 0 0 8px;
 }
 
 .progressWrap {
@@ -298,9 +349,36 @@ button.ghost {
   margin: 0;
 }
 
-#analysisFixes {
+#analysisFixes,
+#diagFixes {
   display: grid;
   gap: 8px;
+}
+
+.scoreBars {
+  margin-bottom: 10px;
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 86px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.scoreTrack {
+  background: #e3ecff;
+  height: 9px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.scoreTrack i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #175ed3, #13a3ff);
 }
 
 .fixItem {
@@ -317,6 +395,8 @@ button.ghost {
 @media (max-width: 860px) {
   .roleGrid,
   .fieldGrid,
+  .valueGrid,
+  .proofGrid,
   .stats {
     grid-template-columns: 1fr;
   }

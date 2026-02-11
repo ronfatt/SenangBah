@@ -17,7 +17,25 @@
         <p class="subtitle">
           Limited intake for the first SenangBah cohort. Submit your application and we will shortlist 100 students.
         </p>
+        <div class="valueGrid">
+          <article class="valueCard">
+            <h3>AI Band Snapshot</h3>
+            <p>Know your current writing level in minutes.</p>
+          </article>
+          <article class="valueCard">
+            <h3>Weakness Map</h3>
+            <p>See the exact habits pulling your score down.</p>
+          </article>
+          <article class="valueCard">
+            <h3>3 Sentence Upgrade Plan</h3>
+            <p>Get practical rewrites you can reuse in exam writing.</p>
+          </article>
+        </div>
         <div class="stats">
+          <div class="stat">
+            <span>Approved</span>
+            <strong id="approvedCount">- / 100</strong>
+          </div>
           <div class="stat">
             <span>Review Pool</span>
             <strong id="reviewPool">-</strong>
@@ -34,6 +52,24 @@
       </section>
 
       <section class="card">
+        <section class="proofStrip">
+          <h3>Real Upgrade Examples</h3>
+          <div class="proofGrid">
+            <article class="proofCard">
+              <p><strong>Before:</strong> I like study with my friends because fun.</p>
+              <p><strong>After:</strong> Studying with my friends keeps me motivated and improves my discipline.</p>
+            </article>
+            <article class="proofCard">
+              <p><strong>Before:</strong> English is hard and I cannot write good.</p>
+              <p><strong>After:</strong> English writing is challenging for me, but I am improving through daily short practice.</p>
+            </article>
+            <article class="proofCard">
+              <p><strong>Before:</strong> My goal is pass SPM only.</p>
+              <p><strong>After:</strong> My goal is to reach Band 6 so I can enter a better pre-university program.</p>
+            </article>
+          </div>
+        </section>
+
         <div class="progressWrap">
           <div class="progressText" id="stepLabel">Step 1 of 4 · Choose role</div>
           <div class="progressBar"><span id="progressFill"></span></div>
@@ -114,6 +150,12 @@
             <p class="helper" id="diagnosticHint">Complete diagnostic first, then you can click Next.</p>
             <div id="diagnosticInlineResult" class="analysisBox hidden">
               <h4>AI Diagnostic Result</h4>
+              <div class="scoreBars">
+                <div class="scoreRow"><span>Clarity</span><div class="scoreTrack"><i id="diagScoreClarity"></i></div><b id="diagScoreClarityText">0</b></div>
+                <div class="scoreRow"><span>Grammar</span><div class="scoreTrack"><i id="diagScoreGrammar"></i></div><b id="diagScoreGrammarText">0</b></div>
+                <div class="scoreRow"><span>Idea</span><div class="scoreTrack"><i id="diagScoreIdea"></i></div><b id="diagScoreIdeaText">0</b></div>
+                <div class="scoreRow"><span>Vocabulary</span><div class="scoreTrack"><i id="diagScoreVocabulary"></i></div><b id="diagScoreVocabularyText">0</b></div>
+              </div>
               <div class="analysisCol">
                 <p><strong>Strengths</strong></p>
                 <ul id="diagStrengths"></ul>
@@ -173,6 +215,10 @@
         <section id="successState" class="success hidden">
           <h3>Application Received</h3>
           <p id="successMessage"></p>
+          <p class="waitNote">
+            Invite one friend to apply and include your Application ID in the note.
+            You will get a <strong>priority review tag</strong>.
+          </p>
           <div id="analysisBox" class="analysisBox hidden">
             <h4>AI Writing Analysis</h4>
             <div class="analysisCol">

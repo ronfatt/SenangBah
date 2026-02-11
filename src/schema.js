@@ -163,7 +163,7 @@ export const handwritingSchemaWrapper = {
 export const pilotIntroAnalysisSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["strengths", "weaknesses", "grammar", "sentence_fixes", "overall_comment"],
+  required: ["strengths", "weaknesses", "grammar", "sentence_fixes", "overall_comment", "scores"],
   properties: {
     strengths: { type: "array", minItems: 2, maxItems: 3, items: { type: "string" } },
     weaknesses: { type: "array", minItems: 2, maxItems: 3, items: { type: "string" } },
@@ -183,7 +183,18 @@ export const pilotIntroAnalysisSchema = {
         }
       }
     },
-    overall_comment: { type: "string" }
+    overall_comment: { type: "string" },
+    scores: {
+      type: "object",
+      additionalProperties: false,
+      required: ["clarity", "grammar", "idea", "vocabulary"],
+      properties: {
+        clarity: { type: "number", minimum: 0, maximum: 100 },
+        grammar: { type: "number", minimum: 0, maximum: 100 },
+        idea: { type: "number", minimum: 0, maximum: 100 },
+        vocabulary: { type: "number", minimum: 0, maximum: 100 }
+      }
+    }
   }
 };
 

@@ -16,6 +16,7 @@ const analysisFixes = document.getElementById("analysisFixes");
 const analysisComment = document.getElementById("analysisComment");
 const progressFill = document.getElementById("progressFill");
 const stepLabel = document.getElementById("stepLabel");
+const approvedCount = document.getElementById("approvedCount");
 const reviewPool = document.getElementById("reviewPool");
 const seatsLeft = document.getElementById("seatsLeft");
 const totalApplications = document.getElementById("totalApplications");
@@ -27,6 +28,14 @@ const diagWeaknesses = document.getElementById("diagWeaknesses");
 const diagGrammar = document.getElementById("diagGrammar");
 const diagFixes = document.getElementById("diagFixes");
 const diagComment = document.getElementById("diagComment");
+const diagScoreClarity = document.getElementById("diagScoreClarity");
+const diagScoreGrammar = document.getElementById("diagScoreGrammar");
+const diagScoreIdea = document.getElementById("diagScoreIdea");
+const diagScoreVocabulary = document.getElementById("diagScoreVocabulary");
+const diagScoreClarityText = document.getElementById("diagScoreClarityText");
+const diagScoreGrammarText = document.getElementById("diagScoreGrammarText");
+const diagScoreIdeaText = document.getElementById("diagScoreIdeaText");
+const diagScoreVocabularyText = document.getElementById("diagScoreVocabularyText");
 
 let currentStep = 1;
 let diagnosticAnalysis = null;
@@ -220,6 +229,29 @@ function renderInlineDiagnostic(analysis) {
   }
 
   diagComment.textContent = analysis.overall_comment || "";
+  renderScores(analysis.scores || {});
+}
+
+function renderScores(scores) {
+  const safe = (v) => {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(100, Math.round(n)));
+  };
+  const clarity = safe(scores.clarity);
+  const grammar = safe(scores.grammar);
+  const idea = safe(scores.idea);
+  const vocabulary = safe(scores.vocabulary);
+
+  diagScoreClarity.style.width = `${clarity}%`;
+  diagScoreGrammar.style.width = `${grammar}%`;
+  diagScoreIdea.style.width = `${idea}%`;
+  diagScoreVocabulary.style.width = `${vocabulary}%`;
+
+  diagScoreClarityText.textContent = clarity;
+  diagScoreGrammarText.textContent = grammar;
+  diagScoreIdeaText.textContent = idea;
+  diagScoreVocabularyText.textContent = vocabulary;
 }
 
 diagnosticBtn.addEventListener("click", async () => {
@@ -288,6 +320,7 @@ async function loadMeta() {
     const response = await fetch("/api/pilot-registration/meta");
     if (!response.ok) return;
     const data = await response.json();
+    approvedCount.textContent = `${data.approved_count || 0} / 100`;
     reviewPool.textContent = data.review_pool_count;
     seatsLeft.textContent = data.seats_left;
     totalApplications.textContent = data.total_applications;

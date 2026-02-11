@@ -18,6 +18,7 @@ Return valid JSON only with:
 - grammar (2-3)
 - sentence_fixes (exactly 3 items with original, improved, reason)
 - overall_comment (1 short paragraph)
+- scores: clarity, grammar, idea, vocabulary (0-100)
 
 Rules:
 - Keep language simple for teens.
@@ -35,7 +36,13 @@ function fallbackAnalysis() {
     grammar: ["We could not process grammar checks now."],
     sentence_fixes: [],
     overall_comment:
-      "We received your writing sample. Our team will still review your application."
+      "We received your writing sample. Our team will still review your application.",
+    scores: {
+      clarity: 55,
+      grammar: 55,
+      idea: 55,
+      vocabulary: 55
+    }
   };
 }
 
