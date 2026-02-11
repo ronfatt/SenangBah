@@ -1,7 +1,7 @@
 import express from "express";
 import OpenAI from "openai";
 import { nanoid } from "nanoid";
-import { run, get } from "../db.js";
+import { run, get, all } from "../db.js";
 import { nowIso } from "../utils.js";
 import { pilotIntroAnalysisSchemaWrapper } from "../schema.js";
 
@@ -90,6 +90,15 @@ router.get("/meta", async (_req, res) => {
     approved_count: approved,
     seats_left: Math.max(PILOT_LIMIT - approved, 0)
   });
+});
+
+router.get("/examples", async (_req, res) => {
+  const rows = await all(
+    `SELECT id, sort_order, before_text, after_text
+     FROM register_examples
+     ORDER BY sort_order ASC, id ASC`
+  );
+  res.json({ items: rows });
 });
 
 router.post("/diagnose", async (req, res) => {

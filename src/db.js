@@ -206,6 +206,27 @@ db.serialize(() => {
       db.run("ALTER TABLE pilot_registrations ADD COLUMN self_intro_analysis_json TEXT");
     }
   });
+
+  db.run(`CREATE TABLE IF NOT EXISTS register_examples (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sort_order INTEGER NOT NULL UNIQUE,
+    before_text TEXT NOT NULL,
+    after_text TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`);
+
+  db.run(
+    "INSERT OR IGNORE INTO register_examples (sort_order, before_text, after_text, updated_at) VALUES (?, ?, ?, datetime('now'))",
+    [1, "I like study with my friends because fun.", "Studying with my friends keeps me motivated and improves my discipline."]
+  );
+  db.run(
+    "INSERT OR IGNORE INTO register_examples (sort_order, before_text, after_text, updated_at) VALUES (?, ?, ?, datetime('now'))",
+    [2, "English is hard and I cannot write good.", "English writing is challenging for me, but I am improving through daily short practice."]
+  );
+  db.run(
+    "INSERT OR IGNORE INTO register_examples (sort_order, before_text, after_text, updated_at) VALUES (?, ?, ?, datetime('now'))",
+    [3, "My goal is pass SPM only.", "My goal is to reach Band 6 so I can enter a better pre-university program."]
+  );
 });
 
 export function run(sql, params = []) {

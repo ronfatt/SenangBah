@@ -198,6 +198,48 @@ router.get("/pilot-registrations", requireAdmin, async (_req, res) => {
   res.json({ items });
 });
 
+router.get("/register-examples", requireAdmin, async (_req, res) => {
+  const rows = await all(
+    `SELECT id, sort_order, before_text, after_text
+     FROM register_examples
+     ORDER BY sort_order ASC, id ASC`
+  );
+  res.json({ items: rows });
+});
+
+router.post("/register-examples", requireAdmin, async (req, res) => {
+  const items = Array.isArray(req.body?.items) ? req.body.items : [];
+  if (!items.length) return res.status(400).json({ error: "missing_items" });
+
+  const normalized = items.map((item, idx) => ({
+    sort_order: idx + 1,
+    before_text: String(item.before_text || "").trim(),
+    after_text: String(item.after_text || "").trim()
+  }));
+
+  if (normalized.some((item) => !item.before_text || !item.after_text)) {
+    return res.status(400).json({ error: "missing_fields" });
+  }
+
+  await run("BEGIN");
+  try {
+    await run("DELETE FROM register_examples");
+    for (const item of normalized) {
+      await run(
+        `INSERT INTO register_examples (sort_order, before_text, after_text, updated_at)
+         VALUES (?, ?, ?, datetime('now'))`,
+        [item.sort_order, item.before_text, item.after_text]
+      );
+    }
+    await run("COMMIT");
+  } catch {
+    await run("ROLLBACK");
+    return res.status(500).json({ error: "save_failed" });
+  }
+
+  res.json({ ok: true });
+});
+
 router.post("/pilot-approve", requireAdmin, async (req, res) => {
   const { id } = req.body || {};
   if (!id) return res.status(400).json({ error: "missing_id" });

@@ -36,6 +36,7 @@ const diagScoreClarityText = document.getElementById("diagScoreClarityText");
 const diagScoreGrammarText = document.getElementById("diagScoreGrammarText");
 const diagScoreIdeaText = document.getElementById("diagScoreIdeaText");
 const diagScoreVocabularyText = document.getElementById("diagScoreVocabularyText");
+const proofGrid = document.getElementById("proofGrid");
 
 let currentStep = 1;
 let diagnosticAnalysis = null;
@@ -329,5 +330,37 @@ async function loadMeta() {
   }
 }
 
+async function loadExamples() {
+  if (!proofGrid) return;
+  try {
+    const response = await fetch("/api/pilot-registration/examples");
+    if (!response.ok) return;
+    const data = await response.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!items.length) return;
+    proofGrid.innerHTML = "";
+    for (const item of items) {
+      const card = document.createElement("article");
+      card.className = "proofCard";
+      const p1 = document.createElement("p");
+      const p2 = document.createElement("p");
+      const s1 = document.createElement("strong");
+      const s2 = document.createElement("strong");
+      s1.textContent = "Before:";
+      s2.textContent = "After:";
+      p1.appendChild(s1);
+      p1.append(` ${item.before_text || ""}`);
+      p2.appendChild(s2);
+      p2.append(` ${item.after_text || ""}`);
+      card.appendChild(p1);
+      card.appendChild(p2);
+      proofGrid.appendChild(card);
+    }
+  } catch {
+    // ignore
+  }
+}
+
 setStep(1);
 loadMeta();
+loadExamples();

@@ -12,6 +12,9 @@ const schoolCodeCard = document.getElementById('schoolCodeCard');
 const schoolCodeForm = document.getElementById('schoolCodeForm');
 const schoolCodeMsg = document.getElementById('schoolCodeMsg');
 const pilotCard = document.getElementById('pilotCard');
+const registerExamplesCard = document.getElementById('registerExamplesCard');
+const registerExamplesForm = document.getElementById('registerExamplesForm');
+const registerExamplesMsg = document.getElementById('registerExamplesMsg');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -90,10 +93,31 @@ function renderPilotTable(items) {
   });
 }
 
+function renderRegisterExamples(items) {
+  const tbody = document.querySelector('#registerExamplesTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const rows = items.length ? items : [
+    { sort_order: 1, before_text: '', after_text: '' },
+    { sort_order: 2, before_text: '', after_text: '' },
+    { sort_order: 3, before_text: '', after_text: '' }
+  ];
+  rows.forEach((item, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td><textarea rows="2" data-field="before_text">${item.before_text || ''}</textarea></td>
+      <td><textarea rows="2" data-field="after_text">${item.after_text || ''}</textarea></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 async function load() {
   const data = await fetchUsers();
   const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
   const pilot = await fetch('/api/admin/pilot-registrations').then(r => r.ok ? r.json() : null);
+  const examples = await fetch('/api/admin/register-examples').then(r => r.ok ? r.json() : null);
   if (!data) return;
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
@@ -101,9 +125,11 @@ async function load() {
   adminDeleteCard.style.display = 'block';
   schoolCodeCard.style.display = 'block';
   pilotCard.style.display = 'block';
+  registerExamplesCard.style.display = 'block';
   renderTable(data.users || []);
   if (chat?.items) renderChatTable(chat.items);
   if (pilot?.items) renderPilotTable(pilot.items);
+  if (examples?.items) renderRegisterExamples(examples.items);
 }
 
 adminLoginForm.addEventListener('submit', async (e) => {
@@ -126,6 +152,7 @@ adminLogout.addEventListener('click', async () => {
   adminDeleteCard.style.display = 'none';
   schoolCodeCard.style.display = 'none';
   pilotCard.style.display = 'none';
+  registerExamplesCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
 });
 
@@ -201,6 +228,27 @@ if (schoolCodeForm) {
     }
     schoolCodeMsg.textContent = 'Created.';
     schoolCodeForm.reset();
+  });
+}
+
+if (registerExamplesForm) {
+  registerExamplesForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    registerExamplesMsg.textContent = '';
+    const rows = [...document.querySelectorAll('#registerExamplesTable tbody tr')];
+    const items = rows.map((row) => {
+      const before = row.querySelector('textarea[data-field="before_text"]')?.value || '';
+      const after = row.querySelector('textarea[data-field="after_text"]')?.value || '';
+      return { before_text: before.trim(), after_text: after.trim() };
+    }).filter((item) => item.before_text && item.after_text);
+
+    const res = await postJSON('/api/admin/register-examples', { items });
+    if (!res.ok) {
+      registerExamplesMsg.textContent = res.data?.error || 'Save failed';
+      return;
+    }
+    registerExamplesMsg.textContent = 'Saved.';
+    await load();
   });
 }
 
