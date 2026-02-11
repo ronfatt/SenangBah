@@ -179,6 +179,33 @@ db.serialize(() => {
     created_at TEXT NOT NULL,
     FOREIGN KEY(session_id) REFERENCES grammar_sessions(id)
   )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS pilot_registrations (
+    id TEXT PRIMARY KEY,
+    role TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    school_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    phone TEXT NOT NULL,
+    address TEXT NOT NULL,
+    previous_result_type TEXT NOT NULL,
+    previous_result TEXT NOT NULL,
+    plan_choice TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  )`);
+
+  db.all("PRAGMA table_info(pilot_registrations)", (err, rows) => {
+    if (err) return;
+    const cols = new Set(rows.map((r) => r.name));
+    if (!cols.has("self_intro_text")) {
+      db.run("ALTER TABLE pilot_registrations ADD COLUMN self_intro_text TEXT NOT NULL DEFAULT ''");
+    }
+    if (!cols.has("self_intro_analysis_json")) {
+      db.run("ALTER TABLE pilot_registrations ADD COLUMN self_intro_analysis_json TEXT");
+    }
+  });
 });
 
 export function run(sql, params = []) {

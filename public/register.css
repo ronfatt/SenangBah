@@ -1,0 +1,328 @@
+:root {
+  --bg: #f6f0e5;
+  --panel: #fffdf8;
+  --ink: #12141a;
+  --muted: #646870;
+  --line: #e7dece;
+  --accent: #f97316;
+  --accent-ink: #ffffff;
+  --deep: #1d3557;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 10%, #ffe8cb 0, transparent 45%),
+    radial-gradient(circle at 85% 30%, #f8dbb3 0, transparent 40%),
+    var(--bg);
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 36px 20px 54px;
+  display: grid;
+  gap: 18px;
+}
+
+.hero {
+  background: linear-gradient(130deg, #182848, #4b6cb7);
+  color: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.kicker {
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.hero h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.05;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 760px;
+  opacity: 0.88;
+}
+
+.stats {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.stat span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.76;
+}
+
+.stat strong {
+  font-size: 24px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.progressWrap {
+  margin-bottom: 20px;
+}
+
+.progressText {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.progressBar {
+  height: 10px;
+  background: #ece2d2;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+#progressFill {
+  display: block;
+  width: 25%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff8a00, #ff5f2e);
+  transition: width 0.2s ease;
+}
+
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+}
+
+h2 {
+  margin-top: 2px;
+  margin-bottom: 8px;
+  font-size: 28px;
+}
+
+.helper {
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.roleBtn {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roleBtn span {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.roleBtn small {
+  color: var(--muted);
+}
+
+.roleBtn.active {
+  border-color: var(--deep);
+  background: #e8f0ff;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+  color: #23262f;
+}
+
+label.full {
+  grid-column: 1 / -1;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #d5ccbc;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  background: #fff;
+}
+
+.planGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.planOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+}
+
+.planOption strong {
+  display: block;
+}
+
+.planOption small {
+  color: var(--muted);
+}
+
+.waitNote {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f0f6ff;
+  border: 1px solid #d7e7ff;
+  color: #1a2f4d;
+}
+
+.waitNote a {
+  color: #165dd0;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: #b40028;
+  min-height: 20px;
+  font-weight: 700;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 800;
+}
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  margin-left: auto;
+}
+
+button.ghost {
+  background: #fff;
+  border: 1px solid #cfc5b6;
+}
+
+.success {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #c6ebd2;
+  background: #ecfff2;
+  border-radius: 14px;
+}
+
+.analysisBox {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #c8d9ff;
+  border-radius: 12px;
+  background: #f3f8ff;
+}
+
+.analysisBox h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.analysisCol {
+  margin-bottom: 10px;
+}
+
+.analysisCol p {
+  margin: 6px 0;
+}
+
+.analysisCol ul {
+  margin: 0;
+}
+
+#analysisFixes {
+  display: grid;
+  gap: 8px;
+}
+
+.fixItem {
+  border: 1px solid #d9e6ff;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .roleGrid,
+  .fieldGrid,
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  button.primary {
+    margin-left: 0;
+    width: 100%;
+  }
+}

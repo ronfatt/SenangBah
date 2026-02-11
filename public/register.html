@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SenangBah Pilot Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/register.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="kicker">SenangBah Pilot Intake</p>
+        <h1>First 100 SPM Students</h1>
+        <p class="subtitle">
+          Limited intake for the first SenangBah cohort. Submit your application and we will shortlist 100 students.
+        </p>
+        <div class="stats">
+          <div class="stat">
+            <span>Review Pool</span>
+            <strong id="reviewPool">-</strong>
+          </div>
+          <div class="stat">
+            <span>Seats Left</span>
+            <strong id="seatsLeft">-</strong>
+          </div>
+          <div class="stat">
+            <span>Target</span>
+            <strong>100</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="progressWrap">
+          <div class="progressText" id="stepLabel">Step 1 of 4 · Choose role</div>
+          <div class="progressBar"><span id="progressFill"></span></div>
+        </div>
+
+        <form id="pilotForm" novalidate>
+          <div class="step active" data-step="1">
+            <h2>Choose Role</h2>
+            <p class="helper">Tell us how you are applying.</p>
+            <div class="roleGrid">
+              <button type="button" class="roleBtn" data-role="student">
+                <span>Student</span>
+                <small>I am applying for myself.</small>
+              </button>
+              <button type="button" class="roleBtn" data-role="parent">
+                <span>Parent</span>
+                <small>I am applying for my child.</small>
+              </button>
+              <button type="button" class="roleBtn" data-role="teacher">
+                <span>Teacher</span>
+                <small>I am recommending a student.</small>
+              </button>
+            </div>
+            <input type="hidden" name="role" id="roleInput" required />
+          </div>
+
+          <div class="step" data-step="2">
+            <h2>Student Information</h2>
+            <p class="helper">Please fill real details. We will contact shortlisted applicants by email and WhatsApp.</p>
+            <div class="fieldGrid">
+              <label>
+                Full Name
+                <input name="full_name" maxlength="80" required />
+              </label>
+              <label>
+                Age
+                <input name="age" type="number" min="13" max="25" required />
+              </label>
+              <label>
+                School Name
+                <input name="school_name" maxlength="120" required />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" maxlength="120" required />
+              </label>
+              <label>
+                Phone Number
+                <input name="phone" maxlength="30" required />
+              </label>
+              <label class="full">
+                Address
+                <textarea name="address" rows="3" maxlength="240" required></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="step" data-step="3">
+            <h2>Previous Exam Result</h2>
+            <p class="helper">Use your latest data: Form 4 exam or Diagnostic test.</p>
+            <div class="fieldGrid">
+              <label>
+                Result Type
+                <select name="previous_result_type" required>
+                  <option value="">Select one</option>
+                  <option value="form4">Form 4 Result</option>
+                  <option value="diagnostic">Diagnostic Test</option>
+                </select>
+              </label>
+              <label class="full">
+                Result Details
+                <textarea
+                  name="previous_result"
+                  rows="5"
+                  maxlength="500"
+                  placeholder="Example: English 62/100, writing weak in idea development, target Band 6"
+                  required
+                ></textarea>
+              </label>
+              <label class="full">
+                Self-Introduction Writing Sample (No word limit)
+                <textarea
+                  name="self_intro_text"
+                  rows="8"
+                  placeholder="Write a short introduction about yourself, your goals, and your English learning challenges."
+                  required
+                ></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="step" data-step="4">
+            <h2>Choose Preferred Plan</h2>
+            <p class="helper">If selected, which option do you prefer?</p>
+            <div class="planGrid">
+              <label class="planOption">
+                <input type="radio" name="plan_choice" value="one_to_one" required />
+                <span>
+                  <strong>1-to-1 Online Tuition</strong>
+                  <small>Live coaching and weekly personal feedback.</small>
+                </span>
+              </label>
+              <label class="planOption">
+                <input type="radio" name="plan_choice" value="ai_assisted" required />
+                <span>
+                  <strong>AI-Assisted Practice</strong>
+                  <small>Lower-cost guided practice with AI checkpoints.</small>
+                </span>
+              </label>
+            </div>
+
+            <div class="waitNote" id="finalNote">
+              After submission: wait for screening result. While waiting, visit
+              <a href="https://storybah.my" target="_blank" rel="noopener noreferrer">Storybah.my</a>
+              and start your own story writing.
+            </div>
+          </div>
+
+          <p id="errorText" class="error"></p>
+
+          <div class="actions">
+            <button type="button" class="ghost" id="prevBtn">Back</button>
+            <button type="button" class="ghost" id="nextBtn">Next</button>
+            <button type="submit" class="primary" id="submitBtn">Submit Application</button>
+          </div>
+        </form>
+
+        <section id="successState" class="success hidden">
+          <h3>Application Received</h3>
+          <p id="successMessage"></p>
+          <div id="analysisBox" class="analysisBox hidden">
+            <h4>AI Writing Analysis</h4>
+            <div class="analysisCol">
+              <p><strong>Strengths</strong></p>
+              <ul id="analysisStrengths"></ul>
+            </div>
+            <div class="analysisCol">
+              <p><strong>Weaknesses</strong></p>
+              <ul id="analysisWeaknesses"></ul>
+            </div>
+            <div class="analysisCol">
+              <p><strong>Grammar & Language</strong></p>
+              <ul id="analysisGrammar"></ul>
+            </div>
+            <div class="analysisCol">
+              <p><strong>3 Sentence Upgrades</strong></p>
+              <div id="analysisFixes"></div>
+            </div>
+            <p id="analysisComment"></p>
+          </div>
+          <p>
+            While waiting for the result, try
+            <a href="https://storybah.my" target="_blank" rel="noopener noreferrer">Storybah.my</a>
+            to create your own story and strengthen your English flow.
+          </p>
+        </section>
+      </section>
+    </main>
+
+    <script src="/register.js" type="module"></script>
+  </body>
+</html>

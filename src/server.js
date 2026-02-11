@@ -14,6 +14,7 @@ import essayRoutes from "./routes/essay.js";
 import teacherRoutes from "./routes/teacher.js";
 import teacherExtraRoutes from "./routes/teacher-extra.js";
 import grammarRoutes from "./routes/grammar.js";
+import pilotRegisterRoutes from "./routes/pilot-register.js";
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use("/api/essay", essayRoutes);
 app.use("/api/teacher", teacherRoutes);
 app.use("/api/teacher", teacherExtraRoutes);
 app.use("/api/grammar", grammarRoutes);
+app.use("/api/pilot-registration", pilotRegisterRoutes);
 
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(publicDir, "admin.html"));
@@ -50,6 +52,10 @@ app.get("/admin", (req, res) => {
 
 app.get("/teacher", (req, res) => {
   res.sendFile(path.join(publicDir, "teacher.html"));
+});
+
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(publicDir, "register.html"));
 });
 
 app.get("/health", (req, res) => {
