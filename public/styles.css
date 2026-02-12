@@ -39,6 +39,13 @@ body {
 
 .hero h1 { font-size: 32px; margin: 8px 0 12px; }
 
+.hero-top {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 14px;
+  align-items: start;
+}
+
 h1, h2, h3 { margin: 0 0 8px; }
 
 .eyebrow {
@@ -50,6 +57,32 @@ h1, h2, h3 { margin: 0 0 8px; }
 }
 
 .sub { color: var(--muted); margin: 0 0 16px; }
+
+.ai-preview {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f7fbff;
+  padding: 12px;
+}
+
+.ai-preview p {
+  margin: 0 0 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+}
+
+.ai-preview-title {
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700;
+  margin-bottom: 8px !important;
+}
+
+.ai-preview-rewrite {
+  margin-top: 8px !important;
+  color: var(--accent-2);
+  font-weight: 700;
+}
 
 .section-title {
   margin: 6px 0 10px;
@@ -300,6 +333,10 @@ textarea { resize: vertical; }
 }
 
 @media (max-width: 860px) {
+  .hero-top {
+    grid-template-columns: 1fr;
+  }
+
   .why-grid {
     grid-template-columns: 1fr;
   }
