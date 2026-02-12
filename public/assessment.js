@@ -161,8 +161,8 @@ if (essayForm) {
       essayMsg.textContent = 'Please choose an image.';
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      essayMsg.textContent = 'File too large. Max 2MB.';
+    if (file.size > 10 * 1024 * 1024) {
+      essayMsg.textContent = 'File too large. Max 10MB.';
       return;
     }
 
