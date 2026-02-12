@@ -15,8 +15,8 @@ const analysisWeaknesses = document.getElementById("analysisWeaknesses");
 const analysisGrammar = document.getElementById("analysisGrammar");
 const analysisFixes = document.getElementById("analysisFixes");
 const analysisComment = document.getElementById("analysisComment");
-const progressFill = document.getElementById("progressFill");
-const stepLabel = document.getElementById("stepLabel");
+const stepText = document.getElementById("stepText");
+const segments = [...document.querySelectorAll("#segmentBar i")];
 const totalApplications = document.getElementById("totalApplications");
 const diagnosticBtn = document.getElementById("diagnosticBtn");
 const diagnosticHint = document.getElementById("diagnosticHint");
@@ -35,6 +35,8 @@ const diagScoreGrammarText = document.getElementById("diagScoreGrammarText");
 const diagScoreIdeaText = document.getElementById("diagScoreIdeaText");
 const diagScoreVocabularyText = document.getElementById("diagScoreVocabularyText");
 const startApplicationBtn = document.getElementById("startApplicationBtn");
+const selectionInfoBtn = document.getElementById("selectionInfoBtn");
+const selectionInfo = document.getElementById("selectionInfo");
 
 const intakeAssistantBtn = document.getElementById("intakeAssistantBtn");
 const intakeAssistantPanel = document.getElementById("intakeAssistantPanel");
@@ -47,21 +49,18 @@ const assistantQuickButtons = [...document.querySelectorAll(".assistantQuickBtn"
 let currentStep = 1;
 let diagnosticAnalysis = null;
 
-const labels = {
-  1: "Application Step 1/4 · Application type",
-  2: "Step 2 of 4 · Student information",
-  3: "Step 3 of 4 · AI diagnostic",
-  4: "Step 4 of 4 · Choose preferred plan"
-};
-
 function setStep(step) {
   currentStep = step;
   steps.forEach((node) => {
     node.classList.toggle("active", Number(node.dataset.step) === step);
   });
 
-  progressFill.style.width = `${(step / 4) * 100}%`;
-  stepLabel.textContent = labels[step];
+  if (stepText) stepText.textContent = `Step ${step}/4`;
+  segments.forEach((segment, idx) => {
+    const n = idx + 1;
+    segment.classList.toggle("active", n === step);
+    segment.classList.toggle("done", n < step);
+  });
 
   prevBtn.style.display = step === 1 ? "none" : "inline-block";
   nextBtn.style.display = step === 4 ? "none" : "inline-block";
@@ -80,8 +79,7 @@ function validateStep(step) {
   }
 
   const activeStep = document.querySelector(`.step[data-step="${step}"]`);
-  const inputs = [...activeStep.querySelectorAll("input, select, textarea")]
-    .filter((node) => node.required);
+  const inputs = [...activeStep.querySelectorAll("input, select, textarea")].filter((node) => node.required);
 
   for (const node of inputs) {
     if (node.type === "radio") {
@@ -89,7 +87,6 @@ function validateStep(step) {
       if (!checked) return false;
       continue;
     }
-
     if (!String(node.value || "").trim()) return false;
   }
 
@@ -98,8 +95,8 @@ function validateStep(step) {
 
 function showStepError(step) {
   const tips = {
-    1: "Please choose Student or Teacher application type.",
-    2: "Please complete all student information fields.",
+    1: "Please choose Student, Parent/Guardian, or Teacher application type.",
+    2: "Please complete all required applicant fields.",
     3: "Please run AI Diagnostic after writing your self-introduction.",
     4: "Please choose one preferred plan."
   };
@@ -131,6 +128,12 @@ if (startApplicationBtn) {
   startApplicationBtn.addEventListener("click", () => {
     applicationCard?.scrollIntoView({ behavior: "smooth", block: "start" });
     setStep(1);
+  });
+}
+
+if (selectionInfoBtn && selectionInfo) {
+  selectionInfoBtn.addEventListener("click", () => {
+    selectionInfo.classList.toggle("hidden");
   });
 }
 
@@ -252,6 +255,7 @@ function renderScores(scores) {
     if (!Number.isFinite(n)) return 0;
     return Math.max(0, Math.min(100, Math.round(n)));
   };
+
   const clarity = safe(scores.clarity);
   const grammar = safe(scores.grammar);
   const idea = safe(scores.idea);
@@ -292,6 +296,7 @@ diagnosticBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ application_type: applicationType, self_intro_text: text })
     });
+
     const data = await response.json();
     if (!response.ok) {
       const map = {
@@ -300,6 +305,7 @@ diagnosticBtn.addEventListener("click", async () => {
       };
       throw new Error(map[data.error] || "Diagnostic failed. Please try again.");
     }
+
     diagnosticAnalysis = data.intro_analysis || null;
     renderInlineDiagnostic(diagnosticAnalysis);
     diagnosticHint.textContent = "Diagnostic ready. You can click Next now.";
@@ -340,10 +346,10 @@ async function loadMeta() {
   }
 }
 
-function appendAssistantMessage(text, role) {
+function appendAssistantMessage(text, kind) {
   if (!assistantMessages) return;
   const p = document.createElement("p");
-  p.className = `assistantMsg ${role === "user" ? "assistantMsgUser" : "assistantMsgBot"}`;
+  p.className = `assistantMsg ${kind === "user" ? "assistantMsgUser" : "assistantMsgBot"}`;
   p.textContent = text;
   assistantMessages.appendChild(p);
   assistantMessages.scrollTop = assistantMessages.scrollHeight;
@@ -359,12 +365,12 @@ async function askAssistant(question) {
     });
     const data = await response.json();
     if (!response.ok) {
-      appendAssistantMessage("I can't answer right now. Please continue with the application form.", "bot");
+      appendAssistantMessage("I can't answer right now. Please continue with the intake form.", "bot");
       return;
     }
-    appendAssistantMessage(data.reply || "Please continue with your application.", "bot");
+    appendAssistantMessage(data.reply || "Please continue with your intake application.", "bot");
   } catch {
-    appendAssistantMessage("Connection issue. Please continue with the application form.", "bot");
+    appendAssistantMessage("Connection issue. Please continue with the intake application.", "bot");
   }
 }
 

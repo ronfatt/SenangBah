@@ -17,44 +17,87 @@
     <meta name="twitter:image" content="https://senangbah.my/og/og-senangbah-1200x630.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/register.css" />
   </head>
   <body>
     <main class="shell">
       <section class="hero">
-        <p class="kicker">SENANGBAH</p>
-        <h1>SPM English Performance Intake</h1>
-        <p class="subtitle">Founding Cohort (100 students)</p>
-        <p class="description">AI-driven writing upgrade system aligned with real SPM marking criteria.</p>
-        <p class="capacityLine">Capacity: 100 • Status: Open</p>
-        <p class="applicationsMuted">Applications received: <strong id="totalApplications">0</strong></p>
-        <button type="button" class="primary hero-cta" id="startApplicationBtn">Start Application</button>
+        <div class="heroGrid">
+          <div class="heroLeft">
+            <p class="kicker">SENANGBAH • INTAKE</p>
+            <h1>SPM English Performance Intake</h1>
+            <p class="subtitle">Founding Cohort (100 students)</p>
+            <p class="description">AI-based writing diagnostic and a structured 14-day improvement routine aligned with SPM marking criteria.</p>
+            <p class="seatAnchor">100 Seats</p>
+
+            <div class="heroActions">
+              <button type="button" class="primary heroPrimary" id="startApplicationBtn">Start Application</button>
+              <button type="button" class="ghost heroSecondary" id="selectionInfoBtn">How selection works</button>
+            </div>
+
+            <div class="selectionInfo hidden" id="selectionInfo">
+              <p>Applicants are reviewed manually. This page collects intake submissions only. Platform access is granted after approval.</p>
+            </div>
+          </div>
+
+          <aside class="statusCard">
+            <h3>Intake Status</h3>
+            <div class="statusRow"><span>Capacity</span><strong>100</strong></div>
+            <div class="statusRow"><span>Applications received</span><strong id="totalApplications">0</strong></div>
+            <div class="statusRow"><span>Status</span><strong class="statusOpen"><i></i>Open</strong></div>
+          </aside>
+        </div>
+
         <div class="featureChips">
-          <div class="featureChip">📊 AI band diagnostic</div>
-          <div class="featureChip">🧩 Weakness breakdown report</div>
-          <div class="featureChip">📝 Structured 14-day writing upgrade</div>
+          <article class="featureChip">
+            <p class="featureTitle">📊 AI Band Snapshot</p>
+            <p>Know your current writing level.</p>
+          </article>
+          <article class="featureChip">
+            <p class="featureTitle">🧩 Weakness Map</p>
+            <p>See what pulls your score down.</p>
+          </article>
+          <article class="featureChip">
+            <p class="featureTitle">📝 14-Day Routine</p>
+            <p>Short daily tasks, consistent progress.</p>
+          </article>
         </div>
       </section>
 
       <section class="card application-card" id="applicationCard">
         <div class="progressWrap">
-          <div class="progressText" id="stepLabel">Application Step 1/4 · Application type</div>
-          <div class="progressBar"><span id="progressFill"></span></div>
+          <div class="progressHeader">
+            <span>Application</span>
+            <span id="stepText">Step 1/4</span>
+          </div>
+          <div class="segmentBar" id="segmentBar">
+            <i data-segment="1" class="active"></i>
+            <i data-segment="2"></i>
+            <i data-segment="3"></i>
+            <i data-segment="4"></i>
+          </div>
         </div>
 
         <form id="pilotForm" novalidate>
           <div class="step active" data-step="1">
-            <h2>Choose Application Type</h2>
-            <p class="helper">Step 1 of 4</p>
+            <h2>How are you submitting this application?</h2>
+            <p class="helper">This form collects intake submissions only. Platform access is granted to selected students.</p>
             <div class="roleGrid">
               <button type="button" class="roleBtn" data-application-type="individual_student">
-                <span>Student</span>
+                <span>🎓 Student</span>
                 <small>I am applying for myself.</small>
+                <em class="selectedTag">Selected</em>
+              </button>
+              <button type="button" class="roleBtn" data-application-type="parent_guardian">
+                <span>👪 Parent/Guardian</span>
+                <small>I am applying for my child.</small>
+                <em class="selectedTag">Selected</em>
               </button>
               <button type="button" class="roleBtn" data-application-type="school_teacher">
-                <span>Teacher</span>
+                <span>🧑‍🏫 Teacher</span>
                 <small>I am recommending a student.</small>
+                <em class="selectedTag">Selected</em>
               </button>
             </div>
             <p class="phaseNote">Parent access will be introduced in a future phase.</p>
@@ -94,23 +137,14 @@
 
           <div class="step" data-step="3">
             <h2>AI-Assist Diagnostic Section</h2>
-            <p class="helper">
-              Write a self-introduction. AI will analyze your writing quality before you continue.
-            </p>
+            <p class="helper">Write a self-introduction. AI will analyze your writing quality before you continue.</p>
             <div class="fieldGrid">
               <label class="full">
                 Self-Introduction Writing Sample (No word limit)
-                <textarea
-                  name="self_intro_text"
-                  rows="8"
-                  placeholder="You can talk about: your school life, family, interests, study goals, and your English challenges."
-                  required
-                ></textarea>
+                <textarea name="self_intro_text" rows="8" placeholder="You can talk about: your school life, family, interests, study goals, and your English challenges." required></textarea>
               </label>
             </div>
-            <p class="helper">
-              Write honestly in your own words. For diagnostic fairness, copy/paste is disabled in this box.
-            </p>
+            <p class="helper">Write honestly in your own words. For diagnostic fairness, copy/paste is disabled in this box.</p>
             <button type="button" class="ghost" id="diagnosticBtn">Run AI Diagnostic</button>
             <p class="helper" id="diagnosticHint">Complete diagnostic first, then you can click Next.</p>
             <div id="diagnosticInlineResult" class="analysisBox hidden">
@@ -121,22 +155,10 @@
                 <div class="scoreRow"><span>Idea</span><div class="scoreTrack"><i id="diagScoreIdea"></i></div><b id="diagScoreIdeaText">0</b></div>
                 <div class="scoreRow"><span>Vocabulary</span><div class="scoreTrack"><i id="diagScoreVocabulary"></i></div><b id="diagScoreVocabularyText">0</b></div>
               </div>
-              <div class="analysisCol">
-                <p><strong>Strengths</strong></p>
-                <ul id="diagStrengths"></ul>
-              </div>
-              <div class="analysisCol">
-                <p><strong>Weaknesses</strong></p>
-                <ul id="diagWeaknesses"></ul>
-              </div>
-              <div class="analysisCol">
-                <p><strong>Grammar & Language</strong></p>
-                <ul id="diagGrammar"></ul>
-              </div>
-              <div class="analysisCol">
-                <p><strong>3 Sentence Upgrades</strong></p>
-                <div id="diagFixes"></div>
-              </div>
+              <div class="analysisCol"><p><strong>Strengths</strong></p><ul id="diagStrengths"></ul></div>
+              <div class="analysisCol"><p><strong>Weaknesses</strong></p><ul id="diagWeaknesses"></ul></div>
+              <div class="analysisCol"><p><strong>Grammar & Language</strong></p><ul id="diagGrammar"></ul></div>
+              <div class="analysisCol"><p><strong>3 Sentence Upgrades</strong></p><div id="diagFixes"></div></div>
               <p id="diagComment"></p>
             </div>
           </div>
@@ -172,7 +194,7 @@
 
           <div class="actions">
             <button type="button" class="ghost" id="prevBtn">Back</button>
-            <button type="button" class="ghost" id="nextBtn">Next</button>
+            <button type="button" class="ghost nextCta" id="nextBtn">Next</button>
             <button type="submit" class="primary" id="submitBtn">Submit Application</button>
           </div>
         </form>
@@ -180,28 +202,12 @@
         <section id="successState" class="success hidden">
           <h3>Application Received</h3>
           <p id="successMessage"></p>
-          <p class="waitNote">
-            Invite one friend to apply and include your Application ID in the note.
-            You will get a <strong>priority review tag</strong>.
-          </p>
           <div id="analysisBox" class="analysisBox hidden">
             <h4>AI Writing Analysis</h4>
-            <div class="analysisCol">
-              <p><strong>Strengths</strong></p>
-              <ul id="analysisStrengths"></ul>
-            </div>
-            <div class="analysisCol">
-              <p><strong>Weaknesses</strong></p>
-              <ul id="analysisWeaknesses"></ul>
-            </div>
-            <div class="analysisCol">
-              <p><strong>Grammar & Language</strong></p>
-              <ul id="analysisGrammar"></ul>
-            </div>
-            <div class="analysisCol">
-              <p><strong>3 Sentence Upgrades</strong></p>
-              <div id="analysisFixes"></div>
-            </div>
+            <div class="analysisCol"><p><strong>Strengths</strong></p><ul id="analysisStrengths"></ul></div>
+            <div class="analysisCol"><p><strong>Weaknesses</strong></p><ul id="analysisWeaknesses"></ul></div>
+            <div class="analysisCol"><p><strong>Grammar & Language</strong></p><ul id="analysisGrammar"></ul></div>
+            <div class="analysisCol"><p><strong>3 Sentence Upgrades</strong></p><div id="analysisFixes"></div></div>
             <p id="analysisComment"></p>
           </div>
         </section>
@@ -222,7 +228,7 @@
         <button type="button" class="ghost assistantClose" id="assistantCloseBtn">×</button>
       </div>
       <div class="assistantMessages" id="assistantMessages">
-        <p class="assistantMsg assistantMsgBot">Hi, I can help with eligibility, intake process, and what students receive.</p>
+        <p class="assistantMsg assistantMsgBot">Hi, I can help with intake scope, eligibility, and selection process.</p>
       </div>
       <div class="assistantQuick">
         <button type="button" class="ghost assistantQuickBtn">Who can apply?</button>

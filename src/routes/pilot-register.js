@@ -30,7 +30,7 @@ Answer ONLY about this intake:
 - Founding cohort: 100 students
 - This is an application and review process, not instant acceptance
 - Focus: AI-driven SPM English writing support with 14-day structured upgrade
-- Application types: individual student, school teacher
+- Application types: individual student, parent/guardian, school teacher
 Keep answers concise (2-4 short sentences), clear, and practical.
 If question is unrelated, politely redirect to intake/application topics.`;
 
@@ -147,7 +147,7 @@ router.post("/submit", async (req, res) => {
   const cleanPlan = clean(plan_choice).toLowerCase();
   const numericAge = Number(age);
 
-  if (!cleanApplicationType || !["individual_student", "school_teacher"].includes(cleanApplicationType)) {
+  if (!cleanApplicationType || !["individual_student", "parent_guardian", "school_teacher"].includes(cleanApplicationType)) {
     return res.status(400).json({ error: "invalid_application_type" });
   }
 
@@ -234,7 +234,7 @@ router.post("/assistant", async (req, res) => {
   if (!process.env.OPENAI_API_KEY) {
     const q = question.toLowerCase();
     if (q.includes("who") && q.includes("apply")) {
-      return res.json({ reply: "Individual students and school teachers can submit an intake application. All submissions go into review before approval." });
+      return res.json({ reply: "Individual students, parents/guardians, and school teachers can submit an intake application. All submissions go into review before approval." });
     }
     if (q.includes("select") || q.includes("review") || q.includes("approve")) {
       return res.json({ reply: "Applications are reviewed by our team. Approval is based on fit and intake capacity. This is not instant acceptance." });
