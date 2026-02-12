@@ -14,8 +14,8 @@
       <p class="sub">Secure Access to Your Training Dashboard</p>
       <p class="auth-small">Based on Real SPM Marking Criteria</p>
       <aside class="mini-grade-panel">
-        <p class="mini-grade-title">Track Your Progress Weekly</p>
-        <p>Last Session: Estimated Grade C+</p>
+        <p class="mini-grade-title">Class Progress Linked</p>
+        <p>Last Estimated Grade: C+</p>
         <div class="mini-progress"><i style="width: 62%"></i></div>
         <p><span class="grade-now">C+</span> <span class="grade-arrow">→</span> <span class="grade-target">B+</span></p>
       </aside>
@@ -48,19 +48,21 @@
 
       <section id="registerSection" class="hidden">
         <h2>Start Your SPM English Training</h2>
+        <div class="auth-divider"><span>New Student?</span></div>
 
-        <section class="verify-card" id="verifyCard">
+        <section class="verify-card access-key-card" id="verifyCard">
           <p class="verify-title">Step 1</p>
-          <h3>Enter Your Teacher Code to Begin</h3>
+          <h3>Enter Your Class Access Code</h3>
           <label>Teacher Referral Code (Required)
             <input type="text" id="verifyTeacherCodeInput" placeholder="e.g. ABCD1234" />
           </label>
-          <button class="btn ghost" id="verifyTeacherBtn" type="button">Verify Code</button>
+          <button class="btn ghost" id="verifyTeacherBtn" type="button">Verify &amp; Link to Class</button>
           <p class="muted small">This code is provided by your school teacher. It links your progress to your class dashboard.</p>
           <p class="error" id="verifyTeacherError"></p>
           <div id="verifySuccess" class="verify-success hidden">
-            <p>✔ Linked to: <span id="verifySchool"></span></p>
-            <p>✔ Teacher: <span id="verifyTeacherName"></span></p>
+            <p><strong>✔ Successfully Linked</strong></p>
+            <p>🏫 <span id="verifySchool"></span></p>
+            <p>Teacher: <span id="verifyTeacherName"></span></p>
           </div>
         </section>
 
@@ -92,7 +94,7 @@
               </select>
             </label>
             <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
-            <button class="btn primary auth-cta" id="registerBtn" type="submit">Start My Training</button>
+            <button class="btn primary auth-cta" id="registerBtn" type="submit" disabled>Start My Training</button>
             <p id="registerError" class="error"></p>
           </form>
         </section>
@@ -150,6 +152,7 @@
 
     function setLoading(button, loading, textLoading, textNormal) {
       button.disabled = loading;
+      button.classList.toggle('is-loading', loading);
       button.textContent = loading ? textLoading : textNormal;
     }
 
@@ -174,13 +177,16 @@
       const score = scorePassword(registerPassword.value || '');
       passwordMeter.firstElementChild.style.width = score + '%';
       const label = score < 40 ? 'low' : score < 70 ? 'medium' : 'strong';
+      passwordMeter.firstElementChild.style.background = score < 70 ? '#60a5fa' : '#22c55e';
       passwordMeterText.textContent = `Password strength: ${label}`;
     });
 
     verifyTeacherBtn.addEventListener('click', async () => {
       verifyTeacherError.textContent = '';
       verifySuccess.classList.add('hidden');
+      verifySuccess.classList.remove('fade-in');
       registerCard.classList.add('hidden');
+      registerBtn.disabled = true;
       const code = verifyTeacherCodeInput.value.trim();
       if (!code) {
         verifyTeacherError.textContent = 'Teacher code is required.';
@@ -197,7 +203,27 @@
       verifySchool.textContent = res.data?.school_name || res.data?.school_code || 'School';
       verifyTeacherName.textContent = res.data?.name || '';
       verifySuccess.classList.remove('hidden');
+      verifySuccess.classList.add('fade-in');
       registerCard.classList.remove('hidden');
+      registerBtn.disabled = false;
+    });
+
+    verifyTeacherCodeInput.addEventListener('input', () => {
+      const normalized = verifyTeacherCodeInput.value.toUpperCase().replace(/\s+/g, '');
+      verifyTeacherCodeInput.value = normalized;
+      verifyTeacherError.textContent = '';
+      verifySuccess.classList.add('hidden');
+      verifySuccess.classList.remove('fade-in');
+      registerCard.classList.add('hidden');
+      registerBtn.disabled = true;
+      teacherCodeHidden.value = '';
+    });
+
+    verifyTeacherCodeInput.addEventListener('paste', (event) => {
+      event.preventDefault();
+      const pasted = (event.clipboardData?.getData('text') || '').toUpperCase().replace(/\s+/g, '');
+      verifyTeacherCodeInput.value = pasted;
+      verifyTeacherCodeInput.dispatchEvent(new Event('input'));
     });
 
     loginForm.addEventListener('submit', async (e) => {
