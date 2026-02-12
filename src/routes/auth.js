@@ -46,6 +46,10 @@ router.post("/register", async (req, res) => {
   const id = nanoid();
 
   let teacherId = null;
+  if (!teacher_code) {
+    return res.status(400).json({ error: "missing_teacher_code" });
+  }
+
   if (teacher_code) {
     const normalized = String(teacher_code).trim().toUpperCase();
     const teacher = await get("SELECT id, name FROM teachers WHERE code = ?", [normalized]);

@@ -16,14 +16,15 @@
       <aside class="mini-grade-panel">
         <p class="mini-grade-title">Track Your Progress Weekly</p>
         <p>Last Session: Estimated Grade C+</p>
-        <p>Current Target: B+</p>
+        <div class="mini-progress"><i style="width: 62%"></i></div>
+        <p><span class="grade-now">C+</span> <span class="grade-arrow">→</span> <span class="grade-target">B+</span></p>
       </aside>
     </section>
 
     <section class="auth-panel card" id="authPanel">
       <div class="auth-tabs" role="tablist" aria-label="Auth tabs">
-        <button class="auth-tab active" id="tabLogin" type="button" data-tab="login" role="tab" aria-selected="true">Login</button>
-        <button class="auth-tab" id="tabRegister" type="button" data-tab="register" role="tab" aria-selected="false">Create Account</button>
+        <button class="auth-tab active" id="tabLogin" type="button" role="tab" aria-selected="true">Login</button>
+        <button class="auth-tab" id="tabRegister" type="button" role="tab" aria-selected="false">Create Account</button>
       </div>
 
       <section id="loginSection">
@@ -35,6 +36,10 @@
           <label>Password
             <input type="password" name="password" required />
           </label>
+          <div class="auth-login-row">
+            <label class="remember"><input type="checkbox" name="remember" /> Remember me</label>
+            <a class="small" href="/teacher">Forgot password?</a>
+          </div>
           <button class="btn primary auth-cta" id="loginBtn" type="submit">Continue to Dashboard</button>
           <p class="muted small">Teacher login is available at <a href="/teacher">Teacher Portal</a>.</p>
           <p id="loginError" class="error"></p>
@@ -44,39 +49,53 @@
       <section id="registerSection" class="hidden">
         <h2>Start Your SPM English Training</h2>
 
-        <form id="registerForm" class="form">
-          <label>Full Name
-            <input type="text" name="name" required />
+        <section class="verify-card" id="verifyCard">
+          <p class="verify-title">Step 1</p>
+          <h3>Enter Your Teacher Code to Begin</h3>
+          <label>Teacher Referral Code (Required)
+            <input type="text" id="verifyTeacherCodeInput" placeholder="e.g. ABCD1234" />
           </label>
-          <label>Email
-            <input type="email" name="email" required />
-          </label>
-          <label>Password
-            <input type="password" id="registerPassword" name="password" required />
-          </label>
-          <div class="password-meter-wrap">
-            <div class="password-meter" id="passwordMeter"><i></i></div>
-            <span id="passwordMeterText" class="muted small">Password strength: low</span>
+          <button class="btn ghost" id="verifyTeacherBtn" type="button">Verify Code</button>
+          <p class="muted small">This code is provided by your school teacher. It links your progress to your class dashboard.</p>
+          <p class="error" id="verifyTeacherError"></p>
+          <div id="verifySuccess" class="verify-success hidden">
+            <p>✔ Linked to: <span id="verifySchool"></span></p>
+            <p>✔ Teacher: <span id="verifyTeacherName"></span></p>
           </div>
+        </section>
 
-          <label>Current Estimated Band
-            <select name="estimated_band">
-              <option value="2">Band 2</option>
-              <option value="3">Band 3</option>
-              <option value="4" selected>Band 4</option>
-              <option value="5">Band 5</option>
-              <option value="6">Band 6</option>
-            </select>
-          </label>
-          <label>Teacher Code (Optional)
-            <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
-          </label>
-          <p class="muted small" id="teacherNamePreview"></p>
-
-          <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
-          <button class="btn primary auth-cta" id="registerBtn" type="submit">Start My Training</button>
-          <p id="registerError" class="error"></p>
-        </form>
+        <section class="verify-card hidden" id="registerCard">
+          <p class="verify-title">Step 2</p>
+          <h3>Create Student Account</h3>
+          <form id="registerForm" class="form">
+            <input type="hidden" name="teacher_code" id="teacherCodeHidden" />
+            <label>Full Name
+              <input type="text" name="name" required />
+            </label>
+            <label>Email
+              <input type="email" name="email" required />
+            </label>
+            <label>Password
+              <input type="password" id="registerPassword" name="password" required />
+            </label>
+            <div class="password-meter-wrap">
+              <div class="password-meter" id="passwordMeter"><i></i></div>
+              <span id="passwordMeterText" class="muted small">Password strength: low</span>
+            </div>
+            <label>Current Estimated Band
+              <select name="estimated_band">
+                <option value="2">Band 2</option>
+                <option value="3">Band 3</option>
+                <option value="4" selected>Band 4</option>
+                <option value="5">Band 5</option>
+                <option value="6">Band 6</option>
+              </select>
+            </label>
+            <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
+            <button class="btn primary auth-cta" id="registerBtn" type="submit">Start My Training</button>
+            <p id="registerError" class="error"></p>
+          </form>
+        </section>
       </section>
     </section>
   </main>
@@ -103,8 +122,15 @@
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
-    const teacherCodeInput = document.getElementById('teacherCodeInput');
-    const teacherNamePreview = document.getElementById('teacherNamePreview');
+    const verifyTeacherCodeInput = document.getElementById('verifyTeacherCodeInput');
+    const verifyTeacherBtn = document.getElementById('verifyTeacherBtn');
+    const verifyTeacherError = document.getElementById('verifyTeacherError');
+    const verifySuccess = document.getElementById('verifySuccess');
+    const verifySchool = document.getElementById('verifySchool');
+    const verifyTeacherName = document.getElementById('verifyTeacherName');
+    const registerCard = document.getElementById('registerCard');
+    const teacherCodeHidden = document.getElementById('teacherCodeHidden');
+
     const registerPassword = document.getElementById('registerPassword');
     const passwordMeter = document.getElementById('passwordMeter');
     const passwordMeterText = document.getElementById('passwordMeterText');
@@ -151,11 +177,35 @@
       passwordMeterText.textContent = `Password strength: ${label}`;
     });
 
+    verifyTeacherBtn.addEventListener('click', async () => {
+      verifyTeacherError.textContent = '';
+      verifySuccess.classList.add('hidden');
+      registerCard.classList.add('hidden');
+      const code = verifyTeacherCodeInput.value.trim();
+      if (!code) {
+        verifyTeacherError.textContent = 'Teacher code is required.';
+        return;
+      }
+      setLoading(verifyTeacherBtn, true, 'Verifying...', 'Verify Code');
+      const res = await postJSON('/api/teacher/teacher-name', { teacher_code: code });
+      setLoading(verifyTeacherBtn, false, 'Verifying...', 'Verify Code');
+      if (!res.ok) {
+        verifyTeacherError.textContent = 'Teacher code not found.';
+        return;
+      }
+      teacherCodeHidden.value = code.toUpperCase();
+      verifySchool.textContent = res.data?.school_name || res.data?.school_code || 'School';
+      verifyTeacherName.textContent = res.data?.name || '';
+      verifySuccess.classList.remove('hidden');
+      registerCard.classList.remove('hidden');
+    });
+
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.textContent = '';
       const formData = new FormData(loginForm);
       const payload = Object.fromEntries(formData.entries());
+      delete payload.remember;
       setLoading(loginBtn, true, 'Checking...', 'Continue to Dashboard');
       const res = await postJSON('/api/auth/login', payload);
       setLoading(loginBtn, false, 'Checking...', 'Continue to Dashboard');
@@ -173,6 +223,10 @@
       const payload = Object.fromEntries(formData.entries());
       payload.estimated_band = Number(payload.estimated_band || 4);
       payload.form = 5;
+      if (!payload.teacher_code) {
+        registerError.textContent = 'Please verify teacher code first.';
+        return;
+      }
       setLoading(registerBtn, true, 'Creating...', 'Start My Training');
       const res = await postJSON('/api/auth/register', payload);
       setLoading(registerBtn, false, 'Creating...', 'Start My Training');
@@ -181,20 +235,6 @@
         return;
       }
       goAfterSuccess('/dashboard.html');
-    });
-
-    let teacherLookupTimer;
-    teacherCodeInput.addEventListener('input', () => {
-      if (teacherLookupTimer) clearTimeout(teacherLookupTimer);
-      const code = teacherCodeInput.value.trim();
-      if (!code) {
-        teacherNamePreview.textContent = '';
-        return;
-      }
-      teacherLookupTimer = setTimeout(async () => {
-        const res = await postJSON('/api/teacher/teacher-name', { teacher_code: code });
-        teacherNamePreview.textContent = res.ok ? `Teacher: ${res.data?.name || ''}` : 'Teacher code not found';
-      }, 350);
     });
   </script>
 </body>

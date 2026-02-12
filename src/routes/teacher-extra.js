@@ -66,9 +66,19 @@ router.post("/teacher-name", async (req, res) => {
   const { teacher_code } = req.body || {};
   if (!teacher_code) return res.status(400).json({ error: "missing_teacher_code" });
   const normalized = String(teacher_code).trim().toUpperCase();
-  const teacher = await get("SELECT name FROM teachers WHERE code = ?", [normalized]);
+  const teacher = await get(
+    `SELECT t.name, t.school_code, sc.school_name
+     FROM teachers t
+     LEFT JOIN school_codes sc ON sc.code = t.school_code
+     WHERE t.code = ?`,
+    [normalized]
+  );
   if (!teacher) return res.status(404).json({ error: "not_found" });
-  res.json({ name: teacher.name });
+  res.json({
+    name: teacher.name,
+    school_code: teacher.school_code || "",
+    school_name: teacher.school_name || teacher.school_code || ""
+  });
 });
 
 export default router;
