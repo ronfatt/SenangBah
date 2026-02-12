@@ -84,6 +84,11 @@ h1, h2, h3 { margin: 0 0 8px; }
   font-weight: 700;
 }
 
+.ai-preview-band {
+  margin-top: 8px !important;
+  font-weight: 700;
+}
+
 .section-title {
   margin: 6px 0 10px;
 }
