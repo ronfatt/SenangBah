@@ -29,13 +29,34 @@ function clearNode(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
+function toTitleCase(value) {
+  return String(value || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function normalizeQuotes(text) {
+  return String(text || "")
+    .replace(/’([^’]+)’/g, "‘$1’")
+    .replace(/'([^']+)'/g, "‘$1’");
+}
+
+function normalizeWordFocusTitle(title) {
+  const raw = String(title || "");
+  const match = raw.match(/^word\s*focus\s*:\s*(.+)$/i);
+  if (!match) return normalizeQuotes(raw);
+  return `Word Focus: ${toTitleCase(match[1])}`;
+}
+
 function renderTask(data) {
   currentData = data;
   taskCard.style.display = 'block';
   doneCard.style.display = 'none';
 
-  taskTitle.textContent = data.title || 'Word Focus';
-  taskInstructions.textContent = data.instructions || '';
+  taskTitle.textContent = normalizeWordFocusTitle(data.title || 'Word Focus');
+  taskInstructions.textContent = normalizeQuotes(data.instructions || '');
   clearNode(taskItems);
   clearNode(inputArea);
 
@@ -43,13 +64,13 @@ function renderTask(data) {
   if (item) {
     const prompt = document.createElement('p');
     prompt.className = 'prompt';
-    prompt.textContent = item.prompt;
+    prompt.textContent = normalizeQuotes(item.prompt);
     taskItems.appendChild(prompt);
 
     if (item.hints?.length) {
       const hint = document.createElement('p');
       hint.className = 'hint';
-      hint.textContent = 'Hint: ' + item.hints[0];
+      hint.textContent = 'Hint: ' + normalizeQuotes(item.hints[0]);
       taskItems.appendChild(hint);
     }
   }
@@ -66,7 +87,7 @@ function renderTask(data) {
       radio.value = choice;
       if (i === 0) radio.checked = true;
       label.appendChild(radio);
-      label.appendChild(document.createTextNode(choice));
+      label.appendChild(document.createTextNode(normalizeQuotes(choice)));
       inputArea.appendChild(label);
     });
   } else {
@@ -90,7 +111,7 @@ function renderTask(data) {
   }
 
   if (data.next_question) {
-    progressInfo.textContent = data.next_question;
+    progressInfo.textContent = normalizeQuotes(data.next_question);
   } else {
     progressInfo.textContent = `Step: ${currentStep}`;
   }
