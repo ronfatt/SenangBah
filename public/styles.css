@@ -1663,6 +1663,10 @@ textarea { resize: vertical; }
   color: #94a3b8;
 }
 
+.diag-upload-actions {
+  margin-top: 10px;
+}
+
 .diag-run-btn {
   margin-top: 12px;
   box-shadow: 0 10px 28px rgba(255, 107, 0, 0.42), 0 0 18px rgba(255, 107, 0, 0.24);

@@ -4,6 +4,7 @@ const essayMsg = document.getElementById('essayMsg');
 const essayResult = document.getElementById('essayResult');
 const dropzone = document.getElementById('dropzone');
 const fileName = document.getElementById('fileName');
+const clearFileBtn = document.getElementById('clearFileBtn');
 const runBtn = document.getElementById('runBtn');
 const diagLoading = document.getElementById('diagLoading');
 const diagLoadingFill = document.getElementById('diagLoadingFill');
@@ -75,6 +76,14 @@ function setFile(file) {
   dt.items.add(file);
   essayFile.files = dt.files;
   fileName.textContent = file.name;
+  if (clearFileBtn) clearFileBtn.classList.remove('hidden');
+}
+
+function clearSelectedFile() {
+  if (!essayFile) return;
+  essayFile.value = '';
+  fileName.textContent = 'No file selected';
+  if (clearFileBtn) clearFileBtn.classList.add('hidden');
 }
 
 function sleep(ms) {
@@ -130,6 +139,14 @@ if (essayFile) {
   essayFile.addEventListener('change', () => {
     const file = essayFile.files?.[0];
     fileName.textContent = file ? file.name : 'No file selected';
+    if (clearFileBtn) clearFileBtn.classList.toggle('hidden', !file);
+  });
+}
+
+if (clearFileBtn) {
+  clearFileBtn.addEventListener('click', () => {
+    clearSelectedFile();
+    essayMsg.textContent = '';
   });
 }
 
