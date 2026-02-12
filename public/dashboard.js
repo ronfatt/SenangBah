@@ -71,10 +71,10 @@ function renderWeeklyChart(rows = []) {
   const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
   weeklyChart.innerHTML = `
-    <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#d7d2c9" stroke-width="1" />
-    <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#d7d2c9" stroke-width="1" />
-    <path d="${path}" fill="none" stroke="#ff6a00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-    ${points.map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2" fill="#0f172a" stroke="#ff6a00" stroke-width="2" />`).join('')}
+    <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="rgba(148,163,184,0.45)" stroke-width="1" />
+    <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="rgba(148,163,184,0.45)" stroke-width="1" />
+    <path d="${path}" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    ${points.map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2" fill="#0f172a" stroke="#ff6b00" stroke-width="2" />`).join('')}
   `;
 }
 
