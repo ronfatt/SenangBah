@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 import { get, all, run } from "../db.js";
 import { requireAdmin } from "../middleware/admin.js";
 
@@ -54,6 +55,35 @@ router.get("/users", requireAdmin, async (req, res) => {
   });
 
   res.json({ users });
+});
+
+router.get("/teachers", requireAdmin, async (_req, res) => {
+  const teachers = await all(
+    `SELECT t.id, t.name, t.email, t.code, t.school_code, t.created_at,
+            COUNT(u.id) as student_count,
+            SUM(CASE WHEN s.current_step = 'done' THEN 1 ELSE 0 END) as total_completed_sessions,
+            MAX(s.date) as last_active
+     FROM teachers t
+     LEFT JOIN users u ON u.teacher_id = t.id
+     LEFT JOIN sessions s ON s.user_id = u.id
+     GROUP BY t.id
+     ORDER BY t.created_at DESC`
+  );
+
+  const totalTeachers = teachers.length;
+  const totalAssignedStudents = teachers.reduce((sum, row) => sum + Number(row.student_count || 0), 0);
+
+  res.json({
+    summary: {
+      total_teachers: totalTeachers,
+      total_assigned_students: totalAssignedStudents
+    },
+    teachers: teachers.map((row) => ({
+      ...row,
+      student_count: Number(row.student_count || 0),
+      total_completed_sessions: Number(row.total_completed_sessions || 0)
+    }))
+  });
 });
 
 router.get("/chat-summary", requireAdmin, async (req, res) => {
@@ -132,6 +162,38 @@ router.post("/delete-user", requireAdmin, async (req, res) => {
     await run("DELETE FROM users WHERE id = ?", [userId]);
     await run("COMMIT");
   } catch (e) {
+    await run("ROLLBACK");
+    return res.status(500).json({ error: "delete_failed" });
+  }
+
+  res.json({ ok: true });
+});
+
+router.post("/teacher-reset-code", requireAdmin, async (req, res) => {
+  const { teacher_id } = req.body || {};
+  if (!teacher_id) return res.status(400).json({ error: "missing_teacher_id" });
+
+  const teacher = await get("SELECT id FROM teachers WHERE id = ?", [teacher_id]);
+  if (!teacher) return res.status(404).json({ error: "not_found" });
+
+  const newCode = nanoid(8).toUpperCase();
+  await run("UPDATE teachers SET code = ? WHERE id = ?", [newCode, teacher_id]);
+  res.json({ ok: true, code: newCode });
+});
+
+router.post("/delete-teacher", requireAdmin, async (req, res) => {
+  const { teacher_id } = req.body || {};
+  if (!teacher_id) return res.status(400).json({ error: "missing_teacher_id" });
+
+  const teacher = await get("SELECT id FROM teachers WHERE id = ?", [teacher_id]);
+  if (!teacher) return res.status(404).json({ error: "not_found" });
+
+  await run("BEGIN");
+  try {
+    await run("UPDATE users SET teacher_id = NULL WHERE teacher_id = ?", [teacher_id]);
+    await run("DELETE FROM teachers WHERE id = ?", [teacher_id]);
+    await run("COMMIT");
+  } catch {
     await run("ROLLBACK");
     return res.status(500).json({ error: "delete_failed" });
   }

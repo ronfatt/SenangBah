@@ -105,10 +105,7 @@ teacherRegisterForm.addEventListener('submit', async (e) => {
 
 teacherLogout.addEventListener('click', async () => {
   await postJSON('/api/teacher/logout', {});
-  teacherAuthCard.style.display = 'block';
-  teacherInfoCard.style.display = 'none';
-  teacherStudentsCard.style.display = 'none';
-  teacherEssaysCard.style.display = 'none';
+  window.location.href = '/';
 });
 
 document.addEventListener('click', async (e) => {

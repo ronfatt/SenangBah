@@ -2,6 +2,7 @@ const adminLoginForm = document.getElementById('adminLoginForm');
 const adminLoginMsg = document.getElementById('adminLoginMsg');
 const adminLoginCard = document.getElementById('adminLoginCard');
 const adminTableCard = document.getElementById('adminTableCard');
+const teacherMgmtCard = document.getElementById('teacherMgmtCard');
 const chatSummaryCard = document.getElementById('chatSummaryCard');
 const adminDeleteCard = document.getElementById('adminDeleteCard');
 const adminLogout = document.getElementById('adminLogout');
@@ -15,6 +16,7 @@ const pilotCard = document.getElementById('pilotCard');
 const registerExamplesCard = document.getElementById('registerExamplesCard');
 const registerExamplesForm = document.getElementById('registerExamplesForm');
 const registerExamplesMsg = document.getElementById('registerExamplesMsg');
+const teacherSummary = document.getElementById('teacherSummary');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -70,6 +72,37 @@ function renderChatTable(items) {
   });
 }
 
+function renderTeacherTable(payload) {
+  const tbody = document.querySelector('#teacherMgmtTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const teachers = payload?.teachers || [];
+
+  teachers.forEach((t) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.name || ''}</td>
+      <td>${t.email || ''}</td>
+      <td>${t.code || ''}</td>
+      <td>${t.school_code || ''}</td>
+      <td>${t.student_count || 0}</td>
+      <td>${t.total_completed_sessions || 0}</td>
+      <td>${t.last_active || '-'}</td>
+      <td>
+        <button class="btn ghost" data-action="resetTeacherCode" data-id="${t.id}">Reset Code</button>
+        <button class="btn primary" data-action="deleteTeacher" data-id="${t.id}">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (teacherSummary) {
+    const totalTeachers = payload?.summary?.total_teachers || 0;
+    const totalAssignedStudents = payload?.summary?.total_assigned_students || 0;
+    teacherSummary.textContent = `Teachers: ${totalTeachers} · Assigned Students: ${totalAssignedStudents}`;
+  }
+}
+
 function renderPilotTable(items) {
   const tbody = document.querySelector('#pilotTable tbody');
   if (!tbody) return;
@@ -115,18 +148,21 @@ function renderRegisterExamples(items) {
 
 async function load() {
   const data = await fetchUsers();
+  const teachers = await fetch('/api/admin/teachers').then(r => r.ok ? r.json() : null);
   const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
   const pilot = await fetch('/api/admin/pilot-registrations').then(r => r.ok ? r.json() : null);
   const examples = await fetch('/api/admin/register-examples').then(r => r.ok ? r.json() : null);
   if (!data) return;
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
+  teacherMgmtCard.style.display = 'block';
   chatSummaryCard.style.display = 'block';
   adminDeleteCard.style.display = 'block';
   schoolCodeCard.style.display = 'block';
   pilotCard.style.display = 'block';
   registerExamplesCard.style.display = 'block';
   renderTable(data.users || []);
+  if (teachers) renderTeacherTable(teachers);
   if (chat?.items) renderChatTable(chat.items);
   if (pilot?.items) renderPilotTable(pilot.items);
   if (examples?.items) renderRegisterExamples(examples.items);
@@ -148,6 +184,7 @@ adminLoginForm.addEventListener('submit', async (e) => {
 adminLogout.addEventListener('click', async () => {
   await postJSON('/api/admin/logout', {});
   adminTableCard.style.display = 'none';
+  teacherMgmtCard.style.display = 'none';
   chatSummaryCard.style.display = 'none';
   adminDeleteCard.style.display = 'none';
   schoolCodeCard.style.display = 'none';
@@ -209,6 +246,24 @@ document.addEventListener('click', async (e) => {
     const res = await postJSON('/api/admin/pilot-approve', { id });
     if (!res.ok) {
       alert(res.data?.error || 'Approve failed');
+      return;
+    }
+    await load();
+  }
+  if (action === 'resetTeacherCode') {
+    if (!confirm('Reset this teacher code?')) return;
+    const res = await postJSON('/api/admin/teacher-reset-code', { teacher_id: id });
+    if (!res.ok) {
+      alert(res.data?.error || 'Reset code failed');
+      return;
+    }
+    await load();
+  }
+  if (action === 'deleteTeacher') {
+    if (!confirm('Delete this teacher? Students will be unassigned.')) return;
+    const res = await postJSON('/api/admin/delete-teacher', { teacher_id: id });
+    if (!res.ok) {
+      alert(res.data?.error || 'Delete teacher failed');
       return;
     }
     await load();
