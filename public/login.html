@@ -3,63 +3,102 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login · SPM English Booster</title>
+  <title>Enter Your Training Portal · SenangBah</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <main class="shell">
-    <section class="card">
-      <h1>Login</h1>
-      <div class="toggle">
-        <label><input type="radio" name="loginRole" value="student" checked /> Student</label>
-        <label><input type="radio" name="loginRole" value="teacher" /> Teacher</label>
-      </div>
-      <form id="loginForm" class="form">
-        <label>Email
-          <input type="email" name="email" required />
-        </label>
-        <label>Password
-          <input type="password" name="password" required />
-        </label>
-        <button class="btn primary" type="submit">Login</button>
-        <p id="loginError" class="error"></p>
-      </form>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-brand card">
+      <p class="eyebrow">SPM English Performance System</p>
+      <h1>Enter Your Training Portal</h1>
+      <p class="sub">Secure Access to Your Training Dashboard</p>
+      <p class="auth-small">Based on Real SPM Marking Criteria</p>
     </section>
 
-    <section class="card">
-      <h1>Create account</h1>
-      <div class="toggle">
-        <label><input type="radio" name="registerRole" value="student" checked /> Student</label>
-        <label><input type="radio" name="registerRole" value="teacher" /> Teacher</label>
+    <section class="auth-panel card" id="authPanel">
+      <div class="auth-tabs" role="tablist" aria-label="Auth tabs">
+        <button class="auth-tab active" id="tabLogin" type="button" data-tab="login" role="tab" aria-selected="true">Login</button>
+        <button class="auth-tab" id="tabRegister" type="button" data-tab="register" role="tab" aria-selected="false">Create Account</button>
       </div>
-      <form id="registerForm" class="form">
-        <label>Name
-          <input type="text" name="name" required />
-        </label>
-        <label>Email
-          <input type="email" name="email" required />
-        </label>
-        <label>Password
-          <input type="password" name="password" required />
-        </label>
-        <div id="studentFields">
-          <label>Estimated Band
-            <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
+
+      <section id="loginSection">
+        <h2>Welcome Back</h2>
+        <form id="loginForm" class="form">
+          <label>Email
+            <input type="email" name="email" required />
           </label>
-        <label>Teacher Code
-          <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
-        </label>
-        <p class="muted small">Get this code from your class teacher.</p>
-        <p class="muted small" id="teacherNamePreview"></p>
-        </div>
-        <div id="teacherFields" style="display:none;">
-          <label>School Code
-            <input type="text" name="school_code" placeholder="School code" />
+          <label>Password
+            <input type="password" name="password" required />
           </label>
+          <label>Role
+            <select name="role" required>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </label>
+          <button class="btn primary auth-cta" id="loginBtn" type="submit">Continue to Dashboard</button>
+          <p id="loginError" class="error"></p>
+        </form>
+      </section>
+
+      <section id="registerSection" class="hidden">
+        <h2>Create Account</h2>
+
+        <div class="account-type-grid" id="accountTypeGrid">
+          <button class="account-type-card active" type="button" data-role="student">Student Account</button>
+          <button class="account-type-card" type="button" data-role="teacher">Teacher Account</button>
         </div>
-        <button class="btn primary" type="submit">Create & Start</button>
-        <p id="registerError" class="error"></p>
-      </form>
+
+        <form id="registerForm" class="form">
+          <input type="hidden" name="register_role" id="registerRoleInput" value="student" />
+
+          <label>Full Name
+            <input type="text" name="name" required />
+          </label>
+          <label>Email
+            <input type="email" name="email" required />
+          </label>
+          <label>Password
+            <input type="password" id="registerPassword" name="password" required />
+          </label>
+          <div class="password-meter-wrap">
+            <div class="password-meter" id="passwordMeter"><i></i></div>
+            <span id="passwordMeterText" class="muted small">Password strength: low</span>
+          </div>
+
+          <div id="studentFields">
+            <label>Current Estimated Band
+              <select name="estimated_band">
+                <option value="2">Band 2</option>
+                <option value="3">Band 3</option>
+                <option value="4" selected>Band 4</option>
+                <option value="5">Band 5</option>
+                <option value="6">Band 6</option>
+              </select>
+            </label>
+            <label>Teacher Referral Code (Optional)
+              <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
+            </label>
+            <p class="muted small" id="teacherNamePreview"></p>
+          </div>
+
+          <div id="teacherFields" class="hidden">
+            <label>School Code
+              <input type="text" name="school_code" placeholder="School code" />
+            </label>
+          </div>
+
+          <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
+          <button class="btn primary auth-cta" id="registerBtn" type="submit">Start Training</button>
+          <p id="registerError" class="error"></p>
+        </form>
+      </section>
+
+      <aside class="mini-grade-panel">
+        <p class="mini-grade-title">Last Session</p>
+        <p>Estimated Grade: C+</p>
+        <p>Target: B+</p>
+      </aside>
     </section>
   </main>
 
@@ -73,28 +112,98 @@
       return { ok: res.ok, data: await res.json() };
     }
 
+    const panel = document.getElementById('authPanel');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginSection = document.getElementById('loginSection');
+    const registerSection = document.getElementById('registerSection');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const loginError = document.getElementById('loginError');
     const registerError = document.getElementById('registerError');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+
+    const registerRoleInput = document.getElementById('registerRoleInput');
+    const accountTypeGrid = document.getElementById('accountTypeGrid');
     const studentFields = document.getElementById('studentFields');
     const teacherFields = document.getElementById('teacherFields');
     const teacherCodeInput = document.getElementById('teacherCodeInput');
     const teacherNamePreview = document.getElementById('teacherNamePreview');
+    const registerPassword = document.getElementById('registerPassword');
+    const passwordMeter = document.getElementById('passwordMeter');
+    const passwordMeterText = document.getElementById('passwordMeterText');
+
+    function setTab(tab) {
+      const isLogin = tab === 'login';
+      tabLogin.classList.toggle('active', isLogin);
+      tabRegister.classList.toggle('active', !isLogin);
+      tabLogin.setAttribute('aria-selected', String(isLogin));
+      tabRegister.setAttribute('aria-selected', String(!isLogin));
+      loginSection.classList.toggle('hidden', !isLogin);
+      registerSection.classList.toggle('hidden', isLogin);
+    }
+
+    tabLogin.addEventListener('click', () => setTab('login'));
+    tabRegister.addEventListener('click', () => setTab('register'));
+
+    accountTypeGrid.addEventListener('click', (event) => {
+      const btn = event.target.closest('.account-type-card');
+      if (!btn) return;
+      const role = btn.dataset.role;
+      registerRoleInput.value = role;
+      [...accountTypeGrid.querySelectorAll('.account-type-card')].forEach((card) => {
+        card.classList.toggle('active', card.dataset.role === role);
+      });
+      studentFields.classList.toggle('hidden', role !== 'student');
+      teacherFields.classList.toggle('hidden', role !== 'teacher');
+    });
+
+    function setLoading(button, loading, textLoading, textNormal) {
+      button.disabled = loading;
+      button.textContent = loading ? textLoading : textNormal;
+    }
+
+    function goAfterSuccess(url) {
+      panel.classList.add('auth-success');
+      setTimeout(() => {
+        window.location.href = url;
+      }, 260);
+    }
+
+    function scorePassword(value) {
+      let score = 0;
+      if (value.length >= 8) score += 35;
+      if (/[A-Z]/.test(value)) score += 20;
+      if (/[a-z]/.test(value)) score += 15;
+      if (/\d/.test(value)) score += 15;
+      if (/[^A-Za-z0-9]/.test(value)) score += 15;
+      return Math.min(100, score);
+    }
+
+    registerPassword.addEventListener('input', () => {
+      const score = scorePassword(registerPassword.value || '');
+      passwordMeter.firstElementChild.style.width = score + '%';
+      const label = score < 40 ? 'low' : score < 70 ? 'medium' : 'strong';
+      passwordMeterText.textContent = `Password strength: ${label}`;
+    });
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.textContent = '';
       const formData = new FormData(loginForm);
       const payload = Object.fromEntries(formData.entries());
-      const loginRole = document.querySelector('input[name=\"loginRole\"]:checked')?.value || 'student';
-      const url = loginRole === 'teacher' ? '/api/teacher/login' : '/api/auth/login';
+      const role = payload.role || 'student';
+      delete payload.role;
+      const url = role === 'teacher' ? '/api/teacher/login' : '/api/auth/login';
+      setLoading(loginBtn, true, 'Checking...', 'Continue to Dashboard');
       const res = await postJSON(url, payload);
+      setLoading(loginBtn, false, 'Checking...', 'Continue to Dashboard');
       if (!res.ok) {
-        loginError.textContent = res.data?.error || 'Login failed';
+        loginError.textContent = res.data?.error || 'Unable to sign in now.';
         return;
       }
-      window.location.href = loginRole === 'teacher' ? '/teacher' : '/dashboard.html';
+      goAfterSuccess(role === 'teacher' ? '/teacher' : '/dashboard.html');
     });
 
     registerForm.addEventListener('submit', async (e) => {
@@ -102,47 +211,38 @@
       registerError.textContent = '';
       const formData = new FormData(registerForm);
       const payload = Object.fromEntries(formData.entries());
-      const registerRole = document.querySelector('input[name=\"registerRole\"]:checked')?.value || 'student';
-      if (registerRole === 'student') {
+      const role = payload.register_role || 'student';
+      delete payload.register_role;
+
+      if (role === 'student') {
         payload.estimated_band = Number(payload.estimated_band || 4);
         payload.form = 5;
       }
-      const url = registerRole === 'teacher' ? '/api/teacher/register' : '/api/auth/register';
+
+      const url = role === 'teacher' ? '/api/teacher/register' : '/api/auth/register';
+      setLoading(registerBtn, true, 'Creating...', 'Start Training');
       const res = await postJSON(url, payload);
+      setLoading(registerBtn, false, 'Creating...', 'Start Training');
       if (!res.ok) {
-        registerError.textContent = res.data?.error || 'Registration failed';
+        registerError.textContent = res.data?.error || 'Unable to create account now.';
         return;
       }
-      window.location.href = registerRole === 'teacher' ? '/teacher' : '/dashboard.html';
-    });
-
-    document.querySelectorAll('input[name=\"registerRole\"]').forEach((el) => {
-      el.addEventListener('change', () => {
-        const role = document.querySelector('input[name=\"registerRole\"]:checked')?.value || 'student';
-        studentFields.style.display = role === 'student' ? 'block' : 'none';
-        teacherFields.style.display = role === 'teacher' ? 'block' : 'none';
-      });
+      goAfterSuccess(role === 'teacher' ? '/teacher' : '/dashboard.html');
     });
 
     let teacherLookupTimer;
-    if (teacherCodeInput) {
-      teacherCodeInput.addEventListener('input', () => {
-        if (teacherLookupTimer) clearTimeout(teacherLookupTimer);
-        const code = teacherCodeInput.value.trim();
-        if (!code) {
-          teacherNamePreview.textContent = '';
-          return;
-        }
-        teacherLookupTimer = setTimeout(async () => {
-          const res = await postJSON('/api/teacher/teacher-name', { teacher_code: code });
-          if (!res.ok) {
-            teacherNamePreview.textContent = 'Teacher code not found';
-            return;
-          }
-          teacherNamePreview.textContent = `Teacher: ${res.data?.name || ''}`;
-        }, 400);
-      });
-    }
+    teacherCodeInput.addEventListener('input', () => {
+      if (teacherLookupTimer) clearTimeout(teacherLookupTimer);
+      const code = teacherCodeInput.value.trim();
+      if (!code) {
+        teacherNamePreview.textContent = '';
+        return;
+      }
+      teacherLookupTimer = setTimeout(async () => {
+        const res = await postJSON('/api/teacher/teacher-name', { teacher_code: code });
+        teacherNamePreview.textContent = res.ok ? `Teacher: ${res.data?.name || ''}` : 'Teacher code not found';
+      }, 350);
+    });
   </script>
 </body>
 </html>
