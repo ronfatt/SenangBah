@@ -73,6 +73,69 @@
         <span>Breakdown generated</span>
       </div>
     </section>
+
+    <section class="card advisor">
+      <div class="advisor-layout">
+        <div>
+          <h3>Meet Your SPM AI Advisor</h3>
+          <p class="sub">Not ready to register? Start with a free AI consultation.</p>
+          <p class="advisor-list-title">Ask about:</p>
+          <div class="advisor-topics">
+            <span>• Your child’s current English level</span>
+            <span>• Common SPM writing mistakes</span>
+            <span>• How scoring actually works</span>
+            <span>• Whether this system is suitable</span>
+          </div>
+
+          <button class="btn primary" id="startConsultBtn" type="button">Start Free AI Consultation</button>
+
+          <div class="consult-wizard hidden" id="consultWizard">
+            <div class="consult-step active" data-step="1">
+              <p class="consult-label">Step 1</p>
+              <h4>What is your child’s current SPM English grade?</h4>
+              <div class="consult-options" data-group="grade">
+                <button type="button" class="consult-option" data-value="A_B">(A) A / B</button>
+                <button type="button" class="consult-option" data-value="C_D">(B) C / D</button>
+                <button type="button" class="consult-option" data-value="E_FAIL">(C) E / Fail</button>
+                <button type="button" class="consult-option" data-value="NOT_SURE">(D) Not sure</button>
+              </div>
+            </div>
+
+            <div class="consult-step" data-step="2">
+              <p class="consult-label">Step 2</p>
+              <h4>Which area is most challenging?</h4>
+              <div class="consult-options" data-group="challenge">
+                <button type="button" class="consult-option" data-value="WRITING_IDEAS">Writing ideas</button>
+                <button type="button" class="consult-option" data-value="GRAMMAR">Grammar</button>
+                <button type="button" class="consult-option" data-value="ORGANISATION">Organisation</button>
+                <button type="button" class="consult-option" data-value="TIME_MANAGEMENT">Time management</button>
+              </div>
+            </div>
+
+            <div class="consult-step" data-step="3">
+              <p class="consult-label">Step 3</p>
+              <h4>AI Recommendation</h4>
+              <p class="consult-result" id="consultResult">
+                Based on your input, your child likely needs structured writing breakdown training aligned to SPM marking criteria.
+              </p>
+              <div class="actions">
+                <a class="btn ghost" href="/login.html">View Recommended Plan</a>
+                <a class="btn primary" href="/register">Register My Child</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="advisor-visual" aria-hidden="true">
+          <div class="avatar-particles"></div>
+          <div class="avatar-outline">
+            <div class="avatar-head"></div>
+            <div class="avatar-body"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
   </main>
+  <script src="/home.js" type="module"></script>
 </body>
 </html>
