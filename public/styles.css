@@ -51,6 +51,34 @@ h1, h2, h3 { margin: 0 0 8px; }
 
 .sub { color: var(--muted); margin: 0 0 16px; }
 
+.section-title {
+  margin: 6px 0 10px;
+}
+
+.why-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.why-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fffaf3;
+}
+
+.why-card h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.why-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .brand-title {
   font-size: 40px;
   line-height: 1.1;
@@ -269,6 +297,12 @@ textarea { resize: vertical; }
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+@media (max-width: 860px) {
+  .why-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .module {
