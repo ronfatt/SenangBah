@@ -103,6 +103,34 @@ router.post("/login", async (req, res) => {
   res.json({ ok: true });
 });
 
+router.post("/reset-password", async (req, res) => {
+  const { email, teacher_code, new_password } = req.body || {};
+
+  if (!email || !teacher_code || !new_password) {
+    return res.status(400).json({ error: "missing_fields" });
+  }
+  if (String(new_password).length < 8) {
+    return res.status(400).json({ error: "weak_password" });
+  }
+
+  const normalizedCode = String(teacher_code).trim().toUpperCase();
+  const user = await get(
+    `SELECT u.id
+     FROM users u
+     JOIN teachers t ON t.id = u.teacher_id
+     WHERE lower(u.email) = lower(?) AND t.code = ?`,
+    [String(email).trim(), normalizedCode]
+  );
+
+  if (!user) {
+    return res.status(400).json({ error: "invalid_account_or_code" });
+  }
+
+  const hash = await bcrypt.hash(String(new_password), 10);
+  await run("UPDATE users SET password_hash = ? WHERE id = ?", [hash, user.id]);
+  res.json({ ok: true });
+});
+
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ ok: true });

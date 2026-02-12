@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Writing Assessment · SenangBah</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="card hero">
+      <p class="eyebrow">ASSESSMENT</p>
+      <h1>Writing Level Assessment</h1>
+      <p class="sub">Upload a clear handwritten essay photo (max 2MB) for AI diagnostic.</p>
+      <div class="actions">
+        <a class="btn ghost" href="/dashboard.html">Back to Dashboard</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <form id="essayForm" class="form" enctype="multipart/form-data">
+        <label>Essay Photo
+          <input type="file" id="essayFile" accept="image/*" required />
+        </label>
+        <button class="btn primary" type="submit">Analyze My Essay</button>
+        <p id="essayMsg" class="muted"></p>
+      </form>
+      <div id="essayResult" class="essay-result"></div>
+    </section>
+  </main>
+  <script src="/assessment.js"></script>
+</body>
+</html>

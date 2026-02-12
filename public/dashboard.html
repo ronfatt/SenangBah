@@ -9,120 +9,81 @@
 <body>
   <main class="shell">
     <section class="card hero">
-      <p class="eyebrow">SENANGBAH</p>
-      <h1 class="brand-title">SenangBah — SPM English Hub</h1>
-      <p class="sub">One place for your SPM English growth. Start with Writing or Vocabulary.</p>
-      <p class="muted">Teacher? Open the Teacher Dashboard: /teacher</p>
-      <div class="status-bar" id="statusBar">
-        <span id="dayStatus">Day 1 of 14</span>
-        <span class="dot">•</span>
-        <span id="focusStatus">Writing Focus</span>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress">
-          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      <div class="row between">
+        <div>
+          <p class="eyebrow">SENANGBAH</p>
+          <h1 class="brand-title">SPM English Performance Dashboard</h1>
         </div>
-        <div class="progress-label" id="progressLabel">Progress: 0/14</div>
-        <div class="star-badge" id="starBadge">⭐ Total Stars: <span id="starCount">0</span></div>
+        <div class="actions">
+          <a class="btn ghost" href="/settings">⚙ Settings</a>
+          <button class="btn ghost" id="logoutBtn">Logout</button>
+        </div>
       </div>
+
+      <h2 class="section-title">Performance Control Panel</h2>
+      <div class="perf-grid">
+        <section class="mini-card">
+          <h2>Performance Overview</h2>
+          <p class="muted" id="gradeNow">Current Estimated Grade: C+</p>
+          <p class="muted" id="gradeTarget">Target Grade: B+</p>
+          <p class="muted" id="bandNow">Band: 4</p>
+          <div class="progress-wrap">
+            <div class="progress"><div class="progress-fill" id="gradeProgressFill"></div></div>
+            <div class="row between">
+              <span id="gradeScaleLeft" class="muted small">C+</span>
+              <span id="gradeScaleRight" class="muted small">B+</span>
+            </div>
+          </div>
+          <p class="band-move" id="weekImprovement">Improvement This Week: +0%</p>
+        </section>
+
+        <section class="mini-card">
+          <h2>Today’s Focus</h2>
+          <p class="muted" id="todayFocusLine">Day 1 of 14 - Writing Focus</p>
+          <div class="tasks-list" id="taskChecklist"></div>
+          <a class="btn primary big-cta" href="/app.html">Continue Today’s Training</a>
+        </section>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Progress & Momentum</h2>
       <div class="mini-cards">
         <div class="mini-card">
-          <div class="mini-title">Writing Booster</div>
-          <div class="mini-meta" id="writingMeta">Day 1 of 14</div>
-          <div class="mini-meta">Stars: <span id="writingStars">0</span></div>
+          <div class="mini-title">Weekly Activity</div>
+          <svg id="weeklyChart" width="100%" height="120" viewBox="0 0 420 120" preserveAspectRatio="none"></svg>
         </div>
         <div class="mini-card">
-          <div class="mini-title">Vocabulary Engine</div>
-          <div class="mini-meta" id="vocabMeta">Today: Not done</div>
-          <div class="mini-meta">Stars: <span id="vocabStars">0</span></div>
+          <div class="mini-title">Sessions</div>
+          <div class="mini-meta" id="weeklySessions">0</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">Avg Score</div>
+          <div class="mini-meta" id="avgScore">0%</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">Stars</div>
+          <div class="mini-meta" id="totalStars">0</div>
         </div>
       </div>
-      <div class="actions">
-        <a class="btn primary" href="/app.html">Start 14‑Day Writing Booster</a>
-        <a class="btn ghost" href="/vocab.html">Start Vocabulary Engine</a>
-        <button class="btn ghost" id="logoutBtn">Logout</button>
-      </div>
     </section>
 
     <section class="card">
-      <h2>Your Profile</h2>
-      <p class="muted">Fill this once. We use it to personalize drills.</p>
-      <form id="profileForm" class="form">
-        <label>Name
-          <input type="text" name="name" required />
-        </label>
-        <label>Class
-          <input type="text" name="class_name" placeholder="e.g. 5 Amanah" />
-        </label>
-        <label>Teacher Name
-          <input type="text" name="teacher_name" placeholder="e.g. Ms. Lim" />
-        </label>
-        <label>Estimated Band
-          <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
-        </label>
-        <p class="muted small">Estimated Band = your current writing level (best guess). We use it to personalize drills.</p>
-        <button class="btn primary" type="submit">Save Profile</button>
-        <p id="profileMsg" class="muted"></p>
-      </form>
-    </section>
-
-    <section class="card">
-      <h2>Upload Handwritten Essay</h2>
-      <p class="muted">Upload a clear photo (max 2MB). AI will analyze and give feedback.</p>
-      <form id="essayForm" class="form" enctype="multipart/form-data">
-        <label>Photo
-          <input type="file" id="essayFile" accept="image/*" required />
-        </label>
-        <button class="btn primary" type="submit">Analyze My Essay</button>
-        <p id="essayMsg" class="muted"></p>
-      </form>
-      <div id="essayResult" class="essay-result"></div>
-    </section>
-
-    <section class="card">
-      <h2>Modules</h2>
+      <h2>Training Modules</h2>
       <div class="grid">
         <div class="module hero">
           <div>
-            <p class="tag">🔥 14‑Day Writing Booster</p>
-            <p>Daily 10–15 min. Upgrade by editing. Band‑focused.</p>
-            <p class="muted small">You’ll learn: topic sentences, connectors, clearer ideas.</p>
+            <p class="tag">🔥 14-Day Writing Booster</p>
+            <p>Main path. Daily writing upgrade workflow.</p>
+            <p class="muted small">Stars: <span id="writingStars">0</span></p>
           </div>
           <a class="btn primary" href="/app.html">Open</a>
         </div>
 
-        <div class="module">
-          <div>
-            <p class="tag">🎤 Speaking Confidence Lab</p>
-            <p>Launch soon</p>
-            <p class="muted small">You’ll learn: calm starts, smoother answers, real-life speaking.</p>
-          </div>
-          <span class="pill">Coming</span>
-        </div>
-
-        <div class="module">
-          <div>
-            <p class="tag">👂 Listening Smart Drills</p>
-            <p>Launch soon</p>
-            <p class="muted small">You’ll learn: catch key words, choose the right answer fast.</p>
-          </div>
-          <span class="pill">Coming</span>
-        </div>
-
-        <div class="module">
-          <div>
-            <p class="tag">📖 Reading Decoder</p>
-            <p>Launch soon</p>
-            <p class="muted small">You’ll learn: find main idea, scan for clues, avoid traps.</p>
-          </div>
-          <span class="pill">Coming</span>
-        </div>
-
         <div class="module hero">
           <div>
-            <p class="tag">🧠 Grammar (Hidden, Not Boring)</p>
-            <p>Fix 1 weak line. 2–6 minutes.</p>
-            <p class="muted small">You’ll learn: clean sentences, smoother flow, fewer errors.</p>
+            <p class="tag">🧠 Grammar</p>
+            <p>Fix weak lines fast with exam style.</p>
             <p class="muted small">Stars: <span id="grammarStars">0</span></p>
           </div>
           <a class="btn primary" href="/grammar.html">Open</a>
@@ -130,13 +91,43 @@
 
         <div class="module hero">
           <div>
-            <p class="tag">🧩 Vocabulary Engine</p>
-            <p>1 word a day. Use it once. Build real vocab.</p>
-            <p class="muted small">You’ll learn: stronger verbs, clearer meaning, better phrases.</p>
+            <p class="tag">🧩 Vocabulary</p>
+            <p>1 word daily with guided usage drills.</p>
+            <p class="muted small">Stars: <span id="vocabStars">0</span></p>
           </div>
           <a class="btn primary" href="/vocab.html">Open</a>
         </div>
+
+        <div class="module locked">
+          <div>
+            <p class="tag">🎤 Speaking</p>
+            <p>Coming soon</p>
+          </div>
+          <span class="pill">Coming soon</span>
+        </div>
+
+        <div class="module locked">
+          <div>
+            <p class="tag">👂 Listening</p>
+            <p>Coming soon</p>
+          </div>
+          <span class="pill">Coming soon</span>
+        </div>
+
+        <div class="module locked">
+          <div>
+            <p class="tag">📖 Reading</p>
+            <p>Coming soon</p>
+          </div>
+          <span class="pill">Coming soon</span>
+        </div>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>Writing Level Assessment</h2>
+      <p class="muted">Not sure your level? Upload a full essay to get a diagnostic report.</p>
+      <a class="btn primary" href="/assessment.html">Start Assessment</a>
     </section>
   </main>
 

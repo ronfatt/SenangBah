@@ -23,6 +23,7 @@ router.get("/me", requireAuth, async (req, res) => {
 
 router.get("/dashboard", requireAuth, async (req, res) => {
   const userId = req.user.id;
+  const user = await get("SELECT estimated_band FROM users WHERE id = ?", [userId]);
   const sessions = await get(
     `SELECT COUNT(DISTINCT date) as day_count FROM sessions WHERE user_id = ?`,
     [userId]
@@ -60,6 +61,29 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   const grammarStars = Number(grammarCompleted?.completed_count || 0);
   const totalStars = completedSessions + vocabStars + grammarStars;
 
+  const weeklyRows = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toISOString().slice(0, 10);
+    const row = await get(
+      `SELECT current_step FROM sessions WHERE user_id = ? AND date = ?`,
+      [userId, date]
+    );
+    const started = Boolean(row);
+    const done = row?.current_step === "done";
+    const score = done ? 100 : started ? 55 : 0;
+    weeklyRows.push({ date, score, started, done });
+  }
+  const nonZero = weeklyRows.filter((r) => r.score > 0);
+  const avgScore = nonZero.length
+    ? Math.round(nonZero.reduce((sum, r) => sum + r.score, 0) / nonZero.length)
+    : 0;
+  const weeklyStartedCount = weeklyRows.filter((r) => r.started).length;
+
+  const estimatedBand = Number(user?.estimated_band || 4);
+  const weekImprovement = Math.max(2, Math.min(12, Math.round((avgScore - 50) / 4)));
+
   res.json({
     day_index: dayIndex,
     total_days: 14,
@@ -71,7 +95,12 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     total_stars: totalStars,
     grammar_total_stars: grammarStars,
     vocab_today_done: vocabDoneToday,
-    vocab_total_stars: vocabStars
+    vocab_total_stars: vocabStars,
+    estimated_band: estimatedBand,
+    weekly_activity: weeklyRows,
+    weekly_sessions: weeklyStartedCount,
+    avg_score: avgScore,
+    week_improvement: weekImprovement
   });
 });
 
