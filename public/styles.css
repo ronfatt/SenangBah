@@ -738,6 +738,27 @@ textarea { resize: vertical; }
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .home-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.home-page.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-page.reduce-motion::before {
+  background-size: 48px 48px;
+}
+
+.home-page.reduce-motion .avatar-particles,
+.home-page.reduce-motion .advisor-visual::before {
+  opacity: 0.3;
+}
+
 .module {
   border: 1px solid var(--border);
   border-radius: 14px;

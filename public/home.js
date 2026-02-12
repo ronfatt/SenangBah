@@ -9,6 +9,19 @@ const state = {
   step: 1
 };
 
+function shouldReduceMotion() {
+  const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const lowCpu = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
+  const lowMemory = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4;
+  const saveData = navigator.connection?.saveData === true;
+  return Boolean(prefersReduced || lowCpu || lowMemory || saveData);
+}
+
+const reduceMotion = shouldReduceMotion();
+if (reduceMotion) {
+  document.body.classList.add('reduce-motion');
+}
+
 function showStep(step) {
   state.step = step;
   consultSteps.forEach((node) => {
@@ -38,7 +51,7 @@ if (startConsultBtn && consultWizard) {
   startConsultBtn.addEventListener('click', () => {
     consultWizard.classList.remove('hidden');
     showStep(1);
-    consultWizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    consultWizard.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   });
 }
 
