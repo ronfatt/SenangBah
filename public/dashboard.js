@@ -10,6 +10,7 @@ const todayFocusLine = document.getElementById('todayFocusLine');
 const taskChecklist = document.getElementById('taskChecklist');
 const weeklySessions = document.getElementById('weeklySessions');
 const avgScore = document.getElementById('avgScore');
+const avgDelta = document.getElementById('avgDelta');
 const totalStars = document.getElementById('totalStars');
 const weeklyChart = document.getElementById('weeklyChart');
 const vocabStars = document.getElementById('vocabStars');
@@ -100,8 +101,8 @@ async function loadDashboard() {
   const currentGrade = bandToGrade(currentBand);
   const targetGrade = bandToGrade(targetBand);
 
-  if (gradeNow) gradeNow.textContent = `Current Estimated Grade: ${currentGrade}`;
-  if (gradeTarget) gradeTarget.textContent = `Target Grade: ${targetGrade}`;
+  if (gradeNow) gradeNow.textContent = currentGrade;
+  if (gradeTarget) gradeTarget.textContent = targetGrade;
   if (bandNow) bandNow.textContent = `Band: ${currentBand}`;
 
   if (gradeScaleLeft) gradeScaleLeft.textContent = currentGrade;
@@ -122,6 +123,7 @@ async function loadDashboard() {
 
   if (weeklySessions) weeklySessions.textContent = String(data.weekly_sessions || 0);
   if (avgScore) avgScore.textContent = `${Number(data.avg_score || 0)}%`;
+  if (avgDelta) avgDelta.textContent = `+${Number(data.week_improvement || 0)}% This Week`;
   if (totalStars) totalStars.textContent = String(data.total_stars || 0);
   if (writingStars) writingStars.textContent = String(data.completed_days || 0);
   if (vocabStars) vocabStars.textContent = String(data.vocab_total_stars || 0);

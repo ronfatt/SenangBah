@@ -6,9 +6,9 @@
   <title>Dashboard · SenangBah</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="dashboard-page">
   <main class="shell">
-    <section class="card hero">
+    <section class="card hero dashboard-hero">
       <div class="row between">
         <div>
           <p class="eyebrow">SENANGBAH</p>
@@ -22,13 +22,15 @@
 
       <h2 class="section-title">Performance Control Panel</h2>
       <div class="perf-grid">
-        <section class="mini-card">
+        <section class="mini-card perf-overview">
           <h2>Performance Overview</h2>
-          <p class="muted" id="gradeNow">Current Estimated Grade: C+</p>
-          <p class="muted" id="gradeTarget">Target Grade: B+</p>
+          <p class="muted label">Current Grade</p>
+          <p class="grade-big" id="gradeNow">C+</p>
+          <p class="muted label">Target Grade</p>
+          <p class="target-grade" id="gradeTarget">B+</p>
           <p class="muted" id="bandNow">Band: 4</p>
           <div class="progress-wrap">
-            <div class="progress"><div class="progress-fill" id="gradeProgressFill"></div></div>
+            <div class="progress progress-thin"><div class="progress-fill" id="gradeProgressFill"></div></div>
             <div class="row between">
               <span id="gradeScaleLeft" class="muted small">C+</span>
               <span id="gradeScaleRight" class="muted small">B+</span>
@@ -37,16 +39,17 @@
           <p class="band-move" id="weekImprovement">Improvement This Week: +0%</p>
         </section>
 
-        <section class="mini-card">
+        <section class="mini-card today-focus-panel">
           <h2>Today’s Focus</h2>
+          <div class="ai-dot" aria-hidden="true"></div>
           <p class="muted" id="todayFocusLine">Day 1 of 14 - Writing Focus</p>
           <div class="tasks-list" id="taskChecklist"></div>
-          <a class="btn primary big-cta" href="/app.html">Continue Today’s Training</a>
+          <a class="btn primary big-cta" href="/app.html">🚀 Continue Today’s Training</a>
         </section>
       </div>
     </section>
 
-    <section class="card">
+    <section class="card data-board">
       <h2>Progress & Momentum</h2>
       <div class="mini-cards">
         <div class="mini-card">
@@ -59,7 +62,8 @@
         </div>
         <div class="mini-card">
           <div class="mini-title">Avg Score</div>
-          <div class="mini-meta" id="avgScore">0%</div>
+          <div class="mini-meta score-big" id="avgScore">0%</div>
+          <div class="small muted" id="avgDelta">+0% This Week</div>
         </div>
         <div class="mini-card">
           <div class="mini-title">Stars</div>
@@ -68,10 +72,10 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card modules-board">
       <h2>Training Modules</h2>
       <div class="grid">
-        <div class="module hero">
+        <div class="module hero module-primary">
           <div>
             <p class="tag">🔥 14-Day Writing Booster</p>
             <p>Main path. Daily writing upgrade workflow.</p>
@@ -100,7 +104,7 @@
 
         <div class="module locked">
           <div>
-            <p class="tag">🎤 Speaking</p>
+            <p class="tag">🔒 🎤 Speaking</p>
             <p>Coming soon</p>
           </div>
           <span class="pill">Coming soon</span>
@@ -108,7 +112,7 @@
 
         <div class="module locked">
           <div>
-            <p class="tag">👂 Listening</p>
+            <p class="tag">🔒 👂 Listening</p>
             <p>Coming soon</p>
           </div>
           <span class="pill">Coming soon</span>
@@ -116,7 +120,7 @@
 
         <div class="module locked">
           <div>
-            <p class="tag">📖 Reading</p>
+            <p class="tag">🔒 📖 Reading</p>
             <p>Coming soon</p>
           </div>
           <span class="pill">Coming soon</span>
@@ -124,10 +128,18 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card assessment-panel">
       <h2>Writing Level Assessment</h2>
       <p class="muted">Not sure your level? Upload a full essay to get a diagnostic report.</p>
-      <a class="btn primary" href="/assessment.html">Start Assessment</a>
+      <div class="assessment-layout">
+        <div class="assessment-preview" aria-hidden="true">
+          <p>Diagnostic Report</p>
+          <p>Content: 12/20</p>
+          <p>Language: 14/20</p>
+          <p>Organisation: 8/10</p>
+        </div>
+        <a class="btn primary" href="/assessment.html">📊 Run Writing Diagnostic</a>
+      </div>
     </section>
   </main>
 
