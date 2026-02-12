@@ -6,43 +6,71 @@
   <title>SPM English Booster</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="home-page">
   <main class="shell">
     <section class="card hero">
       <p class="eyebrow">SPM English Performance System</p>
-      <div class="hero-top">
-        <div>
+      <p class="hero-official">Calibrated to Malaysian Examination Standards</p>
+      <div class="hero-layout">
+        <div class="hero-left">
           <h1>AI-Driven SPM English Grade Improvement</h1>
           <p class="sub">10 minutes a day.<br />Aligned with real SPM marking criteria.<br />Clear feedback. Clear improvement.</p>
+          <div class="actions">
+            <a class="btn primary" href="/login.html">Start Student Training</a>
+            <a class="btn ghost" href="/teacher">Teacher Portal</a>
+            <a class="btn ghost" href="/register">Apply for Pilot Access</a>
+          </div>
+          <div class="hero-stats">
+            <span>✓ 10-Min Daily Training</span>
+            <span>✓ Based on Real SPM Marking Criteria</span>
+            <span>✓ Pilot Cohort: 100 Students</span>
+          </div>
         </div>
-        <aside class="ai-preview">
-          <p class="ai-preview-title">AI Writing Score Breakdown</p>
-          <p>Content: 12/20</p>
-          <p>Language: 14/20</p>
-          <p>Organisation: 8/10</p>
-          <p class="ai-preview-band">→ Estimated Grade Band: C+</p>
-          <p class="ai-preview-rewrite">→ Suggested Rewrite</p>
+        <aside class="hero-right ai-preview">
+          <p class="ai-preview-title">AI Writing Analysis</p>
+          <div class="ai-row">
+            <span>Content</span>
+            <div class="ai-bar"><i style="width:60%"></i></div>
+            <strong>12/20</strong>
+          </div>
+          <div class="ai-row">
+            <span>Language</span>
+            <div class="ai-bar"><i style="width:70%"></i></div>
+            <strong>14/20</strong>
+          </div>
+          <div class="ai-row">
+            <span>Organisation</span>
+            <div class="ai-bar"><i style="width:80%"></i></div>
+            <strong>8/10</strong>
+          </div>
+          <p class="ai-preview-band">Estimated Grade: C+</p>
+          <p class="ai-preview-rewrite">↑ Target: B+</p>
         </aside>
       </div>
+
       <h3 class="section-title">Why This Is Different</h3>
       <div class="why-grid">
         <article class="why-card">
-          <h4>SPM Writing Breakdown</h4>
+          <h4>🧠 SPM Writing Breakdown</h4>
           <p>See exactly which part of your child’s writing needs improvement.</p>
         </article>
         <article class="why-card">
-          <h4>Exam-Structured Practice</h4>
+          <h4>📊 Exam-Structured Practice</h4>
           <p>Practice based strictly on actual SPM format.</p>
         </article>
         <article class="why-card">
-          <h4>Mark Simulation Feedback</h4>
+          <h4>📈 Mark Simulation Feedback</h4>
           <p>Understand how examiners would score the answer.</p>
         </article>
       </div>
-      <div class="actions">
-        <a class="btn primary" href="/login.html">Start Student Training</a>
-        <a class="btn ghost" href="/teacher">Teacher Portal</a>
-        <a class="btn ghost" href="/register">Apply for Pilot Access</a>
+    </section>
+
+    <section class="card simulation">
+      <h3>Live AI Simulation</h3>
+      <div class="sim-flow">
+        <span>Student submits paragraph</span>
+        <span class="sim-loader">AI analysing<span>.</span><span>.</span><span>.</span></span>
+        <span>Breakdown generated</span>
       </div>
     </section>
   </main>
