@@ -30,7 +30,7 @@ Answer ONLY about this intake:
 - Founding cohort: 100 students
 - This is an application and review process, not instant acceptance
 - Focus: AI-driven SPM English writing support with 14-day structured upgrade
-- Roles: student, parent, teacher can apply
+- Application types: individual student, school teacher
 Keep answers concise (2-4 short sentences), clear, and practical.
 If question is unrelated, politely redirect to intake/application topics.`;
 
@@ -55,7 +55,7 @@ function fallbackAnalysis() {
   };
 }
 
-async function analyzeIntro({ role, intro }) {
+async function analyzeIntro({ applicationType, intro }) {
   if (!process.env.OPENAI_API_KEY) return fallbackAnalysis();
 
   try {
@@ -68,7 +68,7 @@ async function analyzeIntro({ role, intro }) {
         {
           role: "user",
           content:
-            `Applicant role: ${role}\n` +
+            `Application type: ${applicationType}\n` +
             `Essay:\n${intro}`
         }
       ],
@@ -111,7 +111,7 @@ router.get("/examples", async (_req, res) => {
 });
 
 router.post("/diagnose", async (req, res) => {
-  const cleanRole = clean(req.body?.role).toLowerCase() || "student";
+  const cleanApplicationType = clean(req.body?.application_type).toLowerCase() || "individual_student";
   const cleanIntro = clean(req.body?.self_intro_text);
 
   if (!cleanIntro) return res.status(400).json({ error: "missing_intro" });
@@ -119,13 +119,13 @@ router.post("/diagnose", async (req, res) => {
     return res.status(400).json({ error: "intro_too_short" });
   }
 
-  const analysis = await analyzeIntro({ role: cleanRole, intro: cleanIntro });
+  const analysis = await analyzeIntro({ applicationType: cleanApplicationType, intro: cleanIntro });
   res.json({ ok: true, intro_analysis: analysis });
 });
 
 router.post("/submit", async (req, res) => {
   const {
-    role,
+    application_type,
     full_name,
     age,
     school_name,
@@ -137,7 +137,7 @@ router.post("/submit", async (req, res) => {
     plan_choice
   } = req.body || {};
 
-  const cleanRole = clean(role).toLowerCase();
+  const cleanApplicationType = clean(application_type).toLowerCase();
   const cleanName = clean(full_name);
   const cleanSchool = clean(school_name);
   const cleanEmail = clean(email).toLowerCase();
@@ -147,8 +147,8 @@ router.post("/submit", async (req, res) => {
   const cleanPlan = clean(plan_choice).toLowerCase();
   const numericAge = Number(age);
 
-  if (!cleanRole || !["student", "parent", "teacher"].includes(cleanRole)) {
-    return res.status(400).json({ error: "invalid_role" });
+  if (!cleanApplicationType || !["individual_student", "school_teacher"].includes(cleanApplicationType)) {
+    return res.status(400).json({ error: "invalid_application_type" });
   }
 
   if (
@@ -191,7 +191,7 @@ router.post("/submit", async (req, res) => {
   if (self_intro_analysis && typeof self_intro_analysis === "object") {
     introAnalysis = self_intro_analysis;
   } else {
-    introAnalysis = await analyzeIntro({ role: cleanRole, intro: cleanIntro });
+    introAnalysis = await analyzeIntro({ applicationType: cleanApplicationType, intro: cleanIntro });
   }
 
   const id = nanoid();
@@ -201,7 +201,7 @@ router.post("/submit", async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
-      cleanRole,
+      cleanApplicationType,
       cleanName,
       numericAge,
       cleanSchool,
@@ -234,7 +234,7 @@ router.post("/assistant", async (req, res) => {
   if (!process.env.OPENAI_API_KEY) {
     const q = question.toLowerCase();
     if (q.includes("who") && q.includes("apply")) {
-      return res.json({ reply: "Students, parents, and teachers can submit an application. All applications go into review before approval." });
+      return res.json({ reply: "Individual students and school teachers can submit an intake application. All submissions go into review before approval." });
     }
     if (q.includes("select") || q.includes("review") || q.includes("approve")) {
       return res.json({ reply: "Applications are reviewed by our team. Approval is based on fit and intake capacity. This is not instant acceptance." });

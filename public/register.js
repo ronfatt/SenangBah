@@ -2,7 +2,7 @@ const form = document.getElementById("pilotForm");
 const applicationCard = document.getElementById("applicationCard");
 const steps = [...document.querySelectorAll(".step")];
 const roleButtons = [...document.querySelectorAll(".roleBtn")];
-const roleInput = document.getElementById("roleInput");
+const applicationTypeInput = document.getElementById("applicationTypeInput");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const submitBtn = document.getElementById("submitBtn");
@@ -17,8 +17,6 @@ const analysisFixes = document.getElementById("analysisFixes");
 const analysisComment = document.getElementById("analysisComment");
 const progressFill = document.getElementById("progressFill");
 const stepLabel = document.getElementById("stepLabel");
-const approvedCount = document.getElementById("approvedCount");
-const seatsLeft = document.getElementById("seatsLeft");
 const totalApplications = document.getElementById("totalApplications");
 const diagnosticBtn = document.getElementById("diagnosticBtn");
 const diagnosticHint = document.getElementById("diagnosticHint");
@@ -50,7 +48,7 @@ let currentStep = 1;
 let diagnosticAnalysis = null;
 
 const labels = {
-  1: "Step 1 of 4 · Choose role",
+  1: "Application Step 1/4 · Application type",
   2: "Step 2 of 4 · Student information",
   3: "Step 3 of 4 · AI diagnostic",
   4: "Step 4 of 4 · Choose preferred plan"
@@ -73,7 +71,7 @@ function setStep(step) {
 
 function validateStep(step) {
   if (step === 1) {
-    return Boolean(roleInput.value);
+    return Boolean(applicationTypeInput.value);
   }
 
   if (step === 3) {
@@ -100,7 +98,7 @@ function validateStep(step) {
 
 function showStepError(step) {
   const tips = {
-    1: "Please choose Student, Parent, or Teacher.",
+    1: "Please choose Student or Teacher application type.",
     2: "Please complete all student information fields.",
     3: "Please run AI Diagnostic after writing your self-introduction.",
     4: "Please choose one preferred plan."
@@ -124,7 +122,7 @@ roleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     roleButtons.forEach((item) => item.classList.remove("active"));
     button.classList.add("active");
-    roleInput.value = button.dataset.role;
+    applicationTypeInput.value = button.dataset.applicationType;
     errorText.textContent = "";
   });
 });
@@ -166,7 +164,7 @@ form.addEventListener("submit", async (event) => {
         missing_intro: "Please write your self-introduction first.",
         intro_too_short: "Please write at least 30 words for your self-introduction sample.",
         invalid_email: "Please use a valid email address.",
-        invalid_role: "Please choose a valid role.",
+        invalid_application_type: "Please choose a valid application type.",
         invalid_plan_choice: "Please choose a plan."
       };
       throw new Error(map[data.error] || "Unable to submit now. Try again.");
@@ -273,7 +271,7 @@ function renderScores(scores) {
 diagnosticBtn.addEventListener("click", async () => {
   const intro = document.querySelector('textarea[name="self_intro_text"]');
   const text = String(intro?.value || "").trim();
-  const role = roleInput.value || "student";
+  const applicationType = applicationTypeInput.value || "individual_student";
 
   diagnosticAnalysis = null;
   diagnosticInlineResult.classList.add("hidden");
@@ -292,7 +290,7 @@ diagnosticBtn.addEventListener("click", async () => {
     const response = await fetch("/api/pilot-registration/diagnose", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, self_intro_text: text })
+      body: JSON.stringify({ application_type: applicationType, self_intro_text: text })
     });
     const data = await response.json();
     if (!response.ok) {
@@ -336,8 +334,6 @@ async function loadMeta() {
     const response = await fetch("/api/pilot-registration/meta");
     if (!response.ok) return;
     const data = await response.json();
-    if (approvedCount) approvedCount.textContent = data.approved_count || 0;
-    if (seatsLeft) seatsLeft.textContent = data.seats_left;
     if (totalApplications) totalApplications.textContent = data.total_applications;
   } catch {
     // ignore

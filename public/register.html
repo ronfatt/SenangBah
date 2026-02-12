@@ -24,52 +24,45 @@
     <main class="shell">
       <section class="hero">
         <p class="kicker">SENANGBAH</p>
-        <h1>SPM English Performance Intake<br />Founding Cohort – 100 Students</h1>
-        <p class="subtitle">AI-driven writing upgrade system aligned with real SPM marking criteria.</p>
-        <p class="scarcity">
-          Cohort size: 100 students · Application now open.
-          <span class="meta-inline">Approved: <strong id="approvedCount">0</strong> · Seats left: <strong id="seatsLeft">100</strong> · Total applications: <strong id="totalApplications">0</strong></span>
-        </p>
+        <h1>SPM English Performance Intake</h1>
+        <p class="subtitle">Founding Cohort (100 students)</p>
+        <p class="description">AI-driven writing upgrade system aligned with real SPM marking criteria.</p>
+        <p class="capacityLine">Capacity: 100 • Status: Open</p>
+        <p class="applicationsMuted">Applications received: <strong id="totalApplications">0</strong></p>
         <button type="button" class="primary hero-cta" id="startApplicationBtn">Start Application</button>
-        <div class="valueList">
-          <p>What selected students receive:</p>
-          <ul>
-            <li>AI band diagnostic</li>
-            <li>Weakness breakdown report</li>
-            <li>Structured 14-day writing upgrade</li>
-          </ul>
+        <div class="featureChips">
+          <div class="featureChip">📊 AI band diagnostic</div>
+          <div class="featureChip">🧩 Weakness breakdown report</div>
+          <div class="featureChip">📝 Structured 14-day writing upgrade</div>
         </div>
       </section>
 
-      <section class="card" id="applicationCard">
+      <section class="card application-card" id="applicationCard">
         <div class="progressWrap">
-          <div class="progressText" id="stepLabel">Step 1 of 4 · Choose role</div>
+          <div class="progressText" id="stepLabel">Application Step 1/4 · Application type</div>
           <div class="progressBar"><span id="progressFill"></span></div>
         </div>
 
         <form id="pilotForm" novalidate>
           <div class="step active" data-step="1">
-            <h2>Choose Your Role</h2>
+            <h2>Choose Application Type</h2>
             <p class="helper">Step 1 of 4</p>
             <div class="roleGrid">
-              <button type="button" class="roleBtn" data-role="student">
+              <button type="button" class="roleBtn" data-application-type="individual_student">
                 <span>Student</span>
                 <small>I am applying for myself.</small>
               </button>
-              <button type="button" class="roleBtn" data-role="parent">
-                <span>Parent</span>
-                <small>I am applying for my child.</small>
-              </button>
-              <button type="button" class="roleBtn" data-role="teacher">
+              <button type="button" class="roleBtn" data-application-type="school_teacher">
                 <span>Teacher</span>
                 <small>I am recommending a student.</small>
               </button>
             </div>
-            <input type="hidden" name="role" id="roleInput" required />
+            <p class="phaseNote">Parent access will be introduced in a future phase.</p>
+            <input type="hidden" name="application_type" id="applicationTypeInput" required />
           </div>
 
           <div class="step" data-step="2">
-            <h2>Student Information</h2>
+            <h2>Applicant Information</h2>
             <p class="helper">Please fill real details. We will contact shortlisted applicants by email and WhatsApp.</p>
             <div class="fieldGrid">
               <label>
