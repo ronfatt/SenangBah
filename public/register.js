@@ -1,4 +1,5 @@
 const form = document.getElementById("pilotForm");
+const applicationCard = document.getElementById("applicationCard");
 const steps = [...document.querySelectorAll(".step")];
 const roleButtons = [...document.querySelectorAll(".roleBtn")];
 const roleInput = document.getElementById("roleInput");
@@ -17,7 +18,6 @@ const analysisComment = document.getElementById("analysisComment");
 const progressFill = document.getElementById("progressFill");
 const stepLabel = document.getElementById("stepLabel");
 const approvedCount = document.getElementById("approvedCount");
-const reviewPool = document.getElementById("reviewPool");
 const seatsLeft = document.getElementById("seatsLeft");
 const totalApplications = document.getElementById("totalApplications");
 const diagnosticBtn = document.getElementById("diagnosticBtn");
@@ -36,7 +36,15 @@ const diagScoreClarityText = document.getElementById("diagScoreClarityText");
 const diagScoreGrammarText = document.getElementById("diagScoreGrammarText");
 const diagScoreIdeaText = document.getElementById("diagScoreIdeaText");
 const diagScoreVocabularyText = document.getElementById("diagScoreVocabularyText");
-const proofGrid = document.getElementById("proofGrid");
+const startApplicationBtn = document.getElementById("startApplicationBtn");
+
+const intakeAssistantBtn = document.getElementById("intakeAssistantBtn");
+const intakeAssistantPanel = document.getElementById("intakeAssistantPanel");
+const assistantCloseBtn = document.getElementById("assistantCloseBtn");
+const assistantMessages = document.getElementById("assistantMessages");
+const assistantForm = document.getElementById("assistantForm");
+const assistantInput = document.getElementById("assistantInput");
+const assistantQuickButtons = [...document.querySelectorAll(".assistantQuickBtn")];
 
 let currentStep = 1;
 let diagnosticAnalysis = null;
@@ -73,13 +81,13 @@ function validateStep(step) {
     return Boolean(String(intro?.value || "").trim()) && Boolean(diagnosticAnalysis);
   }
 
-  const activeStep = document.querySelector(`.step[data-step=\"${step}\"]`);
+  const activeStep = document.querySelector(`.step[data-step="${step}"]`);
   const inputs = [...activeStep.querySelectorAll("input, select, textarea")]
     .filter((node) => node.required);
 
   for (const node of inputs) {
     if (node.type === "radio") {
-      const checked = activeStep.querySelector(`input[name=\"${node.name}\"]:checked`);
+      const checked = activeStep.querySelector(`input[name="${node.name}"]:checked`);
       if (!checked) return false;
       continue;
     }
@@ -120,6 +128,13 @@ roleButtons.forEach((button) => {
     errorText.textContent = "";
   });
 });
+
+if (startApplicationBtn) {
+  startApplicationBtn.addEventListener("click", () => {
+    applicationCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setStep(1);
+  });
+}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -321,46 +336,73 @@ async function loadMeta() {
     const response = await fetch("/api/pilot-registration/meta");
     if (!response.ok) return;
     const data = await response.json();
-    approvedCount.textContent = `${data.approved_count || 0} / 100`;
-    reviewPool.textContent = data.review_pool_count;
-    seatsLeft.textContent = data.seats_left;
-    totalApplications.textContent = data.total_applications;
+    if (approvedCount) approvedCount.textContent = data.approved_count || 0;
+    if (seatsLeft) seatsLeft.textContent = data.seats_left;
+    if (totalApplications) totalApplications.textContent = data.total_applications;
   } catch {
     // ignore
   }
 }
 
-async function loadExamples() {
-  if (!proofGrid) return;
+function appendAssistantMessage(text, role) {
+  if (!assistantMessages) return;
+  const p = document.createElement("p");
+  p.className = `assistantMsg ${role === "user" ? "assistantMsgUser" : "assistantMsgBot"}`;
+  p.textContent = text;
+  assistantMessages.appendChild(p);
+  assistantMessages.scrollTop = assistantMessages.scrollHeight;
+}
+
+async function askAssistant(question) {
+  appendAssistantMessage(question, "user");
   try {
-    const response = await fetch("/api/pilot-registration/examples");
-    if (!response.ok) return;
+    const response = await fetch("/api/pilot-registration/assistant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
     const data = await response.json();
-    const items = Array.isArray(data.items) ? data.items : [];
-    if (!items.length) return;
-    proofGrid.innerHTML = "";
-    for (const item of items) {
-      const card = document.createElement("article");
-      card.className = "proofCard";
-      const p1 = document.createElement("p");
-      const p2 = document.createElement("p");
-      const s1 = document.createElement("strong");
-      const s2 = document.createElement("strong");
-      s1.textContent = "Before:";
-      s2.textContent = "After:";
-      p1.appendChild(s1);
-      p1.append(` ${item.before_text || ""}`);
-      p2.appendChild(s2);
-      p2.append(` ${item.after_text || ""}`);
-      card.appendChild(p1);
-      card.appendChild(p2);
-      proofGrid.appendChild(card);
+    if (!response.ok) {
+      appendAssistantMessage("I can't answer right now. Please continue with the application form.", "bot");
+      return;
     }
+    appendAssistantMessage(data.reply || "Please continue with your application.", "bot");
   } catch {
-    // ignore
+    appendAssistantMessage("Connection issue. Please continue with the application form.", "bot");
   }
+}
+
+if (intakeAssistantBtn && intakeAssistantPanel) {
+  intakeAssistantBtn.addEventListener("click", () => {
+    intakeAssistantPanel.classList.toggle("hidden");
+    if (!intakeAssistantPanel.classList.contains("hidden")) {
+      assistantInput?.focus();
+    }
+  });
+}
+
+if (assistantCloseBtn && intakeAssistantPanel) {
+  assistantCloseBtn.addEventListener("click", () => {
+    intakeAssistantPanel.classList.add("hidden");
+  });
+}
+
+assistantQuickButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const text = String(btn.textContent || "").trim();
+    if (text) askAssistant(text);
+  });
+});
+
+if (assistantForm) {
+  assistantForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const question = String(assistantInput?.value || "").trim();
+    if (!question) return;
+    assistantInput.value = "";
+    askAssistant(question);
+  });
 }
 
 setStep(1);
 loadMeta();
-loadExamples();

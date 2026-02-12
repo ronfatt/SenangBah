@@ -13,6 +13,10 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -25,18 +29,18 @@ body {
 }
 
 .shell {
-  max-width: 1080px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 36px 20px 54px;
+  padding: 30px 20px 54px;
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .hero {
   background: linear-gradient(130deg, #182848, #4b6cb7);
   color: #fff;
   border-radius: 24px;
-  padding: 28px;
+  padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
@@ -45,101 +49,70 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-size: 12px;
-  opacity: 0.78;
+  opacity: 0.82;
 }
 
 .hero h1 {
   margin: 10px 0 8px;
-  font-size: clamp(30px, 4vw, 44px);
-  line-height: 1.05;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.08;
 }
 
 .subtitle {
   margin: 0;
-  max-width: 760px;
-  opacity: 0.88;
+  opacity: 0.9;
 }
 
-.valueGrid {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+.scarcity {
+  margin: 10px 0 0;
+  font-weight: 700;
+  opacity: 0.96;
 }
 
-.valueCard {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 12px;
-  padding: 12px;
-}
-
-.valueCard h3 {
-  margin: 0 0 4px;
-  font-size: 17px;
-}
-
-.valueCard p {
-  margin: 0;
-  opacity: 0.88;
-  font-size: 14px;
-}
-
-.stats {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
-  gap: 12px;
-}
-
-.stat {
-  background: rgba(255, 255, 255, 0.13);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 12px;
-}
-
-.stat span {
+.meta-inline {
   display: block;
-  font-size: 12px;
-  opacity: 0.76;
+  margin-top: 6px;
+  opacity: 0.88;
+  font-weight: 600;
 }
 
-.stat strong {
-  font-size: 24px;
+.hero-cta {
+  margin-top: 14px;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 20px;
+  font: inherit;
+  font-weight: 800;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+
+.valueList {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 10px;
+}
+
+.valueList p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.valueList ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.valueList li {
+  margin-bottom: 4px;
 }
 
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 22px;
-}
-
-.proofStrip {
-  margin-bottom: 16px;
-}
-
-.proofStrip h3 {
-  margin: 0 0 10px;
-}
-
-.proofGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.proofCard {
-  border: 1px solid #dfd5c5;
-  border-radius: 12px;
-  padding: 10px;
-  background: #fff;
-  font-size: 14px;
-}
-
-.proofCard p {
-  margin: 0 0 8px;
+  border-radius: 20px;
+  padding: 20px;
 }
 
 .progressWrap {
@@ -299,6 +272,7 @@ button {
   padding: 12px 18px;
   font: inherit;
   font-weight: 800;
+  cursor: pointer;
 }
 
 button.primary {
@@ -361,15 +335,15 @@ button.ghost {
 
 .scoreRow {
   display: grid;
-  grid-template-columns: 86px 1fr 36px;
+  grid-template-columns: 110px 1fr 36px;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .scoreTrack {
-  background: #e3ecff;
-  height: 9px;
+  height: 8px;
+  background: #d9e7ff;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -377,36 +351,153 @@ button.ghost {
 .scoreTrack i {
   display: block;
   height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #175ed3, #13a3ff);
+  width: 0;
+  background: linear-gradient(90deg, #3182f6, #14b8a6);
 }
 
 .fixItem {
-  border: 1px solid #d9e6ff;
+  border: 1px dashed #b8c9ec;
   border-radius: 10px;
   padding: 10px;
-  background: #fff;
+  background: #ffffff;
 }
 
-.hidden {
-  display: none;
+.fixItem p {
+  margin: 3px 0;
 }
 
-@media (max-width: 860px) {
+.assistantFab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  font-size: 22px;
+  z-index: 1000;
+}
+
+.assistantHint {
+  position: absolute;
+  right: 64px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0f172a;
+  color: #dbeafe;
+  padding: 7px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.assistantFab:hover .assistantHint {
+  opacity: 1;
+}
+
+.assistantPanel {
+  position: fixed;
+  right: 22px;
+  bottom: 84px;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  background: #ffffff;
+  border: 1px solid #d6dded;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.24);
+  padding: 12px;
+  z-index: 1000;
+}
+
+.assistantHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.assistantHead h3 {
+  margin: 0;
+}
+
+.assistantHead p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.assistantClose {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  line-height: 1;
+}
+
+.assistantMessages {
+  margin-top: 10px;
+  border: 1px solid #e8edf7;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fafcff;
+  min-height: 140px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.assistantMsg {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.assistantMsgBot {
+  background: #e8f0ff;
+}
+
+.assistantMsgUser {
+  background: #fff0e3;
+}
+
+.assistantQuick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.assistantQuickBtn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.assistantForm {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+@media (max-width: 840px) {
   .roleGrid,
-  .fieldGrid,
-  .valueGrid,
-  .proofGrid,
-  .stats {
+  .fieldGrid {
     grid-template-columns: 1fr;
   }
 
-  .actions {
-    flex-wrap: wrap;
+  .shell {
+    padding: 20px 14px 32px;
   }
 
-  button.primary {
-    margin-left: 0;
-    width: 100%;
+  .assistantPanel {
+    right: 12px;
+    left: 12px;
+    width: auto;
   }
 }

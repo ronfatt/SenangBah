@@ -23,55 +23,25 @@
   <body>
     <main class="shell">
       <section class="hero">
-        <p class="kicker">SenangBah</p>
-        <h1>First 100 SPM Students</h1>
-        <p class="subtitle">
-          Limited intake for the first SenangBah cohort. Submit your application and we will shortlist 100 students.
+        <p class="kicker">SENANGBAH</p>
+        <h1>SPM English Performance Intake<br />Founding Cohort – 100 Students</h1>
+        <p class="subtitle">AI-driven writing upgrade system aligned with real SPM marking criteria.</p>
+        <p class="scarcity">
+          Cohort size: 100 students · Application now open.
+          <span class="meta-inline">Approved: <strong id="approvedCount">0</strong> · Seats left: <strong id="seatsLeft">100</strong> · Total applications: <strong id="totalApplications">0</strong></span>
         </p>
-        <div class="valueGrid">
-          <article class="valueCard">
-            <h3>AI Band Snapshot</h3>
-            <p>Know your current writing level in minutes.</p>
-          </article>
-          <article class="valueCard">
-            <h3>Weakness Map</h3>
-            <p>See the exact habits pulling your score down.</p>
-          </article>
-          <article class="valueCard">
-            <h3>3 Sentence Upgrade Plan</h3>
-            <p>Get practical rewrites you can reuse in exam writing.</p>
-          </article>
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <span>Approved</span>
-            <strong id="approvedCount">- / 100</strong>
-          </div>
-          <div class="stat">
-            <span>Review Pool</span>
-            <strong id="reviewPool">-</strong>
-          </div>
-          <div class="stat">
-            <span>Seats Left</span>
-            <strong id="seatsLeft">-</strong>
-          </div>
-          <div class="stat">
-            <span>Total Applications</span>
-            <strong id="totalApplications">-</strong>
-          </div>
+        <button type="button" class="primary hero-cta" id="startApplicationBtn">Start Application</button>
+        <div class="valueList">
+          <p>What selected students receive:</p>
+          <ul>
+            <li>AI band diagnostic</li>
+            <li>Weakness breakdown report</li>
+            <li>Structured 14-day writing upgrade</li>
+          </ul>
         </div>
       </section>
 
-      <section class="card">
-        <section class="proofStrip">
-          <h3>Real Upgrade Examples</h3>
-          <div class="proofGrid" id="proofGrid">
-            <article class="proofCard">
-              <p><strong>Before:</strong> Loading examples...</p>
-            </article>
-          </div>
-        </section>
-
+      <section class="card" id="applicationCard">
         <div class="progressWrap">
           <div class="progressText" id="stepLabel">Step 1 of 4 · Choose role</div>
           <div class="progressBar"><span id="progressFill"></span></div>
@@ -79,8 +49,8 @@
 
         <form id="pilotForm" novalidate>
           <div class="step active" data-step="1">
-            <h2>Choose Role</h2>
-            <p class="helper">Tell us how you are applying.</p>
+            <h2>Choose Your Role</h2>
+            <p class="helper">Step 1 of 4</p>
             <div class="roleGrid">
               <button type="button" class="roleBtn" data-role="student">
                 <span>Student</span>
@@ -241,14 +211,36 @@
             </div>
             <p id="analysisComment"></p>
           </div>
-          <p>
-            While waiting for the result, try
-            <a href="https://storybah.my" target="_blank" rel="noopener noreferrer">Storybah.my</a>
-            to create your own story and strengthen your English flow.
-          </p>
         </section>
       </section>
     </main>
+
+    <button type="button" class="assistantFab" id="intakeAssistantBtn" aria-label="Ask About This Programme">
+      ✦
+      <span class="assistantHint">Ask About This Programme</span>
+    </button>
+
+    <aside class="assistantPanel hidden" id="intakeAssistantPanel" aria-live="polite">
+      <div class="assistantHead">
+        <div>
+          <h3>SPM Intake Assistant</h3>
+          <p>Ask anything about this intake.</p>
+        </div>
+        <button type="button" class="ghost assistantClose" id="assistantCloseBtn">×</button>
+      </div>
+      <div class="assistantMessages" id="assistantMessages">
+        <p class="assistantMsg assistantMsgBot">Hi, I can help with eligibility, intake process, and what students receive.</p>
+      </div>
+      <div class="assistantQuick">
+        <button type="button" class="ghost assistantQuickBtn">Who can apply?</button>
+        <button type="button" class="ghost assistantQuickBtn">How selection works?</button>
+        <button type="button" class="ghost assistantQuickBtn">What do selected students get?</button>
+      </div>
+      <form id="assistantForm" class="assistantForm">
+        <input id="assistantInput" type="text" placeholder="Type your question..." maxlength="300" required />
+        <button type="submit" class="primary">Send</button>
+      </form>
+    </aside>
 
     <script src="/register.js" type="module"></script>
   </body>

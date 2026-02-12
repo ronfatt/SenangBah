@@ -25,6 +25,15 @@ Rules:
 - Keep "original" as short quoted sentences copied from the student text.
 - If the text is too short, still give best-effort feedback and mark missing detail in weaknesses.`;
 
+const INTAKE_ASSISTANT_SYSTEM = `You are SenangBah SPM Intake Assistant.
+Answer ONLY about this intake:
+- Founding cohort: 100 students
+- This is an application and review process, not instant acceptance
+- Focus: AI-driven SPM English writing support with 14-day structured upgrade
+- Roles: student, parent, teacher can apply
+Keep answers concise (2-4 short sentences), clear, and practical.
+If question is unrelated, politely redirect to intake/application topics.`;
+
 function clean(value) {
   return String(value || "").trim();
 }
@@ -216,6 +225,43 @@ router.post("/submit", async (req, res) => {
     intro_analysis: introAnalysis,
     message: "Application received and added to the review pool. We will contact you after screening."
   });
+});
+
+router.post("/assistant", async (req, res) => {
+  const question = clean(req.body?.question);
+  if (!question) return res.status(400).json({ error: "missing_question" });
+
+  if (!process.env.OPENAI_API_KEY) {
+    const q = question.toLowerCase();
+    if (q.includes("who") && q.includes("apply")) {
+      return res.json({ reply: "Students, parents, and teachers can submit an application. All applications go into review before approval." });
+    }
+    if (q.includes("select") || q.includes("review") || q.includes("approve")) {
+      return res.json({ reply: "Applications are reviewed by our team. Approval is based on fit and intake capacity. This is not instant acceptance." });
+    }
+    if (q.includes("get") || q.includes("receive")) {
+      return res.json({ reply: "Selected students receive an AI band diagnostic, weakness breakdown, and a structured 14-day writing upgrade path." });
+    }
+    return res.json({ reply: "This intake is for the first 100-student cohort. You can apply now and our team will review your submission." });
+  }
+
+  try {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const response = await openai.chat.completions.create({
+      model: MODEL,
+      temperature: 0.2,
+      messages: [
+        { role: "system", content: INTAKE_ASSISTANT_SYSTEM },
+        { role: "user", content: question }
+      ]
+    });
+
+    const reply = String(response?.choices?.[0]?.message?.content || "").trim();
+    if (!reply) return res.json({ reply: "Please proceed with the application form and we will review your submission." });
+    res.json({ reply });
+  } catch {
+    res.json({ reply: "I can help with intake questions, but I am temporarily unavailable. Please proceed with the application form." });
+  }
 });
 
 export default router;
