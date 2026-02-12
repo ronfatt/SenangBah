@@ -3,28 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Writing Assessment · SenangBah</title>
+  <title>AI Writing Diagnostic Lab · SenangBah</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <main class="shell">
-    <section class="card hero">
-      <p class="eyebrow">ASSESSMENT</p>
-      <h1>Writing Level Assessment</h1>
-      <p class="sub">Upload a clear handwritten essay photo (max 2MB) for AI diagnostic.</p>
-      <div class="actions">
-        <a class="btn ghost" href="/dashboard.html">Back to Dashboard</a>
-      </div>
+<body class="diagnostic-page">
+  <main class="shell diagnostic-shell">
+    <a class="diag-back" href="/dashboard.html">← Back</a>
+
+    <section class="card diagnostic-hero">
+      <p class="eyebrow">DIAGNOSTIC</p>
+      <h1>AI Writing Diagnostic Lab</h1>
+      <p class="sub">Upload a full essay to generate a structured SPM band report.</p>
     </section>
 
-    <section class="card">
+    <section class="diag-grid">
+      <section class="card diag-value">
+        <h2>What You'll Get</h2>
+        <div class="diag-benefits">
+          <div class="diag-item">✔ Estimated Band &amp; Grade</div>
+          <div class="diag-item">✔ Strengths &amp; Weaknesses</div>
+          <div class="diag-item">✔ Targeted Improvement Plan</div>
+          <div class="diag-item">✔ Sample Rewrite</div>
+        </div>
+      </section>
+
+      <section class="card diag-process-preview">
+        <h2>AI Process Preview</h2>
+        <div class="diag-sample-report">
+          <p class="diag-report-title">Diagnostic Report</p>
+          <p>Content: 12/20</p>
+          <p>Language: 14/20</p>
+          <p>Organisation: 8/10</p>
+          <p>Estimated Band: 4</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="card diag-upload-card">
+      <h2>Upload Area</h2>
       <form id="essayForm" class="form" enctype="multipart/form-data">
-        <label>Essay Photo
+        <label class="diag-dropzone" for="essayFile" id="dropzone">
           <input type="file" id="essayFile" accept="image/*" required />
+          <span class="diag-drop-main">Drag &amp; Drop Essay Photo</span>
+          <span class="diag-drop-sub">or click to upload</span>
+          <span class="diag-drop-rules">Max 2MB · Clear handwriting · Full essay required</span>
+          <span class="diag-file-name" id="fileName">No file selected</span>
         </label>
-        <button class="btn primary" type="submit">Analyze My Essay</button>
+
+        <button class="btn primary diag-run-btn" id="runBtn" type="submit">📊 Run Diagnostic Analysis</button>
         <p id="essayMsg" class="muted"></p>
       </form>
+
+      <section class="diag-loading hidden" id="diagLoading" aria-live="polite">
+        <p>Analyzing structure...</p>
+        <p>Checking tense patterns...</p>
+        <p>Estimating coherence...</p>
+        <p>Generating rewrite samples...</p>
+        <div class="diag-loading-bar"><i id="diagLoadingFill"></i></div>
+      </section>
+
       <div id="essayResult" class="essay-result"></div>
     </section>
   </main>

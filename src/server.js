@@ -58,6 +58,10 @@ app.get("/settings", (req, res) => {
   res.sendFile(path.join(publicDir, "settings.html"));
 });
 
+app.get("/diagnostic", (req, res) => {
+  res.sendFile(path.join(publicDir, "assessment.html"));
+});
+
 app.get("/register", (req, res) => {
   res.sendFile(path.join(publicDir, "register.html"));
 });

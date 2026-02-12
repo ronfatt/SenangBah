@@ -12,6 +12,8 @@
 
 * { box-sizing: border-box; }
 
+.hidden { display: none !important; }
+
 body {
   margin: 0;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
@@ -1529,5 +1531,180 @@ textarea { resize: vertical; }
 @media (max-width: 920px) {
   .auth-shell {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Diagnostic page (dark lab) */
+.diagnostic-page {
+  background:
+    radial-gradient(760px 420px at 82% 16%, rgba(59, 130, 246, 0.2), transparent 60%),
+    linear-gradient(145deg, #0b1220, #111827);
+  color: #e5e7eb;
+}
+
+.diagnostic-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.032) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.diagnostic-shell {
+  max-width: 980px;
+  position: relative;
+  z-index: 1;
+}
+
+.diagnostic-page .card {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+}
+
+.diagnostic-page .sub,
+.diagnostic-page .muted {
+  color: #9ca3af;
+}
+
+.diagnostic-page .eyebrow {
+  color: #60a5fa;
+}
+
+.diag-back {
+  display: inline-block;
+  width: max-content;
+  color: #cbd5e1;
+  text-decoration: none;
+  margin: 2px 0 6px;
+  font-weight: 600;
+}
+
+.diag-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+.diag-benefits {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.diag-item {
+  border: 1px solid rgba(59, 130, 246, 0.26);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.diag-sample-report {
+  border: 1px solid rgba(59, 130, 246, 0.32);
+  border-radius: 10px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.78);
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.diag-sample-report p {
+  margin: 0 0 6px;
+}
+
+.diag-report-title {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.diag-dropzone {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  border: 1px dashed rgba(96, 165, 250, 0.55);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.65);
+}
+
+.diag-dropzone.dragover {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.24);
+}
+
+.diag-dropzone input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.diag-drop-main {
+  font-size: 21px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.diag-drop-sub {
+  color: #93c5fd;
+}
+
+.diag-drop-rules,
+.diag-file-name {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.diag-run-btn {
+  margin-top: 12px;
+  box-shadow: 0 10px 28px rgba(255, 107, 0, 0.42), 0 0 18px rgba(255, 107, 0, 0.24);
+}
+
+.diag-loading {
+  margin-top: 14px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.74);
+}
+
+.diag-loading p {
+  margin: 0 0 6px;
+  color: #cbd5e1;
+}
+
+.diag-loading-bar {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.22);
+}
+
+.diag-loading-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #ff6b00);
+  transition: width 0.55s ease;
+}
+
+@media (max-width: 860px) {
+  .diag-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagnostic-page * {
+    animation: none !important;
+    transition: none !important;
   }
 }
