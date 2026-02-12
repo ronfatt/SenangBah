@@ -25,11 +25,10 @@
       <section class="hero">
         <div class="heroGrid">
           <div class="heroLeft">
-            <p class="kicker">SENANGBAH • INTAKE</p>
-            <h1>SPM English Performance Intake</h1>
-            <p class="subtitle">Founding Cohort (100 students)</p>
-            <p class="description">AI-based writing diagnostic and a structured 14-day improvement routine aligned with SPM marking criteria.</p>
+            <p class="kicker">SENANGBAH • INTAKE 2025</p>
+            <h1>SPM English Intake<br />Founding Cohort</h1>
             <p class="seatAnchor">100 Seats</p>
+            <p class="description">AI-based writing diagnostic + structured 14-day improvement routine aligned with SPM marking criteria.</p>
 
             <div class="heroActions">
               <button type="button" class="primary heroPrimary" id="startApplicationBtn">Start Application</button>
@@ -37,14 +36,14 @@
             </div>
 
             <div class="selectionInfo hidden" id="selectionInfo">
-              <p>Applicants are reviewed manually. This page collects intake submissions only. Platform access is granted after approval.</p>
+              <p>Applicants are reviewed manually. This page collects intake submissions only. Approved applicants receive follow-up instructions by email.</p>
             </div>
           </div>
 
           <aside class="statusCard">
             <h3>Intake Status</h3>
             <div class="statusRow"><span>Capacity</span><strong>100</strong></div>
-            <div class="statusRow"><span>Applications received</span><strong id="totalApplications">0</strong></div>
+            <div class="statusRow"><span>Applications</span><strong id="totalApplications">0</strong></div>
             <div class="statusRow"><span>Status</span><strong class="statusOpen"><i></i>Open</strong></div>
           </aside>
         </div>
@@ -82,7 +81,7 @@
         <form id="pilotForm" novalidate>
           <div class="step active" data-step="1">
             <h2>How are you submitting this application?</h2>
-            <p class="helper">This form collects intake submissions only. Platform access is granted to selected students.</p>
+            <p class="helper">This form collects intake submissions only. Approved applicants receive follow-up instructions by email.</p>
             <div class="roleGrid">
               <button type="button" class="roleBtn" data-application-type="individual_student">
                 <span>🎓 Student</span>
@@ -100,7 +99,6 @@
                 <em class="selectedTag">Selected</em>
               </button>
             </div>
-            <p class="phaseNote">Parent access will be introduced in a future phase.</p>
             <input type="hidden" name="application_type" id="applicationTypeInput" required />
           </div>
 
@@ -198,6 +196,8 @@
             <button type="submit" class="primary" id="submitBtn">Submit Application</button>
           </div>
         </form>
+
+        <p class="reviewNote">Applications are reviewed weekly. Selected students will receive an approval email.</p>
 
         <section id="successState" class="success hidden">
           <h3>Application Received</h3>

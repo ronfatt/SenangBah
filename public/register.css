@@ -97,12 +97,12 @@ body::before {
 }
 
 .seatAnchor {
-  margin: 10px 0 0;
+  margin: 8px 0 2px;
   font-size: clamp(56px, 8vw, 76px);
   line-height: 1;
   font-weight: 900;
   color: #fff;
-  text-shadow: 0 0 30px rgba(59, 130, 246, 0.25);
+  text-shadow: 0 0 35px rgba(59, 130, 246, 0.25);
 }
 
 .heroActions {
@@ -170,11 +170,12 @@ button.ghost {
 }
 
 .statusRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 8px;
-  color: #cbd5e1;
+  color: #94a3b8;
+  column-gap: 14px;
 }
 
 .statusRow strong {
@@ -206,7 +207,7 @@ button.ghost {
 .featureChip {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 12px;
+  padding: 9px 10px;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -216,13 +217,13 @@ button.ghost {
 }
 
 .featureChip p {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: #cbd5e1;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .application-card {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(15, 23, 42, 0.65);
 }
 
 .progressWrap { margin-bottom: 20px; }
@@ -237,6 +238,10 @@ button.ghost {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+#stepText {
+  color: #60a5fa;
 }
 
 .segmentBar {
@@ -254,7 +259,7 @@ button.ghost {
 
 .segmentBar i.active {
   background: linear-gradient(90deg, #2563eb, #60a5fa);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
 }
 
 .segmentBar i.done {
@@ -308,7 +313,7 @@ h2 {
 
 .roleBtn.active {
   border: 1px solid var(--blue);
-  box-shadow: 0 0 18px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.4);
 }
 
 .selectedTag {
@@ -323,12 +328,6 @@ h2 {
 
 .roleBtn.active .selectedTag {
   display: inline;
-}
-
-.phaseNote {
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 13px;
 }
 
 .fieldGrid {
@@ -411,6 +410,14 @@ textarea:focus {
 .nextCta {
   color: #ff8c3a;
   border-color: rgba(255, 140, 58, 0.5) !important;
+  box-shadow: 0 0 16px rgba(255, 106, 0, 0.2);
+}
+
+.nextCta:hover {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 22px rgba(255, 106, 0, 0.45);
 }
 
 .success {
@@ -468,6 +475,12 @@ textarea:focus {
 }
 
 .fixItem p { margin: 3px 0; }
+
+.reviewNote {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
 
 .assistantFab {
   position: fixed;
