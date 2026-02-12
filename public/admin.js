@@ -111,6 +111,9 @@ function renderPilotTable(items) {
     const tr = document.createElement('tr');
     const summary = item?.self_intro_analysis?.overall_comment || '-';
     const canApprove = item.status !== 'APPROVED';
+    const summaryId = `pilotSummary_${item.id}`;
+    const summaryText = String(summary || '-');
+    const canExpand = summaryText.length > 180;
     tr.innerHTML = `
       <td>${item.created_at || ''}</td>
       <td>${item.full_name || ''}</td>
@@ -119,7 +122,10 @@ function renderPilotTable(items) {
       <td>${item.school_name || ''}</td>
       <td>${item.plan_choice || ''}</td>
       <td>${item.status || ''}</td>
-      <td>${summary}</td>
+      <td class="pilot-summary-cell">
+        <div id="${summaryId}" class="pilot-summary-text ${canExpand ? 'is-clamped' : ''}">${summaryText}</div>
+        ${canExpand ? `<button class="btn ghost pilot-summary-toggle" type="button" data-action="toggleSummary" data-target="${summaryId}" aria-expanded="false">Show more</button>` : ''}
+      </td>
       <td>${canApprove ? `<button class="btn primary" data-action="approvePilot" data-id="${item.id}">Approve</button>` : '-'}</td>
     `;
     tbody.appendChild(tr);
@@ -267,6 +273,15 @@ document.addEventListener('click', async (e) => {
       return;
     }
     await load();
+  }
+  if (action === 'toggleSummary') {
+    const targetId = btn.getAttribute('data-target');
+    const target = targetId ? document.getElementById(targetId) : null;
+    if (!target) return;
+    const nextExpanded = target.classList.contains('is-clamped');
+    target.classList.toggle('is-clamped');
+    btn.textContent = nextExpanded ? 'Show less' : 'Show more';
+    btn.setAttribute('aria-expanded', String(nextExpanded));
   }
 });
 

@@ -1193,6 +1193,33 @@ textarea { resize: vertical; }
   background: #f7f2ea;
 }
 
+.pilot-table th,
+.pilot-table td {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.pilot-summary-cell {
+  min-width: 280px;
+  max-width: 520px;
+}
+
+.pilot-summary-text {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.pilot-summary-text.is-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pilot-summary-toggle {
+  margin-top: 8px;
+}
+
 @media (max-width: 640px) {
   .hero h1 { font-size: 26px; }
   .brand-title { font-size: 30px; }
