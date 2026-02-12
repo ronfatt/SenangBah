@@ -13,6 +13,11 @@
       <h1>Enter Your Training Portal</h1>
       <p class="sub">Secure Access to Your Training Dashboard</p>
       <p class="auth-small">Based on Real SPM Marking Criteria</p>
+      <aside class="mini-grade-panel">
+        <p class="mini-grade-title">Track Your Progress Weekly</p>
+        <p>Last Session: Estimated Grade C+</p>
+        <p>Current Target: B+</p>
+      </aside>
     </section>
 
     <section class="auth-panel card" id="authPanel">
@@ -22,7 +27,7 @@
       </div>
 
       <section id="loginSection">
-        <h2>Welcome Back</h2>
+        <h2>Continue Your Training</h2>
         <form id="loginForm" class="form">
           <label>Email
             <input type="email" name="email" required />
@@ -30,28 +35,16 @@
           <label>Password
             <input type="password" name="password" required />
           </label>
-          <label>Role
-            <select name="role" required>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-            </select>
-          </label>
           <button class="btn primary auth-cta" id="loginBtn" type="submit">Continue to Dashboard</button>
+          <p class="muted small">Teacher login is available at <a href="/teacher">Teacher Portal</a>.</p>
           <p id="loginError" class="error"></p>
         </form>
       </section>
 
       <section id="registerSection" class="hidden">
-        <h2>Create Account</h2>
-
-        <div class="account-type-grid" id="accountTypeGrid">
-          <button class="account-type-card active" type="button" data-role="student">Student Account</button>
-          <button class="account-type-card" type="button" data-role="teacher">Teacher Account</button>
-        </div>
+        <h2>Start Your SPM English Training</h2>
 
         <form id="registerForm" class="form">
-          <input type="hidden" name="register_role" id="registerRoleInput" value="student" />
-
           <label>Full Name
             <input type="text" name="name" required />
           </label>
@@ -66,39 +59,25 @@
             <span id="passwordMeterText" class="muted small">Password strength: low</span>
           </div>
 
-          <div id="studentFields">
-            <label>Current Estimated Band
-              <select name="estimated_band">
-                <option value="2">Band 2</option>
-                <option value="3">Band 3</option>
-                <option value="4" selected>Band 4</option>
-                <option value="5">Band 5</option>
-                <option value="6">Band 6</option>
-              </select>
-            </label>
-            <label>Teacher Referral Code (Optional)
-              <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
-            </label>
-            <p class="muted small" id="teacherNamePreview"></p>
-          </div>
-
-          <div id="teacherFields" class="hidden">
-            <label>School Code
-              <input type="text" name="school_code" placeholder="School code" />
-            </label>
-          </div>
+          <label>Current Estimated Band
+            <select name="estimated_band">
+              <option value="2">Band 2</option>
+              <option value="3">Band 3</option>
+              <option value="4" selected>Band 4</option>
+              <option value="5">Band 5</option>
+              <option value="6">Band 6</option>
+            </select>
+          </label>
+          <label>Teacher Code (Optional)
+            <input type="text" name="teacher_code" id="teacherCodeInput" placeholder="e.g. ABCD1234" />
+          </label>
+          <p class="muted small" id="teacherNamePreview"></p>
 
           <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
-          <button class="btn primary auth-cta" id="registerBtn" type="submit">Start Training</button>
+          <button class="btn primary auth-cta" id="registerBtn" type="submit">Start My Training</button>
           <p id="registerError" class="error"></p>
         </form>
       </section>
-
-      <aside class="mini-grade-panel">
-        <p class="mini-grade-title">Last Session</p>
-        <p>Estimated Grade: C+</p>
-        <p>Target: B+</p>
-      </aside>
     </section>
   </main>
 
@@ -124,10 +103,6 @@
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
-    const registerRoleInput = document.getElementById('registerRoleInput');
-    const accountTypeGrid = document.getElementById('accountTypeGrid');
-    const studentFields = document.getElementById('studentFields');
-    const teacherFields = document.getElementById('teacherFields');
     const teacherCodeInput = document.getElementById('teacherCodeInput');
     const teacherNamePreview = document.getElementById('teacherNamePreview');
     const registerPassword = document.getElementById('registerPassword');
@@ -146,18 +121,6 @@
 
     tabLogin.addEventListener('click', () => setTab('login'));
     tabRegister.addEventListener('click', () => setTab('register'));
-
-    accountTypeGrid.addEventListener('click', (event) => {
-      const btn = event.target.closest('.account-type-card');
-      if (!btn) return;
-      const role = btn.dataset.role;
-      registerRoleInput.value = role;
-      [...accountTypeGrid.querySelectorAll('.account-type-card')].forEach((card) => {
-        card.classList.toggle('active', card.dataset.role === role);
-      });
-      studentFields.classList.toggle('hidden', role !== 'student');
-      teacherFields.classList.toggle('hidden', role !== 'teacher');
-    });
 
     function setLoading(button, loading, textLoading, textNormal) {
       button.disabled = loading;
@@ -193,17 +156,14 @@
       loginError.textContent = '';
       const formData = new FormData(loginForm);
       const payload = Object.fromEntries(formData.entries());
-      const role = payload.role || 'student';
-      delete payload.role;
-      const url = role === 'teacher' ? '/api/teacher/login' : '/api/auth/login';
       setLoading(loginBtn, true, 'Checking...', 'Continue to Dashboard');
-      const res = await postJSON(url, payload);
+      const res = await postJSON('/api/auth/login', payload);
       setLoading(loginBtn, false, 'Checking...', 'Continue to Dashboard');
       if (!res.ok) {
         loginError.textContent = res.data?.error || 'Unable to sign in now.';
         return;
       }
-      goAfterSuccess(role === 'teacher' ? '/teacher' : '/dashboard.html');
+      goAfterSuccess('/dashboard.html');
     });
 
     registerForm.addEventListener('submit', async (e) => {
@@ -211,23 +171,16 @@
       registerError.textContent = '';
       const formData = new FormData(registerForm);
       const payload = Object.fromEntries(formData.entries());
-      const role = payload.register_role || 'student';
-      delete payload.register_role;
-
-      if (role === 'student') {
-        payload.estimated_band = Number(payload.estimated_band || 4);
-        payload.form = 5;
-      }
-
-      const url = role === 'teacher' ? '/api/teacher/register' : '/api/auth/register';
-      setLoading(registerBtn, true, 'Creating...', 'Start Training');
-      const res = await postJSON(url, payload);
-      setLoading(registerBtn, false, 'Creating...', 'Start Training');
+      payload.estimated_band = Number(payload.estimated_band || 4);
+      payload.form = 5;
+      setLoading(registerBtn, true, 'Creating...', 'Start My Training');
+      const res = await postJSON('/api/auth/register', payload);
+      setLoading(registerBtn, false, 'Creating...', 'Start My Training');
       if (!res.ok) {
         registerError.textContent = res.data?.error || 'Unable to create account now.';
         return;
       }
-      goAfterSuccess(role === 'teacher' ? '/teacher' : '/dashboard.html');
+      goAfterSuccess('/dashboard.html');
     });
 
     let teacherLookupTimer;

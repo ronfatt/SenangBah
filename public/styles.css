@@ -930,7 +930,7 @@ textarea { resize: vertical; }
   margin: 0 auto;
   padding: 42px 20px 80px;
   display: grid;
-  grid-template-columns: 0.3fr 0.7fr;
+  grid-template-columns: 0.35fr 0.65fr;
   gap: 16px;
   position: relative;
   z-index: 1;
@@ -1011,8 +1011,8 @@ textarea { resize: vertical; }
 }
 
 .auth-cta {
-  font-size: 17px;
-  padding: 14px 18px;
+  font-size: 18px;
+  padding: 15px 18px;
 }
 
 .auth-page .btn.primary {
