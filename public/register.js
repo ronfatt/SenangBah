@@ -18,6 +18,7 @@ const analysisComment = document.getElementById("analysisComment");
 const stepText = document.getElementById("stepText");
 const segments = [...document.querySelectorAll("#segmentBar i")];
 const totalApplications = document.getElementById("totalApplications");
+const seatsLeft = document.getElementById("seatsLeft");
 const diagnosticBtn = document.getElementById("diagnosticBtn");
 const diagnosticHint = document.getElementById("diagnosticHint");
 const diagnosticInlineResult = document.getElementById("diagnosticInlineResult");
@@ -341,6 +342,7 @@ async function loadMeta() {
     if (!response.ok) return;
     const data = await response.json();
     if (totalApplications) totalApplications.textContent = data.total_applications;
+    if (seatsLeft) seatsLeft.textContent = data.seats_left;
   } catch {
     // ignore
   }

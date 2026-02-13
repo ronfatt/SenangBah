@@ -197,6 +197,11 @@ button.ghost {
   box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
 }
 
+.statusSeats {
+  color: #fb923c !important;
+  text-shadow: 0 0 14px rgba(251, 146, 60, 0.35);
+}
+
 .featureChips {
   margin-top: 20px;
   display: grid;
