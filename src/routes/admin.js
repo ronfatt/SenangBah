@@ -260,6 +260,85 @@ router.get("/pilot-registrations", requireAdmin, async (_req, res) => {
   res.json({ items });
 });
 
+router.get("/pilot-export", requireAdmin, async (_req, res) => {
+  const rows = await all(
+    `SELECT created_at, full_name, role, age, school_name, email, phone, address,
+            plan_choice, status, self_intro_text, self_intro_analysis_json
+     FROM pilot_registrations
+     ORDER BY created_at DESC`
+  );
+
+  const header = [
+    "submitted_at",
+    "name",
+    "application_type",
+    "age",
+    "school_name",
+    "email",
+    "phone",
+    "address",
+    "plan_choice",
+    "status",
+    "self_intro_text",
+    "ai_overall_comment",
+    "ai_strengths",
+    "ai_improvements",
+    "ai_grammar_vocab",
+    "ai_problem_sentences",
+    "ai_rewritten_sentences"
+  ];
+
+  const escape = (v) => {
+    const s = String(v ?? "").replace(/\"/g, '\"\"');
+    return `\"${s}\"`;
+  };
+
+  const lines = [header.join(",")];
+  rows.forEach((r) => {
+    let analysis = null;
+    try {
+      analysis = r.self_intro_analysis_json ? JSON.parse(r.self_intro_analysis_json) : null;
+    } catch {
+      analysis = null;
+    }
+
+    const strengths = Array.isArray(analysis?.strengths) ? analysis.strengths.join(" | ") : "";
+    const improvements = Array.isArray(analysis?.improvements) ? analysis.improvements.join(" | ") : "";
+    const grammarVocab = Array.isArray(analysis?.grammar_vocab_notes) ? analysis.grammar_vocab_notes.join(" | ") : "";
+    const problemSentences = Array.isArray(analysis?.problem_sentences)
+      ? analysis.problem_sentences.map((x) => `${x.original || ""} => ${x.fixed || ""}`).join(" || ")
+      : "";
+    const rewritten = Array.isArray(analysis?.rewritten_sentences) ? analysis.rewritten_sentences.join(" | ") : "";
+
+    lines.push(
+      [
+        r.created_at,
+        r.full_name,
+        r.role,
+        r.age,
+        r.school_name,
+        r.email,
+        r.phone,
+        r.address,
+        r.plan_choice,
+        r.status,
+        r.self_intro_text,
+        analysis?.overall_comment || "",
+        strengths,
+        improvements,
+        grammarVocab,
+        problemSentences,
+        rewritten
+      ].map(escape).join(",")
+    );
+  });
+
+  const csv = lines.join("\n");
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", "attachment; filename=pilot_registrations_export.csv");
+  res.send(csv);
+});
+
 router.get("/register-examples", requireAdmin, async (_req, res) => {
   const rows = await all(
     `SELECT id, sort_order, before_text, after_text

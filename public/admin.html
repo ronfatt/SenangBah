@@ -144,7 +144,30 @@
     </section>
 
     <section class="card" id="pilotCard" style="display:none;">
-      <h2>Pilot Registration Applications</h2>
+      <div class="row between">
+        <h2>Pilot Registration Applications</h2>
+        <a class="btn ghost" id="pilotExportBtn" href="/api/admin/pilot-export">Export Excel (CSV)</a>
+      </div>
+      <div class="pilot-controls">
+        <label>Status
+          <select id="pilotStatusFilter">
+            <option value="ALL">All</option>
+            <option value="UNDER_REVIEW">Under Review</option>
+            <option value="APPROVED">Approved</option>
+          </select>
+        </label>
+        <label>Search
+          <input type="text" id="pilotSearchInput" placeholder="Name / Email / School" />
+        </label>
+        <label>Per page
+          <select id="pilotPageSize">
+            <option value="15">15</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+      </div>
+      <p class="muted" id="pilotMeta">0 records</p>
       <div class="table-wrap">
         <table class="table pilot-table" id="pilotTable">
           <thead>
@@ -162,6 +185,11 @@
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+      <div class="row between pilot-pagination">
+        <button class="btn ghost" type="button" id="pilotPrevBtn">Prev</button>
+        <p class="muted" id="pilotPageInfo">Page 1 / 1</p>
+        <button class="btn ghost" type="button" id="pilotNextBtn">Next</button>
       </div>
     </section>
   </main>

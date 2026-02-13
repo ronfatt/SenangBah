@@ -17,6 +17,20 @@ const registerExamplesCard = document.getElementById('registerExamplesCard');
 const registerExamplesForm = document.getElementById('registerExamplesForm');
 const registerExamplesMsg = document.getElementById('registerExamplesMsg');
 const teacherSummary = document.getElementById('teacherSummary');
+const pilotStatusFilter = document.getElementById('pilotStatusFilter');
+const pilotSearchInput = document.getElementById('pilotSearchInput');
+const pilotPageSize = document.getElementById('pilotPageSize');
+const pilotPrevBtn = document.getElementById('pilotPrevBtn');
+const pilotNextBtn = document.getElementById('pilotNextBtn');
+const pilotPageInfo = document.getElementById('pilotPageInfo');
+const pilotMeta = document.getElementById('pilotMeta');
+
+const pilotState = {
+  allItems: [],
+  filteredItems: [],
+  page: 1,
+  pageSize: 25
+};
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -103,10 +117,32 @@ function renderTeacherTable(payload) {
   }
 }
 
+function applyPilotFilters() {
+  const status = pilotStatusFilter?.value || 'ALL';
+  const query = (pilotSearchInput?.value || '').trim().toLowerCase();
+  let items = [...pilotState.allItems];
+  if (status !== 'ALL') {
+    items = items.filter((item) => item.status === status);
+  }
+  if (query) {
+    items = items.filter((item) => {
+      const hay = [item.full_name, item.email, item.school_name, item.role].join(' ').toLowerCase();
+      return hay.includes(query);
+    });
+  }
+  pilotState.filteredItems = items;
+}
+
 function renderPilotTable(items) {
   const tbody = document.querySelector('#pilotTable tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
+  if (!items.length) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="9" class="muted">No applications found.</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
   items.forEach((item) => {
     const tr = document.createElement('tr');
     const summary = item?.self_intro_analysis?.overall_comment || '-';
@@ -130,6 +166,32 @@ function renderPilotTable(items) {
     `;
     tbody.appendChild(tr);
   });
+}
+
+function renderPilotSection() {
+  applyPilotFilters();
+  const pageSize = Number(pilotPageSize?.value || pilotState.pageSize || 25);
+  pilotState.pageSize = pageSize;
+  const total = pilotState.filteredItems.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (pilotState.page > totalPages) pilotState.page = totalPages;
+  if (pilotState.page < 1) pilotState.page = 1;
+
+  const start = (pilotState.page - 1) * pageSize;
+  const end = start + pageSize;
+  const pageItems = pilotState.filteredItems.slice(start, end);
+  renderPilotTable(pageItems);
+
+  if (pilotMeta) {
+    const status = pilotStatusFilter?.value || 'ALL';
+    const statusText = status === 'ALL' ? 'All' : status.replace('_', ' ');
+    pilotMeta.textContent = `${total} record(s) · ${statusText}`;
+  }
+  if (pilotPageInfo) {
+    pilotPageInfo.textContent = `Page ${pilotState.page} / ${totalPages}`;
+  }
+  if (pilotPrevBtn) pilotPrevBtn.disabled = pilotState.page <= 1;
+  if (pilotNextBtn) pilotNextBtn.disabled = pilotState.page >= totalPages;
 }
 
 function renderRegisterExamples(items) {
@@ -170,7 +232,11 @@ async function load() {
   renderTable(data.users || []);
   if (teachers) renderTeacherTable(teachers);
   if (chat?.items) renderChatTable(chat.items);
-  if (pilot?.items) renderPilotTable(pilot.items);
+  if (pilot?.items) {
+    pilotState.allItems = pilot.items;
+    pilotState.page = 1;
+    renderPilotSection();
+  }
   if (examples?.items) renderRegisterExamples(examples.items);
 }
 
@@ -284,6 +350,41 @@ document.addEventListener('click', async (e) => {
     btn.setAttribute('aria-expanded', String(nextExpanded));
   }
 });
+
+if (pilotStatusFilter) {
+  pilotStatusFilter.addEventListener('change', () => {
+    pilotState.page = 1;
+    renderPilotSection();
+  });
+}
+
+if (pilotSearchInput) {
+  pilotSearchInput.addEventListener('input', () => {
+    pilotState.page = 1;
+    renderPilotSection();
+  });
+}
+
+if (pilotPageSize) {
+  pilotPageSize.addEventListener('change', () => {
+    pilotState.page = 1;
+    renderPilotSection();
+  });
+}
+
+if (pilotPrevBtn) {
+  pilotPrevBtn.addEventListener('click', () => {
+    pilotState.page -= 1;
+    renderPilotSection();
+  });
+}
+
+if (pilotNextBtn) {
+  pilotNextBtn.addEventListener('click', () => {
+    pilotState.page += 1;
+    renderPilotSection();
+  });
+}
 
 if (schoolCodeForm) {
   schoolCodeForm.addEventListener('submit', async (e) => {
