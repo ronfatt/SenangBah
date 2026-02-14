@@ -872,6 +872,75 @@ textarea { resize: vertical; }
   box-shadow: 0 20px 42px rgba(2, 6, 23, 0.46), 0 0 0 1px rgba(59, 130, 246, 0.12);
 }
 
+.dashboard-page .howto-board {
+  margin: 14px 0 18px;
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(165deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.94));
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.dashboard-page .howto-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboard-page .howto-step {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.72);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-page .howto-step:hover {
+  transform: translateY(-3px);
+  border-color: rgba(96, 165, 250, 0.46);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.42), 0 0 20px rgba(59, 130, 246, 0.18);
+}
+
+.dashboard-page .howto-step-main {
+  padding: 14px;
+  border-color: rgba(255, 107, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 107, 0, 0.2), 0 0 24px rgba(255, 107, 0, 0.24);
+}
+
+.dashboard-page .howto-step-main:hover {
+  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.45), 0 0 28px rgba(255, 107, 0, 0.32);
+}
+
+.dashboard-page .howto-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+.dashboard-page .howto-step h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.dashboard-page .howto-time {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fb923c;
+}
+
+.dashboard-page .howto-step .btn {
+  margin-top: 10px;
+}
+
+.dashboard-page .howto-footer {
+  margin: 12px 2px 2px;
+  font-size: 13px;
+}
+
 .dashboard-page .perf-overview {
   border-color: rgba(59, 130, 246, 0.28);
   box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.14), 0 0 18px rgba(59, 130, 246, 0.2);
@@ -1044,6 +1113,12 @@ textarea { resize: vertical; }
 
 .dashboard-page .assessment-layout .btn.primary {
   box-shadow: 0 10px 26px rgba(255, 107, 0, 0.42), 0 0 22px rgba(255, 107, 0, 0.25);
+}
+
+@media (max-width: 860px) {
+  .dashboard-page .howto-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .module {
