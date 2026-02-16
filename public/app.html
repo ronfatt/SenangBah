@@ -6,19 +6,43 @@
   <title>Today · SPM English Booster</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="mission-page">
   <main class="shell">
-    <section class="card">
-      <div class="row between">
-        <h1 id="missionTitle">🎯 Today’s Mission (Day 1 of 14)</h1>
-        <div class="actions">
-          <a class="btn ghost" href="/dashboard.html">Dashboard</a>
-          <button class="btn ghost" id="logoutBtn">Logout</button>
+    <section class="card mission-header-card">
+      <div class="mission-header-top">
+        <div>
+          <h1 id="missionTitle">🎯 Today’s Mission — Day 1 of 14</h1>
+          <div class="mission-badges">
+            <span class="mission-badge">&lt;2 min</span>
+            <span class="mission-badge" id="dayInfo">Writing Focus</span>
+            <span class="mission-badge">1 step</span>
+          </div>
+          <p class="sub" id="missionSubtitle">Just ONE sentence. Takes less than 2 minutes.</p>
+        </div>
+        <div class="actions mission-header-actions">
+          <a class="btn ghost btn-outline-sm" href="/dashboard.html">Dashboard</a>
+          <button class="btn ghost btn-outline-sm" id="logoutBtn">Logout</button>
         </div>
       </div>
-      <p class="sub" id="missionSubtitle">Just ONE sentence. Takes less than 2 minutes.</p>
-      <p class="muted" id="dayInfo">Writing Focus</p>
-      <button class="btn primary" id="startBtn">Start</button>
+
+      <div class="mission-progress" aria-label="14 day progress">
+        <span class="day-pill active"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+        <span class="day-pill"></span>
+      </div>
+
+      <button class="btn primary mission-start-btn" id="startBtn">Start</button>
     </section>
 
     <section class="card" id="taskCard" style="display:none;">
@@ -33,6 +57,10 @@
       <div id="inputArea"></div>
       <p class="helper" id="wordHelper">✅ 8–15 words is enough.</p>
       <button class="btn primary" id="submitBtn">👉 Check my sentence</button>
+      <div class="feedback-actions">
+        <a class="btn ghost" href="/app.html">Try again</a>
+        <a class="btn primary" href="/dashboard.html">Continue</a>
+      </div>
       <div class="tomorrow" id="tomorrowHint"></div>
       <p class="muted" id="progressInfo"></p>
     </section>
@@ -46,7 +74,7 @@
 
     <section class="card" id="chatCard">
       <h2>Ask Your English Teacher</h2>
-      <p class="muted">Ask in English, Malay, or Chinese. You will get the English version too.</p>
+      <p class="muted chat-help">Ask in Malay/Chinese — you’ll get the English version too.</p>
       <div class="chips" id="chatSuggestions"></div>
       <div class="chat-box" id="chatBox"></div>
       <div class="chat-input">

@@ -454,6 +454,248 @@ textarea { resize: vertical; }
   font-weight: 600;
 }
 
+/* Mission page (app.html) dark-tech refresh */
+.mission-page {
+  background:
+    radial-gradient(680px 360px at 12% 10%, rgba(59, 130, 246, 0.2), transparent 62%),
+    radial-gradient(680px 360px at 88% 94%, rgba(255, 107, 0, 0.14), transparent 60%),
+    linear-gradient(145deg, #0b1220, #111827);
+  color: #e5e7eb;
+}
+
+.mission-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.032) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.mission-page .shell {
+  max-width: 1080px;
+  padding: 24px 20px 42px;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.mission-page .card {
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(8px);
+}
+
+.mission-page .sub,
+.mission-page .muted {
+  color: #9ca3af;
+}
+
+.mission-header-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.mission-page #missionTitle {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 42px);
+  color: #f8fafc;
+}
+
+.mission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 8px;
+}
+
+.mission-badge {
+  padding: 4px 10px;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.75);
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mission-header-actions {
+  gap: 8px;
+}
+
+.btn-outline-sm {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  border-color: rgba(148, 163, 184, 0.5) !important;
+}
+
+.mission-progress {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.day-pill {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.day-pill.active {
+  background: linear-gradient(90deg, #3b82f6, #ff6b00);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+.mission-start-btn {
+  margin-top: 12px;
+}
+
+.mission-page #taskCard h2 {
+  margin-bottom: 6px;
+}
+
+.mission-page .choice {
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: 8px;
+  padding: 11px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+}
+
+.mission-page .choice:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.45);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35), 0 0 18px rgba(59, 130, 246, 0.18);
+}
+
+.mission-page .choice input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.mission-page .choice:has(input[type="radio"]:checked) {
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.42), 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+/* Optional state hooks for post-submit rendering */
+.mission-page .choice.is-correct {
+  border-color: rgba(34, 197, 94, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4), 0 0 16px rgba(34, 197, 94, 0.22);
+}
+
+.mission-page .choice.is-wrong {
+  border-color: rgba(239, 68, 68, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.35), 0 0 16px rgba(239, 68, 68, 0.2);
+}
+
+.mission-page .feedback {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.64);
+}
+
+.feedback-actions {
+  display: none;
+  margin-top: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#taskCard:has(.feedback) .feedback-actions {
+  display: flex;
+}
+
+.mission-page #chatCard {
+  padding-bottom: 16px;
+}
+
+.chat-help {
+  margin-bottom: 10px;
+}
+
+.mission-page .chips {
+  gap: 7px;
+}
+
+.mission-page .chip {
+  background: rgba(15, 23, 42, 0.68);
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #dbeafe;
+}
+
+.mission-page .chip:hover {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.22);
+}
+
+.mission-page .chat-box {
+  min-height: 170px;
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(2, 6, 23, 0.5);
+  border-radius: 14px;
+}
+
+.mission-page .chat-line {
+  border-radius: 12px;
+  line-height: 1.4;
+}
+
+.mission-page .chat-line.user {
+  background: rgba(255, 107, 0, 0.16);
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  color: #ffedd5;
+}
+
+.mission-page .chat-line.ai {
+  background: rgba(59, 130, 246, 0.16);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #dbeafe;
+}
+
+.mission-page .chat-input input {
+  background: rgba(15, 23, 42, 0.74);
+  border-color: rgba(148, 163, 184, 0.34);
+  color: #f8fafc;
+}
+
+.mission-page .chat-input input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+@media (max-width: 860px) {
+  .mission-header-top {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-header-actions {
+    justify-content: flex-start;
+  }
+
+  .mission-progress {
+    gap: 4px;
+  }
+}
+
 .snapshot {
   background: #fff8f1;
   border: 1px dashed var(--border);
