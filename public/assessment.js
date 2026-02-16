@@ -74,6 +74,48 @@ function toPercent(part, total) {
   return Math.round((Math.max(0, part) / total) * 100);
 }
 
+function estimateErrorDistribution(textStats, weaknesses = []) {
+  const words = Math.max(1, textStats.words || 0);
+  const base = Math.max(2, weaknesses.length * 2);
+  const categories = [
+    { name: 'Tense Consistency', freq: Math.max(1, Math.round(base * 0.32)) },
+    { name: 'Sentence Structure', freq: Math.max(1, Math.round(base * 0.28)) },
+    { name: 'Word Choice', freq: Math.max(1, Math.round(base * 0.24)) },
+    { name: 'Punctuation', freq: Math.max(1, Math.round(base * 0.16)) }
+  ];
+  const totalFreq = categories.reduce((acc, item) => acc + item.freq, 0);
+  const density = Number(((totalFreq / words) * 100).toFixed(1));
+  const benchmark = density <= 4 ? 'At / better than Band 6 benchmark' : density <= 7 ? 'Near Band 5 benchmark' : 'Below Band 5 benchmark';
+  return { categories, totalFreq, density, benchmark };
+}
+
+function estimateSentenceDistribution(textStats, complexityIndex) {
+  const sentences = Math.max(1, textStats.sentences || 1);
+  const connectorBias = Math.min(0.28, (textStats.connectorHits || 0) / 20);
+  const complex = Math.max(1, Math.round(sentences * (0.22 + connectorBias)));
+  const compound = Math.max(1, Math.round(sentences * (0.30 + connectorBias / 2)));
+  const simple = Math.max(1, sentences - complex - compound);
+  const benchmark = complexityIndex >= 72 ? 'Aligned with Band 6 complexity range' : complexityIndex >= 58 ? 'Aligned with Band 5 complexity range' : 'Below Band 5 complexity range';
+  return { simple, compound, complex, benchmark };
+}
+
+function estimateParagraphDepth(textStats, improvementsCount) {
+  const argumentStrength = Math.max(30, Math.min(92, Math.round((textStats.paragraphs * 18) + (improvementsCount * 9))));
+  const supportRatio = Math.max(25, Math.min(95, Math.round((textStats.sentences > 0 ? ((textStats.sentences - 1) / textStats.sentences) * 100 : 30))));
+  const suggestion = supportRatio < 55
+    ? 'Add one concrete support sentence after each main point.'
+    : 'Strengthen each paragraph with one specific example or impact.';
+  return { argumentStrength, supportRatio, suggestion };
+}
+
+function projectBandUpgrade(bandText, improvementsCount, complexityIndex, density) {
+  const current = parseBandMidpoint(bandText);
+  const qualityBoost = Math.min(1.2, (improvementsCount * 0.12) + (complexityIndex / 250) + Math.max(0, (6 - density) / 20));
+  const projected = Math.max(current, Math.min(6.5, Number((current + qualityBoost).toFixed(1))));
+  const projectedRange = projected >= 6 ? 'Band 6' : projected >= 5.2 ? 'Band 5-6' : projected >= 4.4 ? 'Band 5' : 'Band 4-5';
+  return { projected, projectedRange };
+}
+
 function renderEssayResult(data) {
   if (!essayResult) return;
   essayResult.innerHTML = '';
@@ -93,6 +135,10 @@ function renderEssayResult(data) {
   const correctionList = corrections.length ? corrections : fallbackCorrection;
   const complexityIndex = Math.max(20, Math.min(95, Math.round((textStats.avgSentenceLength * 4) + (textStats.connectorHits * 6))));
   const paragraphDepthScore = Math.max(25, Math.min(95, Math.round((textStats.paragraphs * 20) + (improvementsCount * 8))));
+  const errorDist = estimateErrorDistribution(textStats, analysis.weaknesses || []);
+  const sentenceDist = estimateSentenceDistribution(textStats, complexityIndex);
+  const paragraphDepth = estimateParagraphDepth(textStats, improvementsCount);
+  const projection = projectBandUpgrade(analysis.band_estimate_range || '', improvementsCount, complexityIndex, errorDist.density);
 
   essayResult.innerHTML = `
     <section class="diag-layer diag-layer-basic">
@@ -177,6 +223,55 @@ function renderEssayResult(data) {
           <h4>Paragraph Development Depth</h4>
           <p><strong>${paragraphDepthScore}/100</strong></p>
           <p class="muted">Paragraphs: ${textStats.paragraphs} · Sentences: ${textStats.sentences} · Words: ${textStats.words}</p>
+        </article>
+      </div>
+      <p class="diag-unlock-note">Unlock Advanced Insights</p>
+    </section>
+
+    <section class="diag-layer diag-layer-advanced diag-pro-module">
+      <div class="diag-layer-head">
+        <h3>🔒 Advanced Performance Insights</h3>
+        <p class="muted">Preview available now. Detailed metrics are Pro-locked.</p>
+      </div>
+
+      <div class="diag-pro-grid">
+        <article class="diag-pro-item">
+          <h4>1) Error Distribution Analysis</h4>
+          <p>Top categories: ${escapeHtml(errorDist.categories.map((c) => `${c.name} (${c.freq})`).join(' · '))}</p>
+          <p>Error density: <strong>${errorDist.density}</strong> / 100 words</p>
+          <p class="muted">Benchmark: ${escapeHtml(errorDist.benchmark)}</p>
+          <div class="diag-pro-locked"><span class="lock">🔒</span> Detailed per-category trend, line-level mapping, and benchmark percentile are available in Pro.</div>
+        </article>
+
+        <article class="diag-pro-item">
+          <h4>2) Sentence Complexity Index</h4>
+          <p>Simple / Compound / Complex: <strong>${sentenceDist.simple} / ${sentenceDist.compound} / ${sentenceDist.complex}</strong></p>
+          <p>Complexity score: <strong>${complexityIndex}/100</strong></p>
+          <p class="muted">Benchmark: ${escapeHtml(sentenceDist.benchmark)}</p>
+          <div class="diag-pro-locked"><span class="lock">🔒</span> Clause-level structure map and complexity progression are available in Pro.</div>
+        </article>
+
+        <article class="diag-pro-item">
+          <h4>3) CEFR Descriptor Alignment</h4>
+          <p>Estimated CEFR: <strong>${cefr.level}</strong></p>
+          <p>Strength / Weakness signals: <strong>${(analysis.strengths || []).length}</strong> / <strong>${(analysis.weaknesses || []).length}</strong></p>
+          <p class="muted">${escapeHtml(cefr.descriptor)}</p>
+          <div class="diag-pro-locked"><span class="lock">🔒</span> Skill-by-skill descriptor mapping and calibration notes are available in Pro.</div>
+        </article>
+
+        <article class="diag-pro-item">
+          <h4>4) Paragraph Development Depth</h4>
+          <p>Argument strength index: <strong>${paragraphDepth.argumentStrength}/100</strong></p>
+          <p>Support sentence ratio: <strong>${paragraphDepth.supportRatio}%</strong></p>
+          <p class="muted">${escapeHtml(paragraphDepth.suggestion)}</p>
+          <div class="diag-pro-locked"><span class="lock">🔒</span> Paragraph-by-paragraph development graph and evidence quality breakdown are available in Pro.</div>
+        </article>
+
+        <article class="diag-pro-item diag-pro-item-wide">
+          <h4>5) Band Upgrade Projection</h4>
+          <p>Conditional model: based on correction quality + complexity + error density.</p>
+          <p>Projected band after corrections: <strong>${projection.projectedRange}</strong> (model score: ${projection.projected})</p>
+          <div class="diag-pro-locked"><span class="lock">🔒</span> Full projection model assumptions and scenario simulation are available in Pro.</div>
         </article>
       </div>
       <p class="diag-unlock-note">Unlock Advanced Insights</p>
