@@ -15,6 +15,9 @@ const inputArea = document.getElementById('inputArea');
 const progressInfo = document.getElementById('progressInfo');
 const stepInfo = document.getElementById('stepInfo');
 const wordHelper = document.getElementById('wordHelper');
+const textAnswer = document.getElementById('textAnswer');
+const wordCount = document.getElementById('wordCount');
+const vocabError = document.getElementById('vocabError');
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -58,7 +61,7 @@ function renderTask(data) {
   taskTitle.textContent = normalizeWordFocusTitle(data.title || 'Word Focus');
   taskInstructions.textContent = normalizeQuotes(data.instructions || '');
   clearNode(taskItems);
-  clearNode(inputArea);
+  if (vocabError) vocabError.textContent = '';
 
   const item = data.items?.[0];
   if (item) {
@@ -76,7 +79,7 @@ function renderTask(data) {
   }
 
   if (data.task_type === 'mcq') {
-    wordHelper.style.display = 'none';
+    wordHelper.style.display = 'block';
     const choices = item?.choices || [];
     choices.forEach((choice, i) => {
       const label = document.createElement('label');
@@ -88,26 +91,15 @@ function renderTask(data) {
       if (i === 0) radio.checked = true;
       label.appendChild(radio);
       label.appendChild(document.createTextNode(normalizeQuotes(choice)));
-      inputArea.appendChild(label);
+      taskItems.appendChild(label);
     });
   } else {
-    wordHelper.style.display = 'block';
-    const textarea = document.createElement('textarea');
-    textarea.id = 'textAnswer';
-    textarea.rows = 3;
-    textarea.placeholder = 'Write 1 sentence only.';
-    inputArea.appendChild(textarea);
+    wordHelper.style.display = currentStep === 'vocab_reinforce' ? 'none' : 'block';
+  }
 
-    const wc = document.createElement('div');
-    wc.className = 'muted';
-    wc.id = 'wordCount';
-    wc.textContent = '0 words';
-    inputArea.appendChild(wc);
-
-    textarea.addEventListener('input', () => {
-      const words = textarea.value.trim().split(/\s+/).filter(Boolean).length;
-      wc.textContent = `${words} words`;
-    });
+  const writeCard = document.querySelector('.vocab-write-card');
+  if (writeCard) {
+    writeCard.style.display = currentStep === 'vocab_reinforce' ? 'none' : 'block';
   }
 
   if (data.next_question) {
@@ -122,8 +114,7 @@ function getStudentAnswer() {
     const selected = document.querySelector('input[name="mcq"]:checked');
     return selected ? selected.value : '';
   }
-  const textarea = document.getElementById('textAnswer');
-  return textarea ? textarea.value : '';
+  return textAnswer ? textAnswer.value : '';
 }
 
 function updateStepInfo(step) {
@@ -149,6 +140,14 @@ startBtn.addEventListener('click', async () => {
 
 submitBtn.addEventListener('click', async () => {
   if (!sessionId || !currentStep) return;
+  if (vocabError) vocabError.textContent = '';
+  if (currentStep !== 'vocab_reinforce') {
+    const sentence = (textAnswer?.value || '').trim();
+    if (!sentence) {
+      if (vocabError) vocabError.textContent = 'Please write your sentence first.';
+      return;
+    }
+  }
   const answer = getStudentAnswer();
   const res = await postJSON('/api/vocab/next', {
     session_id: sessionId,
@@ -186,3 +185,11 @@ async function ensureAuth() {
 }
 
 ensureAuth();
+
+if (textAnswer) {
+  textAnswer.addEventListener('input', () => {
+    if (vocabError) vocabError.textContent = '';
+    const words = textAnswer.value.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount) wordCount.textContent = `${words} words`;
+  });
+}

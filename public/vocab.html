@@ -66,7 +66,10 @@
 
       <section class="vocab-write-card">
         <h3>Step 2 · Write Your Sentence</h3>
-        <div id="inputArea"></div>
+        <div id="inputArea">
+          <textarea id="textAnswer" rows="5" placeholder="Write one clear sentence using the word 'balance'."></textarea>
+          <div class="muted" id="wordCount">0 words</div>
+        </div>
         <div class="vocab-ai-feedback">
           <p><strong>Clarity:</strong> Keep one clear idea in one sentence.</p>
           <p><strong>Grammar:</strong> Check verb form and punctuation.</p>
@@ -93,6 +96,7 @@
         <p><strong>Example:</strong> This habit is valuable because it improves daily discipline.</p>
         <button class="btn primary" type="button">Continue to Step 2</button>
       </section>
+      <p class="error" id="vocabError"></p>
       <p class="muted" id="progressInfo"></p>
     </section>
 
