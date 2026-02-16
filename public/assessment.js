@@ -60,6 +60,121 @@ function extractTextStats(text = '') {
   };
 }
 
+function getSentences(text = '') {
+  return String(text || '')
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function countMatches(text = '', regex) {
+  return (String(text || '').match(regex) || []).length;
+}
+
+function classifySentenceType(sentence = '') {
+  const s = sentence.toLowerCase();
+  const hasSubordinate = /\b(because|although|though|while|when|if|unless|since|that|which|who|whom|whose|whereas|after|before|until)\b/.test(s);
+  const hasCoord = /,\s*(and|but|or|so|yet|for)\b|\b(and|but|or|so|yet|for)\b/.test(s);
+
+  if (hasSubordinate && hasCoord) return 'compoundComplex';
+  if (hasSubordinate) return 'complex';
+  if (hasCoord) return 'compound';
+  return 'simple';
+}
+
+function mapSciToBand(score) {
+  if (score < 35) return 'Band 3';
+  if (score < 55) return 'Band 4';
+  if (score < 75) return 'Band 5';
+  return 'Band 6';
+}
+
+function analyzeSentenceComplexity(text = '', errorDensity = 0) {
+  const sentences = getSentences(text);
+  const total = Math.max(1, sentences.length);
+  const counts = { simple: 0, compound: 0, complex: 0, compoundComplex: 0 };
+  const lengths = [];
+
+  sentences.forEach((sentence) => {
+    const type = classifySentenceType(sentence);
+    counts[type] += 1;
+    lengths.push(sentence.split(/\s+/).filter(Boolean).length);
+  });
+
+  const structureWeighted =
+    (counts.simple * 0.5) +
+    (counts.compound * 1.0) +
+    (counts.complex * 1.5) +
+    (counts.compoundComplex * 2.0);
+  const structureScore = Math.round((structureWeighted / (total * 2.0)) * 100);
+
+  const full = String(text || '').toLowerCase();
+  const subordinateCount = countMatches(full, /\b(because|although|though|while|when|if|unless|since|that|which|who|whom|whose|whereas|after|before|until)\b/g);
+  const relativeCount = countMatches(full, /\b(which|who|whom|whose|that)\b/g);
+  const conditionalCount = countMatches(full, /\bif\b|\bunless\b|\bprovided that\b/g);
+  const passiveCount = countMatches(full, /\b(am|is|are|was|were|be|been|being)\s+\w+ed\b/g);
+  const reportedSpeechCount = countMatches(full, /\b(said|told|reported|mentioned|stated)\s+(that)?\b/g);
+
+  const clauseRaw =
+    (subordinateCount * 1) +
+    (relativeCount * 2) +
+    (conditionalCount * 3) +
+    (passiveCount * 1) +
+    (reportedSpeechCount * 2);
+  const clauseDepthScore = Math.min(100, Math.round((clauseRaw / (total * 4)) * 100));
+
+  const basicCount = countMatches(full, /\b(and|but|so|because)\b/g);
+  const intermediateCount = countMatches(full, /\b(however|although|therefore)\b/g);
+  const advancedCount = countMatches(full, /\b(nevertheless|consequently|whereas)\b/g);
+  const connectorRaw = (basicCount * 0.5) + (intermediateCount * 1) + (advancedCount * 2);
+  const connectorScore = Math.min(100, Math.round((connectorRaw / (total * 2)) * 100));
+
+  const avg = lengths.length ? lengths.reduce((a, b) => a + b, 0) / lengths.length : 0;
+  const variance = lengths.length
+    ? lengths.reduce((acc, len) => acc + Math.pow(len - avg, 2), 0) / lengths.length
+    : 0;
+  const stdDev = Math.sqrt(variance);
+  const shortSentences = lengths.filter((len) => len <= 8).length;
+  const longSentences = lengths.filter((len) => len >= 16).length;
+  const mixBonus = shortSentences > 0 && longSentences > 0 ? 18 : 0;
+  const variationScore = Math.min(100, Math.round((Math.min(stdDev, 8) / 8) * 82 + mixBonus));
+
+  let sci = Math.round(
+    (structureScore * 0.4) +
+    (clauseDepthScore * 0.25) +
+    (connectorScore * 0.2) +
+    (variationScore * 0.15)
+  );
+
+  if (errorDensity > 10) sci = Math.round(sci * 0.85);
+  sci = Math.max(0, Math.min(100, sci));
+
+  const observations = [];
+  if (counts.simple / total > 0.55) observations.push('Heavy reliance on simple structures.');
+  if (clauseDepthScore < 45) observations.push('Limited use of subordinate clauses.');
+  if (connectorScore < 45) observations.push('Connector range is basic and repetitive.');
+
+  return {
+    total,
+    counts,
+    percentages: {
+      simple: toPercent(counts.simple, total),
+      compound: toPercent(counts.compound, total),
+      complex: toPercent(counts.complex, total),
+      compoundComplex: toPercent(counts.compoundComplex, total)
+    },
+    structureScore,
+    clauseDepthScore,
+    connectorScore,
+    variationScore,
+    sci,
+    sciBand: mapSciToBand(sci),
+    benchmark: sci > 75 ? 'Band 6 complexity benchmark' : sci >= 55 ? 'Band 5 complexity benchmark' : sci >= 35 ? 'Band 4 complexity benchmark' : 'Band 3 complexity benchmark',
+    observations,
+    toBand5Hint: 'Use at least 3 complex or compound-complex sentences per essay with accurate grammar.'
+  };
+}
+
 function mapBandToCefr(bandText = '') {
   const mid = parseBandMidpoint(bandText);
   if (mid >= 6) return { level: 'B2', descriptor: 'Can write clear, detailed responses with controlled language.' };
@@ -87,16 +202,6 @@ function estimateErrorDistribution(textStats, weaknesses = []) {
   const density = Number(((totalFreq / words) * 100).toFixed(1));
   const benchmark = density <= 4 ? 'At / better than Band 6 benchmark' : density <= 7 ? 'Near Band 5 benchmark' : 'Below Band 5 benchmark';
   return { categories, totalFreq, density, benchmark };
-}
-
-function estimateSentenceDistribution(textStats, complexityIndex) {
-  const sentences = Math.max(1, textStats.sentences || 1);
-  const connectorBias = Math.min(0.28, (textStats.connectorHits || 0) / 20);
-  const complex = Math.max(1, Math.round(sentences * (0.22 + connectorBias)));
-  const compound = Math.max(1, Math.round(sentences * (0.30 + connectorBias / 2)));
-  const simple = Math.max(1, sentences - complex - compound);
-  const benchmark = complexityIndex >= 72 ? 'Aligned with Band 6 complexity range' : complexityIndex >= 58 ? 'Aligned with Band 5 complexity range' : 'Below Band 5 complexity range';
-  return { simple, compound, complex, benchmark };
 }
 
 function estimateParagraphDepth(textStats, improvementsCount) {
@@ -133,12 +238,11 @@ function renderEssayResult(data) {
     ? [{ original: 'Original sentence from your draft', revised: analysis.band_lift_sentence, reason: 'Stronger wording and clearer impact.' }]
     : [];
   const correctionList = corrections.length ? corrections : fallbackCorrection;
-  const complexityIndex = Math.max(20, Math.min(95, Math.round((textStats.avgSentenceLength * 4) + (textStats.connectorHits * 6))));
   const paragraphDepthScore = Math.max(25, Math.min(95, Math.round((textStats.paragraphs * 20) + (improvementsCount * 8))));
   const errorDist = estimateErrorDistribution(textStats, analysis.weaknesses || []);
-  const sentenceDist = estimateSentenceDistribution(textStats, complexityIndex);
+  const sentenceDist = analyzeSentenceComplexity(a.extracted_text || '', errorDist.density);
   const paragraphDepth = estimateParagraphDepth(textStats, improvementsCount);
-  const projection = projectBandUpgrade(analysis.band_estimate_range || '', improvementsCount, complexityIndex, errorDist.density);
+  const projection = projectBandUpgrade(analysis.band_estimate_range || '', improvementsCount, sentenceDist.sci, errorDist.density);
 
   essayResult.innerHTML = `
     <section class="diag-layer diag-layer-basic">
@@ -211,8 +315,8 @@ function renderEssayResult(data) {
         </article>
         <article class="diag-adv-item">
           <h4>Sentence Complexity Index</h4>
-          <p><strong>${complexityIndex}/100</strong></p>
-          <p class="muted">Avg sentence length: ${textStats.avgSentenceLength} words · Connectors: ${textStats.connectorHits}</p>
+          <p><strong>${sentenceDist.sci}/100</strong> · ${sentenceDist.sciBand}</p>
+          <p class="muted">Simple ${sentenceDist.percentages.simple}% · Compound ${sentenceDist.percentages.compound}% · Complex ${sentenceDist.percentages.complex}%</p>
         </article>
         <article class="diag-adv-item">
           <h4>CEFR Descriptor Mapping</h4>
@@ -245,9 +349,11 @@ function renderEssayResult(data) {
 
         <article class="diag-pro-item">
           <h4>2) Sentence Complexity Index</h4>
-          <p>Simple / Compound / Complex: <strong>${sentenceDist.simple} / ${sentenceDist.compound} / ${sentenceDist.complex}</strong></p>
-          <p>Complexity score: <strong>${complexityIndex}/100</strong></p>
+          <p>Structure distribution (Simple / Compound / Complex / Compound-Complex): <strong>${sentenceDist.percentages.simple}% / ${sentenceDist.percentages.compound}% / ${sentenceDist.percentages.complex}% / ${sentenceDist.percentages.compoundComplex}%</strong></p>
+          <p>Complexity score: <strong>${sentenceDist.sci}/100</strong></p>
           <p class="muted">Benchmark: ${escapeHtml(sentenceDist.benchmark)}</p>
+          ${sentenceDist.observations.map((item) => `<p class="muted">• ${escapeHtml(item)}</p>`).join('')}
+          <p class="muted">To reach Band 5: ${escapeHtml(sentenceDist.toBand5Hint)}</p>
           <div class="diag-pro-locked"><span class="lock">🔒</span> Clause-level structure map and complexity progression are available in Pro.</div>
         </article>
 
