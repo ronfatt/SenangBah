@@ -6,18 +6,18 @@
   <title>Grammar Lab · SenangBah</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body class="grammar-page">
-  <main class="shell">
-    <section class="card grammar-header-card">
-      <div class="grammar-header-top">
+<body class="grammar-sim-page">
+  <main class="shell grammar-sim-shell">
+    <section class="card grammar-sim-header">
+      <div class="grammar-sim-header-top">
         <div>
           <h1>🧠 Grammar Lab</h1>
-          <div class="grammar-badges">
-            <span class="grammar-badge">Fix 1 weak line</span>
-            <span class="grammar-badge">2–6 minutes</span>
-            <span class="grammar-badge">SPM aligned</span>
+          <div class="grammar-sim-badges">
+            <span class="grammar-sim-badge">Fix 1 weak line</span>
+            <span class="grammar-sim-badge">2–6 minutes</span>
+            <span class="grammar-sim-badge">SPM aligned</span>
+            <span class="grammar-sim-scope">Paper 1 – Use of English – Cloze Text</span>
           </div>
-          <p class="grammar-scope-tag">SPM Scope Alignment · Paper 1 – Use of English – Cloze Text</p>
         </div>
         <div class="actions">
           <a class="btn ghost btn-outline-sm" href="/dashboard.html">Dashboard</a>
@@ -25,72 +25,97 @@
         </div>
       </div>
 
-      <div class="grammar-steps-wrap">
-        <div class="grammar-steps-bar">
-          <span class="grammar-step-seg active"></span>
-          <span class="grammar-step-seg"></span>
-          <span class="grammar-step-seg"></span>
+      <div class="grammar-sim-steps">
+        <div class="grammar-sim-step-bar">
+          <span class="seg active"></span>
+          <span class="seg"></span>
+          <span class="seg"></span>
         </div>
-        <div class="grammar-step-labels">
+        <div class="grammar-sim-step-labels">
           <span>Step 1 Detect</span>
           <span>Step 2 Fix</span>
           <span>Step 3 Upgrade</span>
         </div>
       </div>
-
-      <p class="muted" id="stepInfo">Step 1 of 3</p>
-      <button class="btn primary grammar-start-btn" id="startBtn">Start</button>
+      <p class="muted" id="stepInfo">Step 1 Detect · Q 1 / 6</p>
+      <button class="btn primary" id="startBtn">Start Cloze Set</button>
     </section>
 
-    <section class="card" id="taskCard" style="display:none;">
-      <section class="grammar-detect-card">
-        <h2 id="taskTitle"></h2>
-        <p id="taskInstructions"></p>
-        <label class="hint-toggle-wrap">
-          <input type="checkbox" id="grammarHintToggle" class="hint-toggle" />
-          <span>Show hint</span>
-        </label>
-        <div id="taskItems"></div>
-      </section>
+    <section class="card grammar-sim-main" id="taskCard" style="display:none;">
+      <div class="grammar-sim-grid">
+        <section class="grammar-cloze-panel">
+          <div class="row between">
+            <h2>Cloze Text Panel</h2>
+            <span class="grammar-qindex" id="questionIndex">Q 1 / 6</span>
+          </div>
+          <p class="grammar-focus-tag" id="focusRuleTag">Focus: Comparative</p>
+          <div class="grammar-passage" id="passageText"></div>
+        </section>
 
-      <section class="grammar-fix-card">
-        <h3>Step 2 · Fix</h3>
-        <div id="inputArea"></div>
-        <div class="grammar-ai-feedback">
-          <p><strong>Grammar:</strong> Keep subject-verb agreement consistent.</p>
-          <p><strong>Clarity:</strong> Use one direct sentence with clear meaning.</p>
-          <p><strong>Upgrade Version:</strong> Replace weak verbs with stronger precise verbs.</p>
-        </div>
-      </section>
+        <section class="grammar-answer-panel">
+          <h2 id="taskTitle">Blank #1 — Focus: Comparative (Change 1 word only)</h2>
+          <p id="taskInstructions">Rewrite the full sentence (use your chosen word).</p>
+          <p class="grammar-tip" id="fixedTip">Tip: ‘more + adjective’ is used for longer adjectives.</p>
 
-      <section id="grammarExplainPanel" class="grammar-explain-panel">
-        <h3>Explanation</h3>
-        <p><strong>Correct Answer:</strong> The stronger option keeps meaning precise and grammatically accurate.</p>
-        <p><strong>Why:</strong> It avoids sentence fragments and improves flow.</p>
-        <p><strong>SPM Tip:</strong> In cloze text, check grammar fit before checking meaning nuance.</p>
-      </section>
+          <label class="hint-toggle-wrap grammar-hint-toggle">
+            <input type="checkbox" id="showHintToggle" class="hint-toggle" />
+            <span>Show hint</span>
+          </label>
+          <p class="hint" id="hintText"></p>
 
-      <section class="grammar-upgrade-card">
-        <h3>Step 3 · Upgrade</h3>
-        <div class="grammar-advanced-lock">
-          <p><strong>🔒 Advanced Grammar Insights</strong></p>
-          <ul>
-            <li>Error Pattern Tracking</li>
-            <li>CEFR Grammar Level</li>
-            <li>Common Mistake Type</li>
-            <li>Suggested Practice Bank</li>
-          </ul>
-        </div>
-      </section>
+          <div class="grammar-options" id="taskItems"></div>
 
-      <button class="btn primary" id="submitBtn">👉 Check my fix</button>
-      <p class="muted" id="progressInfo"></p>
+          <section class="grammar-rewrite-box">
+            <h3>Micro Rewrite</h3>
+            <p class="muted">Rewrite the exact sentence containing the blank.</p>
+            <textarea id="rewriteInput" rows="4" placeholder="Rewrite the full sentence here..."></textarea>
+            <p class="muted" id="constraintText">Constraint: Change 1 word only.</p>
+          </section>
+
+          <div class="grammar-feedback-box" id="feedbackBox">
+            <h3>Feedback</h3>
+            <p class="muted">No feedback yet. Answer and submit to see corrections.</p>
+          </div>
+
+          <p class="error" id="grammarError"></p>
+
+          <div class="actions">
+            <button class="btn primary" id="submitBtn">Check my fix</button>
+            <button class="btn ghost" id="nextBtn" type="button" style="display:none;">Next Question</button>
+          </div>
+        </section>
+      </div>
     </section>
 
-    <section class="card" id="doneCard" style="display:none;">
-      <h2>Done for today.</h2>
-      <p>⭐ Grammar Power +1</p>
-      <p>🔓 Come back tomorrow.</p>
+    <section class="card grammar-sim-summary" id="doneCard" style="display:none;">
+      <h2>Session Summary</h2>
+      <p id="summaryAccuracy">Accuracy: 0%</p>
+      <p id="summaryMissed">Most missed: -</p>
+      <p id="summaryDrill">Suggested next drill: -</p>
+      <p id="summaryStars">Stars: 0</p>
+    </section>
+
+    <section class="card grammar-pro-lock">
+      <h2>🔒 Pro Insights Preview</h2>
+      <div class="grammar-pro-grid">
+        <article class="grammar-pro-item">
+          <h3>Error Pattern Tracking (7-day)</h3>
+          <p class="muted">Trend view by rule category.</p>
+        </article>
+        <article class="grammar-pro-item">
+          <h3>CEFR Grammar Level Estimate</h3>
+          <p class="muted">Estimated grammar control by CEFR band.</p>
+        </article>
+        <article class="grammar-pro-item">
+          <h3>Practice Bank from Mistakes</h3>
+          <p class="muted">Auto-generated drills from your error profile.</p>
+        </article>
+        <article class="grammar-pro-item">
+          <h3>Examiner-style Notes</h3>
+          <p class="muted">Concise notes on marks-impacting grammar issues.</p>
+        </article>
+      </div>
+      <button class="btn ghost">Unlock Pro</button>
     </section>
   </main>
 
