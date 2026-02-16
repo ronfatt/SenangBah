@@ -9,65 +9,179 @@ const runBtn = document.getElementById('runBtn');
 const diagLoading = document.getElementById('diagLoading');
 const diagLoadingFill = document.getElementById('diagLoadingFill');
 
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function parseBandMidpoint(bandText = '') {
+  const values = String(bandText).match(/\d+/g)?.map(Number).filter((n) => Number.isFinite(n)) || [];
+  if (!values.length) return 4;
+  if (values.length === 1) return values[0];
+  return (values[0] + values[1]) / 2;
+}
+
+function estimateSpmRubric(bandText = '') {
+  const mid = parseBandMidpoint(bandText);
+  const ratio = Math.max(0, Math.min(1, (mid - 1) / 5));
+  const content = Math.round(6 + ratio * 14); // /20
+  const language = Math.round(6 + ratio * 14); // /20
+  const organisation = Math.round(3 + ratio * 7); // /10
+  return {
+    content,
+    language,
+    organisation,
+    total: content + language + organisation
+  };
+}
+
+function extractTextStats(text = '') {
+  const content = String(text || '').trim();
+  const words = content ? content.split(/\s+/).filter(Boolean) : [];
+  const sentences = content.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
+  const paragraphs = content.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const avgSentenceLength = sentences.length ? words.length / sentences.length : 0;
+  const connectors = ['however', 'therefore', 'moreover', 'in addition', 'firstly', 'secondly', 'for example', 'because'];
+  const connectorHits = connectors.reduce((acc, token) => {
+    const regex = new RegExp(`\\b${token.replace(' ', '\\s+')}\\b`, 'gi');
+    const count = (content.match(regex) || []).length;
+    return acc + count;
+  }, 0);
+  return {
+    words: words.length,
+    sentences: sentences.length,
+    paragraphs: paragraphs.length || (content ? 1 : 0),
+    avgSentenceLength: Number(avgSentenceLength.toFixed(1)),
+    connectorHits
+  };
+}
+
+function mapBandToCefr(bandText = '') {
+  const mid = parseBandMidpoint(bandText);
+  if (mid >= 6) return { level: 'B2', descriptor: 'Can write clear, detailed responses with controlled language.' };
+  if (mid >= 5) return { level: 'B1+', descriptor: 'Can explain ideas clearly but still needs consistency in range and flow.' };
+  if (mid >= 4) return { level: 'B1', descriptor: 'Can write connected text on familiar topics with frequent simplification.' };
+  if (mid >= 3) return { level: 'A2+', descriptor: 'Can write short connected sentences with limited control.' };
+  return { level: 'A2', descriptor: 'Can produce basic sentences but needs strong support for development.' };
+}
+
+function toPercent(part, total) {
+  if (!total) return 0;
+  return Math.round((Math.max(0, part) / total) * 100);
+}
+
 function renderEssayResult(data) {
   if (!essayResult) return;
   essayResult.innerHTML = '';
   if (!data?.analysis) return;
 
   const a = data.analysis;
+  const analysis = a.analysis || {};
+  const rubric = estimateSpmRubric(analysis.band_estimate_range || '');
+  const textStats = extractTextStats(a.extracted_text || '');
+  const cefr = mapBandToCefr(analysis.band_estimate_range || '');
+  const weaknessesCount = Array.isArray(analysis.weaknesses) ? analysis.weaknesses.length : 0;
+  const improvementsCount = Array.isArray(analysis.improvements) ? analysis.improvements.length : 0;
+  const corrections = Array.isArray(analysis.sentence_corrections) ? analysis.sentence_corrections : [];
+  const fallbackCorrection = analysis.band_lift_sentence
+    ? [{ original: 'Original sentence from your draft', revised: analysis.band_lift_sentence, reason: 'Stronger wording and clearer impact.' }]
+    : [];
+  const correctionList = corrections.length ? corrections : fallbackCorrection;
+  const complexityIndex = Math.max(20, Math.min(95, Math.round((textStats.avgSentenceLength * 4) + (textStats.connectorHits * 6))));
+  const paragraphDepthScore = Math.max(25, Math.min(95, Math.round((textStats.paragraphs * 20) + (improvementsCount * 8))));
 
-  const title = document.createElement('h3');
-  title.textContent = 'Diagnostic Result';
-  essayResult.appendChild(title);
+  essayResult.innerHTML = `
+    <section class="diag-layer diag-layer-basic">
+      <div class="diag-layer-head">
+        <h3>Layer 1 · Basic Diagnostic Report</h3>
+        <p class="muted">Full SPM-aligned scoring with clear next actions.</p>
+      </div>
 
-  const band = document.createElement('p');
-  band.textContent = `Estimated: ${a.analysis?.band_estimate_range || ''}`;
-  essayResult.appendChild(band);
+      <div class="diag-score-grid">
+        <div class="diag-score-item">
+          <span>Content</span>
+          <strong>${rubric.content}/20</strong>
+        </div>
+        <div class="diag-score-item">
+          <span>Language</span>
+          <strong>${rubric.language}/20</strong>
+        </div>
+        <div class="diag-score-item">
+          <span>Organisation</span>
+          <strong>${rubric.organisation}/10</strong>
+        </div>
+        <div class="diag-score-item">
+          <span>Estimated Band</span>
+          <strong>${analysis.band_estimate_range || 'Band 4-5'}</strong>
+        </div>
+      </div>
 
-  const strengths = a.analysis?.strengths || [];
-  if (strengths.length) {
-    const h = document.createElement('h4');
-    h.textContent = 'Strengths';
-    essayResult.appendChild(h);
-    strengths.forEach((t) => {
-      const p = document.createElement('p');
-      p.textContent = '✔ ' + t;
-      essayResult.appendChild(p);
-    });
-  }
+      <div class="diag-columns">
+        <div>
+          <h4>Strengths</h4>
+          <ul>${(analysis.strengths || []).map((t) => `<li>✔ ${escapeHtml(t)}</li>`).join('')}</ul>
+        </div>
+        <div>
+          <h4>Actionable Improvement Guidance</h4>
+          <ul>${(analysis.improvements || []).map((t) => `<li>→ ${escapeHtml(t)}</li>`).join('')}</ul>
+        </div>
+      </div>
 
-  const weaknesses = a.analysis?.weaknesses || [];
-  if (weaknesses.length) {
-    const h = document.createElement('h4');
-    h.textContent = 'Weaknesses';
-    essayResult.appendChild(h);
-    weaknesses.forEach((t) => {
-      const p = document.createElement('p');
-      p.textContent = '⚠ ' + t;
-      essayResult.appendChild(p);
-    });
-  }
+      <div class="diag-columns">
+        <div>
+          <h4>Weaknesses</h4>
+          <ul>${(analysis.weaknesses || []).map((t) => `<li>⚠ ${escapeHtml(t)}</li>`).join('')}</ul>
+        </div>
+        <div>
+          <h4>Sample Sentence Corrections</h4>
+          <div class="diag-corrections">
+            ${correctionList.map((item, idx) => `
+              <article class="diag-correction-item">
+                <p><strong>${idx + 1}.</strong> Original: ${escapeHtml(item.original || '-')}</p>
+                <p>Revised: ${escapeHtml(item.revised || '-')}</p>
+                <p class="muted">Why: ${escapeHtml(item.reason || '-')}</p>
+              </article>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
 
-  const improvements = a.analysis?.improvements || [];
-  if (improvements.length) {
-    const h = document.createElement('h4');
-    h.textContent = 'Improvement Plan';
-    essayResult.appendChild(h);
-    improvements.forEach((t) => {
-      const p = document.createElement('p');
-      p.textContent = '→ ' + t;
-      essayResult.appendChild(p);
-    });
-  }
-
-  if (a.analysis?.band_lift_sentence) {
-    const h = document.createElement('h4');
-    h.textContent = 'Sample Rewrite';
-    essayResult.appendChild(h);
-    const p = document.createElement('p');
-    p.textContent = a.analysis.band_lift_sentence;
-    essayResult.appendChild(p);
-  }
+    <section class="diag-layer diag-layer-advanced">
+      <div class="diag-layer-head">
+        <h3>🔒 Layer 2 · Advanced Preview</h3>
+        <p class="muted">Summarized metrics preview.</p>
+      </div>
+      <div class="diag-advanced-grid">
+        <article class="diag-adv-item">
+          <h4>Error Distribution</h4>
+          <p>Weakness flags: <strong>${weaknessesCount}</strong></p>
+          <p>Improvement flags: <strong>${improvementsCount}</strong></p>
+          <p class="muted">Estimated balance: Content ${toPercent(rubric.content, 20)}% · Language ${toPercent(rubric.language, 20)}% · Organisation ${toPercent(rubric.organisation, 10)}%</p>
+        </article>
+        <article class="diag-adv-item">
+          <h4>Sentence Complexity Index</h4>
+          <p><strong>${complexityIndex}/100</strong></p>
+          <p class="muted">Avg sentence length: ${textStats.avgSentenceLength} words · Connectors: ${textStats.connectorHits}</p>
+        </article>
+        <article class="diag-adv-item">
+          <h4>CEFR Descriptor Mapping</h4>
+          <p><strong>${cefr.level}</strong></p>
+          <p class="muted">${escapeHtml(cefr.descriptor)}</p>
+        </article>
+        <article class="diag-adv-item">
+          <h4>Paragraph Development Depth</h4>
+          <p><strong>${paragraphDepthScore}/100</strong></p>
+          <p class="muted">Paragraphs: ${textStats.paragraphs} · Sentences: ${textStats.sentences} · Words: ${textStats.words}</p>
+        </article>
+      </div>
+      <p class="diag-unlock-note">Unlock Advanced Insights</p>
+    </section>
+  `;
 }
 
 function setFile(file) {

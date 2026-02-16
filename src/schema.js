@@ -132,14 +132,30 @@ export const handwritingSchema = {
         "strengths",
         "weaknesses",
         "improvements",
-        "band_lift_sentence"
+        "band_lift_sentence",
+        "sentence_corrections"
       ],
       properties: {
         band_estimate_range: { type: "string" },
         strengths: { type: "array", items: { type: "string" } },
         weaknesses: { type: "array", items: { type: "string" } },
         improvements: { type: "array", items: { type: "string" } },
-        band_lift_sentence: { type: "string" }
+        band_lift_sentence: { type: "string" },
+        sentence_corrections: {
+          type: "array",
+          minItems: 2,
+          maxItems: 3,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["original", "revised", "reason"],
+            properties: {
+              original: { type: "string" },
+              revised: { type: "string" },
+              reason: { type: "string" }
+            }
+          }
+        }
       }
     },
     explanation: {
