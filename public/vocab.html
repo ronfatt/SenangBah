@@ -6,28 +6,93 @@
   <title>Vocabulary Engine · SenangBah</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="vocab-page">
   <main class="shell">
-    <section class="card">
-      <div class="row between">
-        <h1 id="missionTitle">🧩 Vocabulary Engine</h1>
+    <section class="card vocab-header-card">
+      <div class="vocab-header-top">
+        <div>
+          <h1>🧩 Vocabulary Engine</h1>
+          <div class="vocab-badges">
+            <span class="vocab-badge">1 word</span>
+            <span class="vocab-badge">1 sentence</span>
+            <span class="vocab-badge">2 minutes</span>
+          </div>
+        </div>
         <div class="actions">
-          <a class="btn ghost" href="/dashboard.html">Dashboard</a>
-          <button class="btn ghost" id="logoutBtn">Logout</button>
+          <a class="btn ghost btn-outline-sm" href="/dashboard.html">Dashboard</a>
+          <button class="btn ghost btn-outline-sm" id="logoutBtn">Logout</button>
         </div>
       </div>
-      <p class="sub">1 word. 1 sentence. 2 minutes.</p>
+
+      <div class="vocab-steps-wrap">
+        <div class="vocab-steps-bar">
+          <span class="vocab-step-seg active"></span>
+          <span class="vocab-step-seg"></span>
+          <span class="vocab-step-seg"></span>
+        </div>
+        <div class="vocab-step-labels">
+          <span>Step 1 Pick</span>
+          <span>Step 2 Write</span>
+          <span>Step 3 Upgrade</span>
+        </div>
+      </div>
+
       <p class="muted" id="stepInfo">Step 1 of 3</p>
-      <button class="btn primary" id="startBtn">Start</button>
+      <button class="btn primary vocab-start-btn" id="startBtn">Start</button>
     </section>
 
     <section class="card" id="taskCard" style="display:none;">
-      <h2 id="taskTitle"></h2>
-      <p id="taskInstructions"></p>
-      <div id="taskItems"></div>
-      <div id="inputArea"></div>
+      <div class="vocab-main-grid">
+        <section class="vocab-snapshot-card">
+          <h3>Word Snapshot</h3>
+          <h2 id="taskTitle"></h2>
+          <p id="taskInstructions"></p>
+          <div class="vocab-synonyms">
+            <span class="vocab-chip">Synonym A</span>
+            <span class="vocab-chip">Synonym B</span>
+            <span class="vocab-chip">Synonym C</span>
+          </div>
+        </section>
+
+        <section class="vocab-context-card">
+          <h3>Context Challenge</h3>
+          <label class="hint-toggle-wrap">
+            <input type="checkbox" id="hintToggle" class="hint-toggle" />
+            <span>Show hint</span>
+          </label>
+          <div id="taskItems"></div>
+        </section>
+      </div>
+
+      <section class="vocab-write-card">
+        <h3>Step 2 · Write Your Sentence</h3>
+        <div id="inputArea"></div>
+        <div class="vocab-ai-feedback">
+          <p><strong>Clarity:</strong> Keep one clear idea in one sentence.</p>
+          <p><strong>Grammar:</strong> Check verb form and punctuation.</p>
+          <p><strong>Upgrade version:</strong> Replace one basic word with a stronger synonym.</p>
+        </div>
+      </section>
+
+      <section class="vocab-upgrade-card">
+        <h3>Step 3 · Upgrade</h3>
+        <p class="muted">Basic upgrade sentence</p>
+        <p class="vocab-upgrade-line">Your revised sentence will appear here after checking.</p>
+        <div class="vocab-advanced-lock">
+          <p><strong>🔒 Advanced Upgrades</strong></p>
+          <p class="muted">Extra upgrade options, alternatives, and style variants are available in Pro.</p>
+        </div>
+      </section>
+
       <p class="helper" id="wordHelper">✅ 8–15 words is enough.</p>
       <button class="btn primary" id="submitBtn">👉 Check my sentence</button>
+      <section id="vocabFeedbackPanel" class="vocab-feedback-panel">
+        <h3>Result</h3>
+        <p><strong>Status:</strong> Correct / Not best</p>
+        <p><strong>Reason:</strong> The target word fits the context with clearer meaning.</p>
+        <p><strong>Example:</strong> This habit is valuable because it improves daily discipline.</p>
+        <button class="btn primary" type="button">Continue to Step 2</button>
+      </section>
       <p class="muted" id="progressInfo"></p>
     </section>
 
