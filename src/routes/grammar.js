@@ -294,7 +294,31 @@ router.post("/start", requireAuth, async (req, res) => {
     session = await get("SELECT * FROM grammar_sessions WHERE id = ?", [id]);
   }
 
-  const info = JSON.parse(session.grammar_info || "{}");
+  let info = {};
+  try {
+    info = JSON.parse(session.grammar_info || "{}");
+  } catch {
+    info = {};
+  }
+
+  const looksLikeLegacySession =
+    !Array.isArray(info.questions) ||
+    !info.questions.length ||
+    typeof info.current_index !== "number" ||
+    typeof info.total_questions !== "number" ||
+    !info.passage_template ||
+    !["question_active", "feedback_shown", "next_question", "done"].includes(session.current_step);
+
+  if (looksLikeLegacySession) {
+    const set = chooseSetByDate();
+    info = buildInitialSessionInfo(set);
+    await run(
+      "UPDATE grammar_sessions SET current_step = ?, grammar_info = ? WHERE id = ?",
+      ["question_active", JSON.stringify(info), session.id]
+    );
+    session.current_step = "question_active";
+  }
+
   if (session.current_step === "done") {
     const attempted = Number(info.attempted || 0);
     const correct = Number(info.correct || 0);
