@@ -7,7 +7,7 @@ import { run, get, all } from "../db.js";
 
 const router = express.Router();
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const OPENAI_TIMEOUT_MS = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 12000));
 const CHAT_DAILY_LIMIT = Number(process.env.CHAT_DAILY_LIMIT || 20);
 const CHAT_MIN_INTERVAL_MS = Number(process.env.CHAT_MIN_INTERVAL_MS || 5000);
 
@@ -25,6 +25,11 @@ function fallback(question) {
     english_question: question ? `How can I ask: ${question}` : "How do I say this in English?",
     quick_tip: "Keep your question short and clear."
   };
+}
+
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
 const lastAskAt = new Map();
@@ -68,15 +73,27 @@ router.post("/", requireAuth, async (req, res) => {
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0.3,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: question.trim() }
-      ],
-      response_format: { type: "json_schema", json_schema: chatSchemaWrapper }
-    });
+    const openai = getOpenAIClient();
+    if (!openai) return res.json(fallback(question.trim()));
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+    let response;
+    try {
+      response = await openai.chat.completions.create(
+        {
+          model: MODEL,
+          temperature: 0.3,
+          messages: [
+            { role: "system", content: SYSTEM },
+            { role: "user", content: question.trim() }
+          ],
+          response_format: { type: "json_schema", json_schema: chatSchemaWrapper }
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const text = response?.choices?.[0]?.message?.content || "";
     const parsed = JSON.parse(text);

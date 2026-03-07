@@ -5,7 +5,16 @@ import { validateModelJson } from "./validators.js";
 import { isEmptyOrNonsense } from "./utils.js";
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const OPENAI_TIMEOUT_MS = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 12000));
+
+let openaiClient = null;
+
+function getOpenAIClient() {
+  if (openaiClient) return openaiClient;
+  if (!process.env.OPENAI_API_KEY) return null;
+  openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openaiClient;
+}
 
 function buildFallbackResponse(context) {
   const theme = context?.today_focus?.theme || "your topic";
@@ -36,6 +45,9 @@ function buildFallbackResponse(context) {
 }
 
 async function callModelOnce(mode, context, extraDeveloperNote = "") {
+  const openai = getOpenAIClient();
+  if (!openai) return "";
+
   const devPrompt = getDeveloperPrompt(mode);
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
@@ -43,12 +55,24 @@ async function callModelOnce(mode, context, extraDeveloperNote = "") {
     { role: "user", content: JSON.stringify(context) }
   ];
 
-  const response = await openai.chat.completions.create({
-    model: MODEL,
-    messages,
-    temperature: 0.3,
-    response_format: { type: "json_schema", json_schema: jsonSchemaWrapper }
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+  let response;
+  try {
+    response = await openai.chat.completions.create(
+      {
+        model: MODEL,
+        messages,
+        temperature: 0.3,
+        response_format: { type: "json_schema", json_schema: jsonSchemaWrapper }
+      },
+      { signal: controller.signal }
+    );
+  } catch {
+    return "";
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const text = response?.choices?.[0]?.message?.content || "";
   return text;

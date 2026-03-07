@@ -29,12 +29,37 @@ const summaryDrill = document.getElementById("summaryDrill");
 const summaryStars = document.getElementById("summaryStars");
 
 async function postJSON(url, data) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  return { ok: res.ok, status: res.status, data: await res.json() };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    let payload = null;
+    try {
+      payload = await res.json();
+    } catch {
+      payload = { error: res.ok ? "invalid_response" : "server_error" };
+    }
+    return { ok: res.ok, status: res.status, data: payload };
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      return { ok: false, status: 504, data: { error: "timeout", message: "Request timed out. Please try again." } };
+    }
+    return { ok: false, status: 0, data: { error: "network_error", message: "Network error. Please try again." } };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function setBtnLoading(btn, isLoading, loadingText, idleText) {
+  if (!btn) return;
+  btn.disabled = isLoading;
+  btn.classList.toggle("is-loading", isLoading);
+  btn.textContent = isLoading ? loadingText : idleText;
 }
 
 function escapeHtml(value = "") {
@@ -183,9 +208,11 @@ function renderSummary(summary = {}) {
 }
 
 startBtn.addEventListener("click", async () => {
+  setBtnLoading(startBtn, true, "Starting...", "Start Cloze Set");
   const res = await postJSON("/api/grammar/start", {});
+  setBtnLoading(startBtn, false, "Starting...", "Start Cloze Set");
   if (!res.ok) {
-    alert(res.data?.error || "Failed to start");
+    alert(res.data?.message || res.data?.error || "Failed to start");
     return;
   }
   sessionId = res.data.session_id;
@@ -210,6 +237,7 @@ submitBtn.addEventListener("click", async () => {
   }
 
   // Step A: answer option
+  setBtnLoading(submitBtn, true, "Checking...", "Check my fix");
   const optionRes = await postJSON("/api/grammar/next", {
     session_id: sessionId,
     action: "answer_option",
@@ -217,7 +245,8 @@ submitBtn.addEventListener("click", async () => {
     hint_used: hintUsedForCurrent
   });
   if (!optionRes.ok) {
-    grammarError.textContent = optionRes.data?.error || "Failed to check option.";
+    setBtnLoading(submitBtn, false, "Checking...", "Check my fix");
+    grammarError.textContent = optionRes.data?.message || optionRes.data?.error || "Failed to check option.";
     return;
   }
   renderOptionFeedback(optionRes.data);
@@ -229,8 +258,9 @@ submitBtn.addEventListener("click", async () => {
     selected_option: currentSelectedOption,
     rewrite_text: rewriteInput.value
   });
+  setBtnLoading(submitBtn, false, "Checking...", "Check my fix");
   if (!rewriteRes.ok) {
-    grammarError.textContent = rewriteRes.data?.error || "Failed to check rewrite.";
+    grammarError.textContent = rewriteRes.data?.message || rewriteRes.data?.error || "Failed to check rewrite.";
     return;
   }
   renderRewriteFeedback(rewriteRes.data);
@@ -238,12 +268,14 @@ submitBtn.addEventListener("click", async () => {
 
 nextBtn.addEventListener("click", async () => {
   if (!sessionId) return;
+  setBtnLoading(nextBtn, true, "Loading...", "Next Question");
   const res = await postJSON("/api/grammar/next", {
     session_id: sessionId,
     action: "next_question"
   });
+  setBtnLoading(nextBtn, false, "Loading...", "Next Question");
   if (!res.ok) {
-    grammarError.textContent = res.data?.error || "Failed to continue.";
+    grammarError.textContent = res.data?.message || res.data?.error || "Failed to continue.";
     return;
   }
   if (res.data.done) {

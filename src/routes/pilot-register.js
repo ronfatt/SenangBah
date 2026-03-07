@@ -8,6 +8,7 @@ import { pilotIntroAnalysisSchemaWrapper } from "../schema.js";
 const router = express.Router();
 const PILOT_LIMIT = 100;
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const OPENAI_TIMEOUT_MS = Math.max(5000, Number(process.env.OPENAI_TIMEOUT_MS || 12000));
 
 const INTRO_ANALYSIS_SYSTEM = `You are an SPM English writing tutor.
 Analyze a short self-introduction essay from a student.
@@ -60,20 +61,30 @@ async function analyzeIntro({ applicationType, intro }) {
 
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: INTRO_ANALYSIS_SYSTEM },
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+    let response;
+    try {
+      response = await openai.chat.completions.create(
         {
-          role: "user",
-          content:
-            `Application type: ${applicationType}\n` +
-            `Essay:\n${intro}`
-        }
-      ],
-      response_format: { type: "json_schema", json_schema: pilotIntroAnalysisSchemaWrapper }
-    });
+          model: MODEL,
+          temperature: 0.2,
+          messages: [
+            { role: "system", content: INTRO_ANALYSIS_SYSTEM },
+            {
+              role: "user",
+              content:
+                `Application type: ${applicationType}\n` +
+                `Essay:\n${intro}`
+            }
+          ],
+          response_format: { type: "json_schema", json_schema: pilotIntroAnalysisSchemaWrapper }
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
     return JSON.parse(response?.choices?.[0]?.message?.content || "{}");
   } catch {
     return fallbackAnalysis();
@@ -247,14 +258,24 @@ router.post("/assistant", async (req, res) => {
 
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: INTAKE_ASSISTANT_SYSTEM },
-        { role: "user", content: question }
-      ]
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+    let response;
+    try {
+      response = await openai.chat.completions.create(
+        {
+          model: MODEL,
+          temperature: 0.2,
+          messages: [
+            { role: "system", content: INTAKE_ASSISTANT_SYSTEM },
+            { role: "user", content: question }
+          ]
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const reply = String(response?.choices?.[0]?.message?.content || "").trim();
     if (!reply) return res.json({ reply: "Please proceed with the application form and we will review your submission." });

@@ -11,7 +11,7 @@ import { handwritingSchemaWrapper } from "../schema.js";
 
 const router = express.Router();
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const OPENAI_TIMEOUT_MS = Math.max(8000, Number(process.env.OPENAI_TIMEOUT_MS || 20000));
 
 const uploadDir = process.env.UPLOAD_DIR || (process.env.RAILWAY_VOLUME_MOUNT_PATH
   ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "uploads")
@@ -46,27 +46,45 @@ Estimate band range like "Band 4-5".
 Also provide short explanations in Chinese (zh) and Malay (ms).
 If text is unreadable, say so and ask for a clearer photo in extracted_text, and keep analysis minimal.`;
 
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
+
 router.post("/upload", requireAuth, upload.single("image"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "no_file" });
 
   try {
+    const openai = getOpenAIClient();
+    if (!openai) return res.status(503).json({ error: "ai_unavailable" });
+
     const imgBuffer = fs.readFileSync(req.file.path);
     const base64 = imgBuffer.toString("base64");
     const mime = req.file.mimetype || "image/jpeg";
     const dataUrl = `data:${mime};base64,${base64}`;
 
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: [
-          { type: "text", text: "Please analyze this handwritten SPM essay." },
-          { type: "image_url", image_url: { url: dataUrl } }
-        ] }
-      ],
-      response_format: { type: "json_schema", json_schema: handwritingSchemaWrapper }
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+    let response;
+    try {
+      response = await openai.chat.completions.create(
+        {
+          model: MODEL,
+          temperature: 0.2,
+          messages: [
+            { role: "system", content: SYSTEM },
+            { role: "user", content: [
+              { type: "text", text: "Please analyze this handwritten SPM essay." },
+              { type: "image_url", image_url: { url: dataUrl } }
+            ] }
+          ],
+          response_format: { type: "json_schema", json_schema: handwritingSchemaWrapper }
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const text = response?.choices?.[0]?.message?.content || "{}";
     const parsed = JSON.parse(text);

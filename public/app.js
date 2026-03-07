@@ -30,12 +30,37 @@ const chatHint = document.getElementById('chatHint');
 const chatSuggestions = document.getElementById('chatSuggestions');
 
 async function postJSON(url, data) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return { ok: res.ok, data: await res.json() };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    let payload = null;
+    try {
+      payload = await res.json();
+    } catch {
+      payload = { error: res.ok ? 'invalid_response' : 'server_error' };
+    }
+    return { ok: res.ok, data: payload };
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      return { ok: false, data: { error: 'timeout', message: 'Request timed out. Please try again.' } };
+    }
+    return { ok: false, data: { error: 'network_error', message: 'Network error. Please try again.' } };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function setBtnLoading(btn, isLoading, loadingText, idleText) {
+  if (!btn) return;
+  btn.disabled = isLoading;
+  btn.classList.toggle('is-loading', isLoading);
+  btn.textContent = isLoading ? loadingText : idleText;
 }
 
 function clearNode(el) {
@@ -300,8 +325,10 @@ function getStudentAnswer() {
 }
 
 startBtn.addEventListener('click', async () => {
+  setBtnLoading(startBtn, true, 'Starting...', 'Start');
   const res = await postJSON('/api/training/start', {});
-  if (!res.ok) return alert(res.data?.error || 'Failed to start');
+  setBtnLoading(startBtn, false, 'Starting...', 'Start');
+  if (!res.ok) return alert(res.data?.message || res.data?.error || 'Failed to start');
   if (res.data.done && !res.data.step) {
     taskCard.style.display = 'none';
     doneCard.style.display = 'block';
@@ -314,13 +341,15 @@ startBtn.addEventListener('click', async () => {
 
 submitBtn.addEventListener('click', async () => {
   if (!sessionId || !currentStep) return;
+  setBtnLoading(submitBtn, true, 'Checking...', '👉 Check my sentence');
   const answer = getStudentAnswer();
   const res = await postJSON('/api/training/next', {
     session_id: sessionId,
     step: currentStep,
     student_answer: answer
   });
-  if (!res.ok) return alert(res.data?.error || 'Submit failed');
+  setBtnLoading(submitBtn, false, 'Checking...', '👉 Check my sentence');
+  if (!res.ok) return alert(res.data?.message || res.data?.error || 'Submit failed');
 
   if (res.data.done && !res.data.step) {
     taskCard.style.display = 'none';
@@ -427,12 +456,16 @@ async function sendChat() {
   appendChatLine(q, 'user');
   chatInput.value = '';
   chatHint.textContent = 'Thinking...';
+  setBtnLoading(chatSend, true, 'Sending...', 'Ask');
   const res = await postJSON('/api/chat', { question: q });
+  setBtnLoading(chatSend, false, 'Sending...', 'Ask');
   if (!res.ok) {
     if (res.data?.error === 'limit_reached') {
       chatHint.textContent = 'Daily chat limit reached. Try tomorrow.';
     } else if (res.data?.error === 'slow_down') {
       chatHint.textContent = 'Wait a few seconds and try again.';
+    } else if (res.data?.error === 'timeout') {
+      chatHint.textContent = 'AI is busy now. Please try again.';
     } else {
       chatHint.textContent = 'Try again.';
     }
