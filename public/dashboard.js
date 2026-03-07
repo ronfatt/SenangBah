@@ -16,6 +16,7 @@ const weeklyChart = document.getElementById('weeklyChart');
 const vocabStars = document.getElementById('vocabStars');
 const grammarStars = document.getElementById('grammarStars');
 const writingStars = document.getElementById('writingStars');
+const readingStars = document.getElementById('readingStars');
 
 function bandToGrade(band) {
   const value = Number(band || 4);
@@ -128,6 +129,7 @@ async function loadDashboard() {
   if (writingStars) writingStars.textContent = String(data.completed_days || 0);
   if (vocabStars) vocabStars.textContent = String(data.vocab_total_stars || 0);
   if (grammarStars) grammarStars.textContent = String(data.grammar_total_stars || 0);
+  if (readingStars) readingStars.textContent = String(data.reading_total_stars || 0);
 
   renderWeeklyChart(data.weekly_activity || []);
 }

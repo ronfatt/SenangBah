@@ -59,7 +59,12 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     [userId]
   );
   const grammarStars = Number(grammarCompleted?.completed_count || 0);
-  const totalStars = completedSessions + vocabStars + grammarStars;
+  const readingCompleted = await get(
+    `SELECT COUNT(DISTINCT date) as completed_count FROM reading_sessions WHERE user_id = ? AND current_step = 'done'`,
+    [userId]
+  );
+  const readingStars = Number(readingCompleted?.completed_count || 0);
+  const totalStars = completedSessions + vocabStars + grammarStars + readingStars;
 
   const weeklyRows = [];
   for (let i = 6; i >= 0; i -= 1) {
@@ -94,6 +99,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     completion_rate: Math.round((completedSessions / 14) * 100),
     total_stars: totalStars,
     grammar_total_stars: grammarStars,
+    reading_total_stars: readingStars,
     vocab_today_done: vocabDoneToday,
     vocab_total_stars: vocabStars,
     estimated_band: estimatedBand,
