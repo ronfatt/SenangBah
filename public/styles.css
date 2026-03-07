@@ -2780,6 +2780,13 @@ textarea { resize: vertical; }
   cursor: not-allowed;
 }
 
+.share-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
 @media (max-width: 920px) {
   .auth-shell {
     grid-template-columns: 1fr;

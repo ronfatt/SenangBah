@@ -1,12 +1,16 @@
 let sessionId = null;
 let currentStep = null;
 let currentData = null;
+let lastWordFocus = 'Vocabulary Engine';
 
 const startBtn = document.getElementById('startBtn');
 const submitBtn = document.getElementById('submitBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const taskCard = document.getElementById('taskCard');
 const doneCard = document.getElementById('doneCard');
+const shareDownloadBtn = document.getElementById('shareDownloadBtn');
+const shareCaptionBtn = document.getElementById('shareCaptionBtn');
+const shareStatus = document.getElementById('shareStatus');
 
 const taskTitle = document.getElementById('taskTitle');
 const taskInstructions = document.getElementById('taskInstructions');
@@ -57,6 +61,41 @@ function clearNode(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
+function buildShareCanvas({ moduleName, resultLine, suggestion }) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1350;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
+  grad.addColorStop(0, '#0B1220');
+  grad.addColorStop(1, '#111827');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = '700 56px Arial';
+  ctx.fillText('SenangBah Progress Card', 80, 140);
+  ctx.fillStyle = '#93C5FD';
+  ctx.font = '600 34px Arial';
+  ctx.fillText(moduleName, 80, 220);
+  ctx.fillStyle = '#FF6B00';
+  ctx.font = '700 52px Arial';
+  ctx.fillText(resultLine, 80, 340);
+  ctx.fillStyle = '#E5E7EB';
+  ctx.font = '400 36px Arial';
+  ctx.fillText('AI Suggestion:', 80, 450);
+  ctx.fillText(suggestion.slice(0, 64), 80, 510);
+  ctx.fillText(suggestion.slice(64, 128), 80, 560);
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '400 30px Arial';
+  ctx.fillText('#SPM #SPMEnglish #SenangBah', 80, 1260);
+  return canvas;
+}
+
+function setShareStatus(text) {
+  if (!shareStatus) return;
+  shareStatus.textContent = text;
+}
+
 function toTitleCase(value) {
   return String(value || "")
     .split(/\s+/)
@@ -80,6 +119,9 @@ function normalizeWordFocusTitle(title) {
 
 function renderTask(data) {
   currentData = data;
+  if (data?.title) {
+    lastWordFocus = normalizeWordFocusTitle(data.title || 'Vocabulary Engine');
+  }
   taskCard.style.display = 'block';
   doneCard.style.display = 'none';
 
@@ -220,5 +262,33 @@ if (textAnswer) {
     if (vocabError) vocabError.textContent = '';
     const words = textAnswer.value.trim().split(/\s+/).filter(Boolean).length;
     if (wordCount) wordCount.textContent = `${words} words`;
+  });
+}
+
+if (shareDownloadBtn) {
+  shareDownloadBtn.addEventListener('click', () => {
+    const canvas = buildShareCanvas({
+      moduleName: 'Vocabulary Engine',
+      resultLine: 'Today: +1 Star',
+      suggestion: `Use "${lastWordFocus.replace('Word Focus: ', '')}" in one clear sentence.`
+    });
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'senangbah-vocab-result.png';
+    link.click();
+    setShareStatus('Card downloaded.');
+  });
+}
+
+if (shareCaptionBtn) {
+  shareCaptionBtn.addEventListener('click', async () => {
+    const word = lastWordFocus.replace('Word Focus: ', '');
+    const caption = `I finished Vocabulary Engine on SenangBah.\nResult: +1 star\nWord focus: ${word}\n#SPM #SPMEnglish #SenangBah`;
+    try {
+      await navigator.clipboard.writeText(caption);
+      setShareStatus('Caption copied.');
+    } catch {
+      setShareStatus('Copy failed. Please try again.');
+    }
   });
 }

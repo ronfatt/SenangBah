@@ -1,12 +1,16 @@
 let sessionId = null;
 let currentStep = null;
 let currentData = null;
+let lastSuggestion = 'Use one clear sentence with a specific example.';
 
 const startBtn = document.getElementById('startBtn');
 const submitBtn = document.getElementById('submitBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const taskCard = document.getElementById('taskCard');
 const doneCard = document.getElementById('doneCard');
+const shareDownloadBtn = document.getElementById('shareDownloadBtn');
+const shareCaptionBtn = document.getElementById('shareCaptionBtn');
+const shareStatus = document.getElementById('shareStatus');
 
 const taskTitle = document.getElementById('taskTitle');
 const taskInstructions = document.getElementById('taskInstructions');
@@ -65,6 +69,43 @@ function setBtnLoading(btn, isLoading, loadingText, idleText) {
 
 function clearNode(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+function buildShareCanvas({ moduleName, resultLine, suggestion }) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1350;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
+  grad.addColorStop(0, '#0B1220');
+  grad.addColorStop(1, '#111827');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#F8FAFC';
+  ctx.font = '700 56px Arial';
+  ctx.fillText('SenangBah Progress Card', 80, 140);
+  ctx.fillStyle = '#93C5FD';
+  ctx.font = '600 34px Arial';
+  ctx.fillText(moduleName, 80, 220);
+  ctx.fillStyle = '#FF6B00';
+  ctx.font = '700 52px Arial';
+  ctx.fillText(resultLine, 80, 340);
+  ctx.fillStyle = '#E5E7EB';
+  ctx.font = '400 36px Arial';
+  ctx.fillText('AI Suggestion:', 80, 450);
+  ctx.fillText(suggestion.slice(0, 64), 80, 510);
+  ctx.fillText(suggestion.slice(64, 128), 80, 560);
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '400 30px Arial';
+  ctx.fillText('#SPM #SPMEnglish #SenangBah', 80, 1260);
+  return canvas;
+}
+
+function setShareStatus(text) {
+  if (!shareStatus) return;
+  shareStatus.textContent = text;
 }
 
 function extractTargetPhrase(text) {
@@ -264,6 +305,7 @@ function renderTask(data) {
       }
 
       if ((data.feedback.fix_this_next || []).length) {
+        lastSuggestion = data.feedback.fix_this_next[0] || lastSuggestion;
         const h = document.createElement('h3');
         h.textContent = '🔧 One small upgrade to level up';
         fb.appendChild(h);
@@ -496,3 +538,30 @@ if (chatInput) {
 
 loadChatHistory();
 loadChatSuggestions();
+
+if (shareDownloadBtn) {
+  shareDownloadBtn.addEventListener('click', () => {
+    const canvas = buildShareCanvas({
+      moduleName: '14-Day Writing Booster',
+      resultLine: 'Today: +1 Star',
+      suggestion: lastSuggestion
+    });
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'senangbah-writing-result.png';
+    link.click();
+    setShareStatus('Card downloaded.');
+  });
+}
+
+if (shareCaptionBtn) {
+  shareCaptionBtn.addEventListener('click', async () => {
+    const caption = `I just completed Today’s Mission on SenangBah.\nResult: +1 star\nAI tip: ${lastSuggestion}\n#SPM #SPMEnglish #SenangBah`;
+    try {
+      await navigator.clipboard.writeText(caption);
+      setShareStatus('Caption copied.');
+    } catch {
+      setShareStatus('Copy failed. Please try again.');
+    }
+  });
+}

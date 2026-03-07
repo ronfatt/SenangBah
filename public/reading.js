@@ -18,6 +18,9 @@ const readingError = document.getElementById("readingError");
 const summaryAccuracy = document.getElementById("summaryAccuracy");
 const summaryStars = document.getElementById("summaryStars");
 const summaryMessage = document.getElementById("summaryMessage");
+const shareDownloadBtn = document.getElementById("shareDownloadBtn");
+const shareCaptionBtn = document.getElementById("shareCaptionBtn");
+const shareStatus = document.getElementById("shareStatus");
 
 async function postJSON(url, data) {
   const controller = new AbortController();
@@ -51,6 +54,41 @@ function setBtnLoading(btn, isLoading, loadingText, idleText) {
   btn.disabled = isLoading;
   btn.classList.toggle("is-loading", isLoading);
   btn.textContent = isLoading ? loadingText : idleText;
+}
+
+function buildShareCanvas({ moduleName, resultLine, suggestion }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1350;
+  const ctx = canvas.getContext("2d");
+  const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
+  grad.addColorStop(0, "#0B1220");
+  grad.addColorStop(1, "#111827");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#F8FAFC";
+  ctx.font = "700 56px Arial";
+  ctx.fillText("SenangBah Progress Card", 80, 140);
+  ctx.fillStyle = "#93C5FD";
+  ctx.font = "600 34px Arial";
+  ctx.fillText(moduleName, 80, 220);
+  ctx.fillStyle = "#FF6B00";
+  ctx.font = "700 52px Arial";
+  ctx.fillText(resultLine, 80, 340);
+  ctx.fillStyle = "#E5E7EB";
+  ctx.font = "400 36px Arial";
+  ctx.fillText("AI Suggestion:", 80, 450);
+  ctx.fillText(String(suggestion || "").slice(0, 64), 80, 510);
+  ctx.fillText(String(suggestion || "").slice(64, 128), 80, 560);
+  ctx.fillStyle = "#94A3B8";
+  ctx.font = "400 30px Arial";
+  ctx.fillText("#SPM #SPMEnglish #SenangBah", 80, 1260);
+  return canvas;
+}
+
+function setShareStatus(text) {
+  if (!shareStatus) return;
+  shareStatus.textContent = text;
 }
 
 function updateStepVisual(index) {
@@ -194,3 +232,30 @@ async function ensureAuth() {
 }
 
 ensureAuth();
+
+if (shareDownloadBtn) {
+  shareDownloadBtn.addEventListener("click", () => {
+    const canvas = buildShareCanvas({
+      moduleName: "Reading Decoder",
+      resultLine: summaryAccuracy?.textContent || "Accuracy: 0%",
+      suggestion: summaryMessage?.textContent || "Keep practicing short passages daily."
+    });
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "senangbah-reading-result.png";
+    link.click();
+    setShareStatus("Card downloaded.");
+  });
+}
+
+if (shareCaptionBtn) {
+  shareCaptionBtn.addEventListener("click", async () => {
+    const caption = `I finished Reading Decoder on SenangBah.\n${summaryAccuracy?.textContent || "Accuracy: 0%"} | ${summaryStars?.textContent || "Stars: 0"}\nAI tip: ${summaryMessage?.textContent || "Read daily to improve comprehension speed."}\n#SPM #SPMEnglish #SenangBah`;
+    try {
+      await navigator.clipboard.writeText(caption);
+      setShareStatus("Caption copied.");
+    } catch {
+      setShareStatus("Copy failed. Please try again.");
+    }
+  });
+}
