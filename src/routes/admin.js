@@ -86,6 +86,34 @@ router.get("/teachers", requireAdmin, async (_req, res) => {
   });
 });
 
+router.get("/referrals", requireAdmin, async (_req, res) => {
+  const rows = await all(
+    `SELECT sr.id, sr.code_used, sr.reward_status, sr.created_at,
+            referrer.name AS referrer_name,
+            referrer.email AS referrer_email,
+            referred.name AS referred_name,
+            referred.email AS referred_email,
+            refSchool.school_name AS referrer_school_name,
+            referredSchool.school_name AS referred_school_name
+     FROM student_referrals sr
+     JOIN users referrer ON referrer.id = sr.referrer_user_id
+     JOIN users referred ON referred.id = sr.referred_user_id
+     LEFT JOIN teachers refTeacher ON refTeacher.id = referrer.teacher_id
+     LEFT JOIN school_codes refSchool ON refSchool.code = refTeacher.school_code
+     LEFT JOIN teachers referredTeacher ON referredTeacher.id = referred.teacher_id
+     LEFT JOIN school_codes referredSchool ON referredSchool.code = referredTeacher.school_code
+     ORDER BY sr.created_at DESC`
+  );
+
+  const summary = {
+    total_referrals: rows.length,
+    granted_referrals: rows.filter((row) => row.reward_status === "granted").length,
+    pending_referrals: rows.filter((row) => row.reward_status === "pending").length
+  };
+
+  res.json({ summary, items: rows });
+});
+
 router.get("/chat-summary", requireAdmin, async (req, res) => {
   const rows = await all(
     `SELECT u.id, u.name, u.email,

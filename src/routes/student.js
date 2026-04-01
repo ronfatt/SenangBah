@@ -1,12 +1,22 @@
 import express from "express";
 import { requireAuth } from "../middleware/auth.js";
-import { get, run } from "../db.js";
+import { all, get, run } from "../db.js";
+import { ensureUserReferralCode } from "../referral.js";
 
 const router = express.Router();
 
 router.get("/me", requireAuth, async (req, res) => {
-  const user = await get("SELECT * FROM users WHERE id = ?", [req.user.id]);
+  const user = await get(
+    `SELECT u.*, sc.school_name
+     FROM users u
+     LEFT JOIN teachers t ON t.id = u.teacher_id
+     LEFT JOIN school_codes sc ON sc.code = t.school_code
+     WHERE u.id = ?`,
+    [req.user.id]
+  );
   if (!user) return res.status(401).json({ error: "unauthorized" });
+
+  const referralCode = await ensureUserReferralCode(user.id, user.name);
 
   res.json({
     id: user.id,
@@ -16,6 +26,10 @@ router.get("/me", requireAuth, async (req, res) => {
     estimated_band: user.estimated_band,
     class_name: user.class_name || "",
     teacher_name: user.teacher_name || "",
+    school_name: user.school_name || "",
+    referral_code: referralCode,
+    referred_by_code: user.referred_by_code || "",
+    bonus_stars: Number(user.bonus_stars || 0),
     weaknesses: JSON.parse(user.weaknesses || "[]"),
     strengths: JSON.parse(user.strengths || "[]")
   });
@@ -23,7 +37,15 @@ router.get("/me", requireAuth, async (req, res) => {
 
 router.get("/dashboard", requireAuth, async (req, res) => {
   const userId = req.user.id;
-  const user = await get("SELECT estimated_band FROM users WHERE id = ?", [userId]);
+  const user = await get(
+    `SELECT u.estimated_band, u.bonus_stars, u.name, u.referred_by_code, sc.school_name
+     FROM users u
+     LEFT JOIN teachers t ON t.id = u.teacher_id
+     LEFT JOIN school_codes sc ON sc.code = t.school_code
+     WHERE u.id = ?`,
+    [userId]
+  );
+  const referralCode = await ensureUserReferralCode(userId, user?.name || "");
   const sessions = await get(
     `SELECT COUNT(DISTINCT date) as day_count FROM sessions WHERE user_id = ?`,
     [userId]
@@ -54,17 +76,37 @@ router.get("/dashboard", requireAuth, async (req, res) => {
 
   const vocabDoneToday = vocabToday?.current_step === "done";
   const vocabStars = Number(vocabCompleted?.completed_count || 0);
-  const grammarCompleted = await get(
-    `SELECT COUNT(DISTINCT date) as completed_count FROM grammar_sessions WHERE user_id = ? AND current_step = 'done'`,
+  const grammarDoneSessions = await all(
+    `SELECT current_step, grammar_info FROM grammar_sessions WHERE user_id = ?`,
     [userId]
   );
-  const grammarStars = Number(grammarCompleted?.completed_count || 0);
-  const readingCompleted = await get(
-    `SELECT COUNT(DISTINCT date) as completed_count FROM reading_sessions WHERE user_id = ? AND current_step = 'done'`,
+  const grammarStars = grammarDoneSessions.reduce((sum, row) => {
+    try {
+      const parsed = JSON.parse(row.grammar_info || "{}");
+      const earned = Math.max(0, Number(parsed.stars || 0));
+      const completionFloor = row.current_step === "done" ? 1 : 0;
+      return sum + Math.max(earned, completionFloor);
+    } catch {
+      return sum;
+    }
+  }, 0);
+
+  const readingDoneSessions = await all(
+    `SELECT current_step, reading_info FROM reading_sessions WHERE user_id = ?`,
     [userId]
   );
-  const readingStars = Number(readingCompleted?.completed_count || 0);
-  const totalStars = completedSessions + vocabStars + grammarStars + readingStars;
+  const readingStars = readingDoneSessions.reduce((sum, row) => {
+    try {
+      const parsed = JSON.parse(row.reading_info || "{}");
+      const earned = Math.max(0, Number(parsed.stars || 0));
+      const completionFloor = row.current_step === "done" ? 1 : 0;
+      return sum + Math.max(earned, completionFloor);
+    } catch {
+      return sum;
+    }
+  }, 0);
+  const bonusStars = Number(user?.bonus_stars || 0);
+  const totalStars = completedSessions + vocabStars + grammarStars + readingStars + bonusStars;
 
   const weeklyRows = [];
   for (let i = 6; i >= 0; i -= 1) {
@@ -88,6 +130,23 @@ router.get("/dashboard", requireAuth, async (req, res) => {
 
   const estimatedBand = Number(user?.estimated_band || 4);
   const weekImprovement = Math.max(2, Math.min(12, Math.round((avgScore - 50) / 4)));
+  const referralRows = await all(
+    `SELECT sr.reward_status, sr.created_at, u.name, u.email
+     FROM student_referrals sr
+     JOIN users u ON u.id = sr.referred_user_id
+     WHERE sr.referrer_user_id = ?
+     ORDER BY sr.created_at DESC
+     LIMIT 5`,
+    [userId]
+  );
+  const referralStats = referralRows.reduce(
+    (acc, row) => {
+      if (row.reward_status === "granted") acc.granted += 1;
+      else acc.pending += 1;
+      return acc;
+    },
+    { total: referralRows.length, granted: 0, pending: 0 }
+  );
 
   res.json({
     day_index: dayIndex,
@@ -98,6 +157,10 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     completed_days: completedSessions,
     completion_rate: Math.round((completedSessions / 14) * 100),
     total_stars: totalStars,
+    bonus_stars: bonusStars,
+    referral_code: referralCode,
+    referred_by_code: user?.referred_by_code || "",
+    school_name: user?.school_name || "",
     grammar_total_stars: grammarStars,
     reading_total_stars: readingStars,
     vocab_today_done: vocabDoneToday,
@@ -106,7 +169,14 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     weekly_activity: weeklyRows,
     weekly_sessions: weeklyStartedCount,
     avg_score: avgScore,
-    week_improvement: weekImprovement
+    week_improvement: weekImprovement,
+    referral_stats: referralStats,
+    recent_referrals: referralRows.map((row) => ({
+      name: row.name || row.email || "New student",
+      email: row.email || "",
+      reward_status: row.reward_status || "pending",
+      created_at: row.created_at || ""
+    }))
   });
 });
 

@@ -6,6 +6,7 @@ const teacherAuthCard = document.getElementById('teacherAuthCard');
 const teacherInfoCard = document.getElementById('teacherInfoCard');
 const teacherStudentsCard = document.getElementById('teacherStudentsCard');
 const teacherEssaysCard = document.getElementById('teacherEssaysCard');
+const teacherReferralsCard = document.getElementById('teacherReferralsCard');
 const teacherCode = document.getElementById('teacherCode');
 const teacherLogout = document.getElementById('teacherLogout');
 
@@ -26,9 +27,11 @@ async function loadTeacher() {
   teacherInfoCard.style.display = 'block';
   teacherStudentsCard.style.display = 'block';
   teacherEssaysCard.style.display = 'block';
+  teacherReferralsCard.style.display = 'block';
   teacherCode.textContent = `${data.code} (School: ${data.school_code || 'senang'})`;
   await loadStudents();
   await loadEssays();
+  await loadReferrals();
   return true;
 }
 
@@ -73,6 +76,33 @@ async function loadEssays() {
     `;
     tbody.appendChild(tr);
   });
+}
+
+async function loadReferrals() {
+  const res = await fetch('/api/teacher/referrals');
+  if (!res.ok) return;
+  const data = await res.json();
+  const tbody = document.querySelector('#teacherReferralTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  (data.items || []).forEach((item) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.referrer_name || ''}<br /><span class="muted small">${item.referrer_email || ''}</span></td>
+      <td>${item.referred_name || ''}<br /><span class="muted small">${item.referred_email || ''}</span></td>
+      <td>${item.code_used || ''}</td>
+      <td>${item.reward_status || ''}</td>
+      <td>${item.created_at || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (!(data.items || []).length) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="5" class="muted">No referral activity yet.</td>`;
+    tbody.appendChild(tr);
+  }
 }
 
 teacherLoginForm.addEventListener('submit', async (e) => {

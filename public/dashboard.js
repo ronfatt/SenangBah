@@ -17,6 +17,17 @@ const vocabStars = document.getElementById('vocabStars');
 const grammarStars = document.getElementById('grammarStars');
 const writingStars = document.getElementById('writingStars');
 const readingStars = document.getElementById('readingStars');
+const referralCode = document.getElementById('referralCode');
+const bonusStars = document.getElementById('bonusStars');
+const referralJoinedWith = document.getElementById('referralJoinedWith');
+const schoolNamePill = document.getElementById('schoolNamePill');
+const copyReferralBtn = document.getElementById('copyReferralBtn');
+const copyReferralMessageBtn = document.getElementById('copyReferralMessageBtn');
+const referralShareText = document.getElementById('referralShareText');
+const referralTotal = document.getElementById('referralTotal');
+const referralPending = document.getElementById('referralPending');
+const referralGranted = document.getElementById('referralGranted');
+const referralList = document.getElementById('referralList');
 
 function bandToGrade(band) {
   const value = Number(band || 4);
@@ -79,6 +90,42 @@ function renderWeeklyChart(rows = []) {
   `;
 }
 
+function formatReferralDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString([], { day: 'numeric', month: 'short' });
+}
+
+function renderReferralList(rows = []) {
+  if (!referralList) return;
+
+  if (!rows.length) {
+    referralList.innerHTML = '<div class="referral-list-empty">No friends joined with your code yet.</div>';
+    return;
+  }
+
+  referralList.innerHTML = rows.map((row) => {
+    const status = row.reward_status === 'granted' ? 'Rewarded' : 'Pending';
+    const statusClass = row.reward_status === 'granted' ? 'granted' : 'pending';
+    const joined = formatReferralDate(row.created_at);
+    return `
+      <div class="referral-list-item">
+        <div>
+          <div class="referral-list-name">${row.name || 'New student'}</div>
+          <div class="referral-list-meta">${row.email || 'New signup'}${joined ? ` • Joined ${joined}` : ''}</div>
+        </div>
+        <span class="referral-status ${statusClass}">${status}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildReferralShareMessage(code) {
+  const safeCode = (code || 'SBH00000').trim();
+  return `Join me on SenangBah and use my referral code ${safeCode} when you sign up. You get +2 bonus stars after your first lesson, and I get +3 bonus stars too.`;
+}
+
 async function postJSON(url, data) {
   const res = await fetch(url, {
     method: 'POST',
@@ -126,18 +173,73 @@ async function loadDashboard() {
   if (avgScore) avgScore.textContent = `${Number(data.avg_score || 0)}%`;
   if (avgDelta) avgDelta.textContent = `+${Number(data.week_improvement || 0)}% This Week`;
   if (totalStars) totalStars.textContent = String(data.total_stars || 0);
+  if (bonusStars) bonusStars.textContent = String(data.bonus_stars || 0);
   if (writingStars) writingStars.textContent = String(data.completed_days || 0);
   if (vocabStars) vocabStars.textContent = String(data.vocab_total_stars || 0);
   if (grammarStars) grammarStars.textContent = String(data.grammar_total_stars || 0);
   if (readingStars) readingStars.textContent = String(data.reading_total_stars || 0);
+  if (referralCode) referralCode.textContent = data.referral_code || 'SBH00000';
+  if (referralShareText) {
+    referralShareText.textContent = buildReferralShareMessage(data.referral_code || 'SBH00000');
+  }
+  if (schoolNamePill) schoolNamePill.textContent = data.school_name || 'School';
+  if (referralJoinedWith) {
+    referralJoinedWith.textContent = data.referred_by_code
+      ? `Joined with: ${data.referred_by_code}`
+      : 'Joined with: none';
+  }
+  if (referralTotal) referralTotal.textContent = String(data.referral_stats?.total || 0);
+  if (referralPending) referralPending.textContent = String(data.referral_stats?.pending || 0);
+  if (referralGranted) referralGranted.textContent = String(data.referral_stats?.granted || 0);
 
   renderWeeklyChart(data.weekly_activity || []);
+  renderReferralList(data.recent_referrals || []);
 }
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
     await postJSON('/api/auth/logout', {});
     window.location.href = '/login.html';
+  });
+}
+
+if (copyReferralBtn) {
+  copyReferralBtn.addEventListener('click', async () => {
+    const code = referralCode?.textContent?.trim();
+    if (!code) return;
+
+    try {
+      await navigator.clipboard.writeText(code);
+      copyReferralBtn.textContent = 'Copied';
+      setTimeout(() => {
+        copyReferralBtn.textContent = 'Copy Code';
+      }, 1200);
+    } catch {
+      copyReferralBtn.textContent = 'Copy Failed';
+      setTimeout(() => {
+        copyReferralBtn.textContent = 'Copy Code';
+      }, 1200);
+    }
+  });
+}
+
+if (copyReferralMessageBtn) {
+  copyReferralMessageBtn.addEventListener('click', async () => {
+    const message = referralShareText?.textContent?.trim();
+    if (!message) return;
+
+    try {
+      await navigator.clipboard.writeText(message);
+      copyReferralMessageBtn.textContent = 'Invite Copied';
+      setTimeout(() => {
+        copyReferralMessageBtn.textContent = 'Copy Invite Message';
+      }, 1400);
+    } catch {
+      copyReferralMessageBtn.textContent = 'Copy Failed';
+      setTimeout(() => {
+        copyReferralMessageBtn.textContent = 'Copy Invite Message';
+      }, 1400);
+    }
   });
 }
 

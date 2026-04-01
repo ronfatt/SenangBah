@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { requireAuth } from "../middleware/auth.js";
 import { get, run } from "../db.js";
 import { nowIso, todayKey } from "../utils.js";
+import { grantReferralRewardForCompletedLearner } from "../referral.js";
 
 const router = express.Router();
 
@@ -13,6 +14,9 @@ const READING_SET = {
   questions: [
     {
       id: "rq1",
+      question_type: "Main Idea",
+      skill_tag: "Identify main idea",
+      tactic_tip: "Read first and last sentence, then pick the option that covers most lines.",
       prompt: "What is the main idea of the passage?",
       options: [
         "Reading clubs help students improve confidence and comprehension skills.",
@@ -25,6 +29,9 @@ const READING_SET = {
     },
     {
       id: "rq2",
+      question_type: "Detail",
+      skill_tag: "Locate supporting detail",
+      tactic_tip: "Return to the exact sentence with the keyword and verify cause-effect words.",
       prompt: "Why do students answer comprehension questions faster?",
       options: [
         "They memorize every article.",
@@ -37,6 +44,9 @@ const READING_SET = {
     },
     {
       id: "rq3",
+      question_type: "True/False statement",
+      skill_tag: "Infer from evidence",
+      tactic_tip: "Eliminate options that contradict one sentence in the passage.",
       prompt: "Which statement is TRUE based on the passage?",
       options: [
         "Students disliked reading clubs after joining.",
@@ -56,7 +66,8 @@ function buildInitialInfo() {
     current_index: 0,
     total_questions: READING_SET.questions.length,
     stars: 0,
-    answered: {}
+    answered: {},
+    total_elapsed_ms: 0
   };
 }
 
@@ -71,9 +82,89 @@ function buildQuestionPayload(info) {
     question: {
       id: q.id,
       prompt: q.prompt,
-      options: q.options
+      options: q.options,
+      question_type: q.question_type,
+      skill_tag: q.skill_tag,
+      tactic_tip: q.tactic_tip
     },
     stars: Number(info.stars || 0)
+  };
+}
+
+function buildFeedbackPayload(info) {
+  const q = READING_SET.questions[Number(info.current_index || 0)];
+  const answered = info?.answered?.[q?.id];
+  if (!q || !answered) return null;
+
+  return {
+    state: "feedback_shown",
+    title: READING_SET.title,
+    passage: READING_SET.passage,
+    question_index: Number(info.current_index || 0) + 1,
+    total_questions: info.total_questions,
+    question: {
+      id: q.id,
+      prompt: q.prompt,
+      options: q.options,
+      question_type: q.question_type,
+      skill_tag: q.skill_tag,
+      tactic_tip: q.tactic_tip
+    },
+    feedback: {
+      correct: Boolean(answered.correct),
+      reason: q.explanation,
+      correct_answer: q.answer_key,
+      skill_tag: q.skill_tag,
+      tactic_tip: q.tactic_tip,
+      exam_move: "Find 1 evidence line in the passage before choosing your answer."
+    },
+    continue_available: true,
+    selected_option: answered.selected_option || "",
+    stars: Number(info.stars || 0)
+  };
+}
+
+function buildDoneSummary(info) {
+  const answered = Object.values(info.answered || {});
+  const attempted = answered.length;
+  const correctCount = answered.filter((x) => x.correct).length;
+  const accuracy = attempted ? Math.round((correctCount / attempted) * 100) : 0;
+  const totalElapsed = Number(info.total_elapsed_ms || 0);
+  const avgSec = attempted ? Math.round(totalElapsed / attempted / 1000) : 0;
+
+  const missedBySkill = {};
+  answered.forEach((row) => {
+    if (!row?.correct) {
+      const key = row?.skill_tag || "General comprehension";
+      missedBySkill[key] = Number(missedBySkill[key] || 0) + 1;
+    }
+  });
+
+  const topWeakSkills = Object.entries(missedBySkill)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([k]) => k);
+
+  const message = accuracy >= 80
+    ? "Strong exam readiness. Keep daily timed reading to maintain speed."
+    : accuracy >= 50
+      ? "Good base. Focus on question keywords and evidence matching."
+      : "Build fundamentals first: locate key lines before selecting options.";
+
+  const recommendedFocus = topWeakSkills.length ? topWeakSkills : ["Identify main idea", "Locate supporting detail"];
+  const nextDrillPlan = [
+    `1 set timed at ${avgSec > 0 ? Math.max(45, avgSec * 2) : 90}s per question`,
+    `Focus skill: ${recommendedFocus[0]}`,
+    "After each question, underline evidence sentence before locking answer"
+  ];
+
+  return {
+    accuracy_percent: accuracy,
+    stars: Number(info.stars || 0),
+    avg_time_sec: avgSec,
+    top_weak_skills: recommendedFocus,
+    next_drill_plan: nextDrillPlan,
+    message
   };
 }
 
@@ -114,12 +205,15 @@ router.post("/start", requireAuth, async (req, res) => {
     return res.json({
       session_id: session.id,
       done: true,
-      summary: {
-        accuracy_percent: 100,
-        stars: Number(info.stars || 0),
-        message: "Today’s reading drill completed."
-      }
+      summary: buildDoneSummary(info)
     });
+  }
+
+  if (session.current_step === "feedback_shown") {
+    const payload = buildFeedbackPayload(info);
+    if (payload) {
+      return res.json({ session_id: session.id, done: false, ...payload });
+    }
   }
 
   const payload = buildQuestionPayload(info);
@@ -128,7 +222,7 @@ router.post("/start", requireAuth, async (req, res) => {
 });
 
 router.post("/next", requireAuth, async (req, res) => {
-  const { session_id, action, selected_option } = req.body || {};
+  const { session_id, action, selected_option, elapsed_ms } = req.body || {};
   if (!session_id || !action) return res.status(400).json({ error: "missing_fields" });
 
   const session = await get("SELECT * FROM reading_sessions WHERE id = ? AND user_id = ?", [session_id, req.user.id]);
@@ -142,15 +236,20 @@ router.post("/next", requireAuth, async (req, res) => {
   if (action === "answer") {
     if (!selected_option) return res.status(400).json({ error: "missing_option" });
     const isCorrect = String(selected_option).trim() === q.answer_key;
+    const safeElapsedMs = Math.max(0, Math.min(300000, Number(elapsed_ms || 0)));
+
     info.answered[q.id] = {
       selected_option,
-      correct: isCorrect
+      correct: isCorrect,
+      elapsed_ms: safeElapsedMs,
+      skill_tag: q.skill_tag
     };
+    info.total_elapsed_ms = Number(info.total_elapsed_ms || 0) + safeElapsedMs;
     if (isCorrect) info.stars = Number(info.stars || 0) + 1;
 
     await run(
-      "UPDATE reading_sessions SET reading_info = ? WHERE id = ?",
-      [JSON.stringify(info), session.id]
+      "UPDATE reading_sessions SET current_step = ?, reading_info = ? WHERE id = ?",
+      ["feedback_shown", JSON.stringify(info), session.id]
     );
     const payload = {
       state: "feedback_shown",
@@ -159,35 +258,32 @@ router.post("/next", requireAuth, async (req, res) => {
       feedback: {
         correct: isCorrect,
         reason: q.explanation,
-        correct_answer: q.answer_key
+        correct_answer: q.answer_key,
+        skill_tag: q.skill_tag,
+        tactic_tip: q.tactic_tip,
+        exam_move: "Find 1 evidence line in the passage before choosing your answer."
       },
       continue_available: true,
+      selected_option,
       stars: Number(info.stars || 0)
     };
-    await upsertResponse(session.id, "feedback_shown", { action, selected_option }, payload, selected_option);
+    await upsertResponse(session.id, "feedback_shown", { action, selected_option, elapsed_ms: safeElapsedMs }, payload, selected_option);
     return res.json({ session_id: session.id, done: false, ...payload });
   }
 
   if (action === "next_question") {
     info.current_index = Number(info.current_index || 0) + 1;
     if (info.current_index >= info.total_questions) {
-      const answered = Object.values(info.answered || {});
-      const correctCount = answered.filter((x) => x.correct).length;
-      const attempted = answered.length;
-      const accuracy = attempted ? Math.round((correctCount / attempted) * 100) : 0;
       await run(
         "UPDATE reading_sessions SET current_step = ?, reading_info = ? WHERE id = ?",
         ["done", JSON.stringify(info), session.id]
       );
+      await grantReferralRewardForCompletedLearner(req.user.id);
       return res.json({
         session_id: session.id,
         done: true,
         state: "finished",
-        summary: {
-          accuracy_percent: accuracy,
-          stars: Number(info.stars || 0),
-          message: "Great work. You finished today’s Reading Decoder set."
-        }
+        summary: buildDoneSummary(info)
       });
     }
 

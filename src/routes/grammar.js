@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { requireAuth } from "../middleware/auth.js";
 import { get, run } from "../db.js";
 import { nowIso, todayKey } from "../utils.js";
+import { grantReferralRewardForCompletedLearner } from "../referral.js";
 
 const router = express.Router();
 
@@ -458,6 +459,7 @@ router.post("/next", requireAuth, async (req, res) => {
       const accuracy = attempted ? Math.round((correct / attempted) * 100) : 0;
       const topTags = topMissedTags(info.missed_rule_tags || {});
       await saveSessionInfo(session.id, "done", info);
+      await grantReferralRewardForCompletedLearner(req.user.id);
       return res.json({
         session_id: session.id,
         done: true,

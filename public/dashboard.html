@@ -104,6 +104,59 @@
       </div>
     </section>
 
+    <section class="card referral-board">
+      <div class="row between referral-board-head">
+        <div>
+          <h2>Invite a Friend</h2>
+          <p class="muted" id="referralHelper">Share your code, help a friend join, and unlock bonus stars after they complete their first lesson.</p>
+          <p class="muted small referral-reward-note">You get <strong>+3 bonus stars</strong>. Your friend gets <strong>+2 bonus stars</strong>. Rewards unlock after the first completed lesson.</p>
+        </div>
+        <span class="pill" id="schoolNamePill">School</span>
+      </div>
+      <div class="referral-grid">
+        <div class="mini-card referral-code-card">
+          <div class="mini-title">Your Referral Code</div>
+          <div class="referral-code-line">
+            <span class="referral-code" id="referralCode">SBH00000</span>
+            <button class="btn primary" id="copyReferralBtn" type="button">Copy Code</button>
+          </div>
+          <p class="muted small">Friends can enter this during account creation.</p>
+          <div class="referral-share-box">
+            <div class="mini-title">Quick Share Message</div>
+            <p class="referral-share-text" id="referralShareText">Join me on SenangBah with my referral code SBH00000. You get +2 bonus stars after your first lesson, and I get +3.</p>
+            <button class="btn ghost" id="copyReferralMessageBtn" type="button">Copy Invite Message</button>
+          </div>
+        </div>
+
+        <div class="mini-card referral-summary-card">
+          <div class="mini-title">Referral Bonus Stars</div>
+          <div class="mini-meta" id="bonusStars">0</div>
+          <p class="muted small" id="referralJoinedWith">Joined with: none</p>
+        </div>
+      </div>
+
+      <div class="referral-activity">
+        <div class="mini-card referral-stats-card">
+          <div class="mini-title">Your Referral Activity</div>
+          <div class="referral-stat-row">
+            <span class="referral-stat-pill">Total: <strong id="referralTotal">0</strong></span>
+            <span class="referral-stat-pill pending">Pending: <strong id="referralPending">0</strong></span>
+            <span class="referral-stat-pill granted">Rewarded: <strong id="referralGranted">0</strong></span>
+          </div>
+        </div>
+
+        <div class="mini-card referral-list-card">
+          <div class="row between referral-list-head">
+            <div class="mini-title">Invited Friends</div>
+            <span class="muted small">Latest 5</span>
+          </div>
+          <div class="referral-list" id="referralList">
+            <div class="referral-list-empty">No friends joined with your code yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="card modules-board">
       <h2>Training Modules</h2>
       <div class="grid">

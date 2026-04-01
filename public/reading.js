@@ -1,6 +1,7 @@
 let sessionId = null;
 let currentPayload = null;
 let currentSelectedOption = "";
+let questionStartedAt = 0;
 
 const startBtn = document.getElementById("startBtn");
 const submitBtn = document.getElementById("submitBtn");
@@ -12,12 +13,17 @@ const stepInfo = document.getElementById("stepInfo");
 const questionIndex = document.getElementById("questionIndex");
 const passageText = document.getElementById("passageText");
 const taskTitle = document.getElementById("taskTitle");
+const taskInstructions = document.getElementById("taskInstructions");
+const taskMeta = document.getElementById("taskMeta");
 const taskItems = document.getElementById("taskItems");
 const feedbackBox = document.getElementById("feedbackBox");
 const readingError = document.getElementById("readingError");
 const summaryAccuracy = document.getElementById("summaryAccuracy");
 const summaryStars = document.getElementById("summaryStars");
 const summaryMessage = document.getElementById("summaryMessage");
+const summarySpeed = document.getElementById("summarySpeed");
+const summaryWeak = document.getElementById("summaryWeakSkills");
+const summaryPlan = document.getElementById("summaryPlan");
 const shareDownloadBtn = document.getElementById("shareDownloadBtn");
 const shareCaptionBtn = document.getElementById("shareCaptionBtn");
 const shareStatus = document.getElementById("shareStatus");
@@ -113,6 +119,12 @@ function renderOptions(options = []) {
   });
 }
 
+function setOptionButtonsDisabled(disabled) {
+  taskItems.querySelectorAll(".grammar-option-card").forEach((el) => {
+    el.disabled = disabled;
+  });
+}
+
 function markOptionStates(correctOption) {
   taskItems.querySelectorAll(".grammar-option-card").forEach((el) => {
     const text = (el.textContent || "").trim();
@@ -127,29 +139,48 @@ function markOptionStates(correctOption) {
 function renderQuestion(payload) {
   currentPayload = payload;
   currentSelectedOption = "";
+  questionStartedAt = Date.now();
   taskCard.style.display = "block";
   doneCard.style.display = "none";
+  submitBtn.style.display = "inline-block";
+  submitBtn.disabled = false;
   nextBtn.style.display = "none";
+  nextBtn.disabled = false;
+  nextBtn.textContent = "Next Question";
   feedbackBox.innerHTML = `<h3>Feedback</h3><p class="muted">No feedback yet. Choose an answer and submit.</p>`;
   readingError.textContent = "";
 
   questionIndex.textContent = `Q ${payload.question_index} / ${payload.total_questions}`;
   stepInfo.textContent = `Step 2 Answer · Q ${payload.question_index} / ${payload.total_questions}`;
   taskTitle.textContent = payload.question?.prompt || "Question";
+  taskInstructions.textContent = "Choose the best answer based on passage evidence.";
+  taskMeta.textContent = `Type: ${payload.question?.question_type || "Comprehension"} · Skill: ${payload.question?.skill_tag || "General"} · Tip: ${payload.question?.tactic_tip || "Find proof sentence first."}`;
   passageText.textContent = payload.passage || "";
   renderOptions(payload.question?.options || []);
+  setOptionButtonsDisabled(false);
   updateStepVisual(1);
 }
 
 function renderFeedback(payload) {
   const f = payload.feedback || {};
+  currentPayload = payload;
+  currentSelectedOption = payload.selected_option || currentSelectedOption || "";
   markOptionStates(f.correct_answer);
+  setOptionButtonsDisabled(true);
   feedbackBox.innerHTML = `
     <h3>${f.correct ? "Correct" : "Not quite"}</h3>
     <p><strong>Reason:</strong> ${f.reason || "-"}</p>
     <p><strong>Correct answer:</strong> ${f.correct_answer || "-"}</p>
+    <p><strong>SPM Skill:</strong> ${f.skill_tag || "General comprehension"}</p>
+    <p><strong>Exam move:</strong> ${f.exam_move || "Find key evidence before selecting."}</p>
+    <p class="muted">Tactic tip: ${f.tactic_tip || "Match option with exact supporting sentence."}</p>
   `;
+  submitBtn.style.display = "none";
   nextBtn.style.display = payload.continue_available ? "inline-block" : "none";
+  nextBtn.textContent = "Continue";
+  if (payload.continue_available) {
+    nextBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
   updateStepVisual(2);
 }
 
@@ -158,7 +189,15 @@ function renderSummary(summary = {}) {
   doneCard.style.display = "block";
   summaryAccuracy.textContent = `Accuracy: ${Number(summary.accuracy_percent || 0)}%`;
   summaryStars.textContent = `Stars: ${Number(summary.stars || 0)}`;
+  summarySpeed.textContent = `Avg time/question: ${Number(summary.avg_time_sec || 0)}s`;
+  summaryWeak.textContent = `Focus skills: ${(summary.top_weak_skills || []).join(" · ") || "General comprehension"}`;
   summaryMessage.textContent = summary.message || "Completed.";
+  summaryPlan.innerHTML = "";
+  (summary.next_drill_plan || []).forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    summaryPlan.appendChild(li);
+  });
   stepInfo.textContent = "Step 3 Review · Session complete";
 }
 
@@ -175,6 +214,11 @@ startBtn.addEventListener("click", async () => {
     renderSummary(res.data.summary || {});
     return;
   }
+  if (res.data.state === "feedback_shown") {
+    renderQuestion(res.data);
+    renderFeedback(res.data);
+    return;
+  }
   renderQuestion(res.data);
 });
 
@@ -185,10 +229,12 @@ submitBtn.addEventListener("click", async () => {
     return;
   }
   setBtnLoading(submitBtn, true, "Checking...", "Check Answer");
+  const elapsedMs = questionStartedAt ? Date.now() - questionStartedAt : 0;
   const res = await postJSON("/api/reading/next", {
     session_id: sessionId,
     action: "answer",
-    selected_option: currentSelectedOption
+    selected_option: currentSelectedOption,
+    elapsed_ms: elapsedMs
   });
   setBtnLoading(submitBtn, false, "Checking...", "Check Answer");
   if (!res.ok) {

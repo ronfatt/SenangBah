@@ -21,6 +21,10 @@ async function loadProfile() {
   profileForm.name.value = data.name || '';
   profileForm.class_name.value = data.class_name || '';
   profileForm.teacher_name.value = data.teacher_name || '';
+  profileForm.school_name.value = data.school_name || '';
+  profileForm.referral_code.value = data.referral_code || '';
+  profileForm.referred_by_code.value = data.referred_by_code || '';
+  profileForm.bonus_stars.value = String(data.bonus_stars || 0);
   profileForm.estimated_band.value = data.estimated_band || 4;
 }
 

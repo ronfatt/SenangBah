@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import { run, get } from "../db.js";
 import { nowIso } from "../utils.js";
+import { generateUniqueReferralCode } from "../referral.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "change_me";
@@ -31,6 +32,7 @@ router.post("/register", async (req, res) => {
     class_name = "",
     teacher_name = "",
     teacher_code = "",
+    friend_referral_code = "",
     weaknesses = ["limited_vocab", "sentence_variety", "idea_development"],
     strengths = ["basic_grammar_ok"]
   } = req.body || {};
@@ -44,8 +46,11 @@ router.post("/register", async (req, res) => {
 
   const hash = await bcrypt.hash(password, 10);
   const id = nanoid();
+  const referralCode = await generateUniqueReferralCode(name);
 
   let teacherId = null;
+  let referredByUserId = null;
+  let referredByCode = "";
   if (!teacher_code) {
     return res.status(400).json({ error: "missing_teacher_code" });
   }
@@ -60,10 +65,26 @@ router.post("/register", async (req, res) => {
     }
   }
 
+  if (friend_referral_code) {
+    const normalizedReferralCode = String(friend_referral_code).trim().toUpperCase();
+    const referrer = await get(
+      "SELECT id, referral_code, email FROM users WHERE referral_code = ?",
+      [normalizedReferralCode]
+    );
+    if (!referrer) {
+      return res.status(400).json({ error: "invalid_referral_code" });
+    }
+    if (String(referrer.email || "").toLowerCase() === String(email).trim().toLowerCase()) {
+      return res.status(400).json({ error: "self_referral_not_allowed" });
+    }
+    referredByUserId = referrer.id;
+    referredByCode = referrer.referral_code || normalizedReferralCode;
+  }
+
   const finalTeacherName = teacher_name || req.body.teacher_name || "";
   await run(
-    `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at, class_name, teacher_name)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    `INSERT INTO users (id, email, password_hash, name, form, estimated_band, weaknesses, strengths, created_at, class_name, teacher_name, referral_code, referred_by_user_id, referred_by_code)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
     [
       id,
       email,
@@ -75,7 +96,10 @@ router.post("/register", async (req, res) => {
       JSON.stringify(strengths),
       nowIso(),
       class_name,
-      finalTeacherName
+      finalTeacherName,
+      referralCode,
+      referredByUserId,
+      referredByCode
     ]
   );
 
@@ -83,9 +107,17 @@ router.post("/register", async (req, res) => {
     await run("UPDATE users SET teacher_id = ? WHERE id = ?", [teacherId, id]);
   }
 
+  if (referredByUserId && referredByCode) {
+    await run(
+      `INSERT INTO student_referrals (id, referrer_user_id, referred_user_id, code_used, reward_status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [nanoid(), referredByUserId, id, referredByCode, "pending", nowIso()]
+    );
+  }
+
   const token = signToken({ id, email, name });
   res.cookie("token", token, cookieOptions);
-  res.json({ ok: true });
+  res.json({ ok: true, referral_code: referralCode, referred_by_code: referredByCode });
 });
 
 router.post("/login", async (req, res) => {

@@ -2202,6 +2202,195 @@ textarea { resize: vertical; }
   background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(17, 24, 39, 1));
 }
 
+.dashboard-page .referral-board {
+  background: linear-gradient(160deg, rgba(17, 24, 39, 0.96), rgba(30, 41, 59, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 38px rgba(2, 6, 23, 0.34);
+}
+
+.dashboard-page .referral-board-head {
+  margin-bottom: 14px;
+}
+
+.dashboard-page .referral-reward-note {
+  margin: 8px 0 0;
+  color: #cbd5e1;
+}
+
+.dashboard-page .referral-reward-note strong {
+  color: #f8fafc;
+}
+
+.dashboard-page .referral-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 12px;
+}
+
+.dashboard-page .referral-activity {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dashboard-page .referral-code-card,
+.dashboard-page .referral-summary-card,
+.dashboard-page .referral-stats-card,
+.dashboard-page .referral-list-card {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-page .referral-code-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dashboard-page .referral-share-box {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-page .referral-share-text {
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+.dashboard-page .referral-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(255, 107, 0, 0.18));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.dashboard-page #schoolNamePill {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-page .referral-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.dashboard-page .referral-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.dashboard-page .referral-stat-pill.pending {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.18);
+}
+
+.dashboard-page .referral-stat-pill.granted {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.18);
+}
+
+.dashboard-page .referral-list-head {
+  margin-bottom: 12px;
+}
+
+.dashboard-page .referral-list {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-page .referral-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dashboard-page .referral-list-name {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.dashboard-page .referral-list-meta {
+  margin-top: 3px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.dashboard-page .referral-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-page .referral-status.pending {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fde68a;
+}
+
+.dashboard-page .referral-status.granted {
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+}
+
+.dashboard-page .referral-list-empty {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+@media (max-width: 900px) {
+  .dashboard-page .referral-grid,
+  .dashboard-page .referral-activity {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .dashboard-page .referral-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-page .assessment-layout {
   display: flex;
   align-items: center;

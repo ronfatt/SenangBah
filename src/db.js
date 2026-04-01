@@ -54,7 +54,32 @@ db.serialize(() => {
     if (!cols.has("teacher_id")) {
       db.run("ALTER TABLE users ADD COLUMN teacher_id TEXT");
     }
+    if (!cols.has("referral_code")) {
+      db.run("ALTER TABLE users ADD COLUMN referral_code TEXT");
+    }
+    if (!cols.has("referred_by_user_id")) {
+      db.run("ALTER TABLE users ADD COLUMN referred_by_user_id TEXT");
+    }
+    if (!cols.has("referred_by_code")) {
+      db.run("ALTER TABLE users ADD COLUMN referred_by_code TEXT");
+    }
+    if (!cols.has("bonus_stars")) {
+      db.run("ALTER TABLE users ADD COLUMN bonus_stars INTEGER NOT NULL DEFAULT 0");
+    }
   });
+
+  db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)");
+
+  db.run(`CREATE TABLE IF NOT EXISTS student_referrals (
+    id TEXT PRIMARY KEY,
+    referrer_user_id TEXT NOT NULL,
+    referred_user_id TEXT NOT NULL UNIQUE,
+    code_used TEXT NOT NULL,
+    reward_status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(referrer_user_id) REFERENCES users(id),
+    FOREIGN KEY(referred_user_id) REFERENCES users(id)
+  )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS teachers (
     id TEXT PRIMARY KEY,

@@ -3,6 +3,7 @@ const adminLoginMsg = document.getElementById('adminLoginMsg');
 const adminLoginCard = document.getElementById('adminLoginCard');
 const adminTableCard = document.getElementById('adminTableCard');
 const teacherMgmtCard = document.getElementById('teacherMgmtCard');
+const referralAdminCard = document.getElementById('referralAdminCard');
 const chatSummaryCard = document.getElementById('chatSummaryCard');
 const adminDeleteCard = document.getElementById('adminDeleteCard');
 const adminLogout = document.getElementById('adminLogout');
@@ -17,6 +18,7 @@ const registerExamplesCard = document.getElementById('registerExamplesCard');
 const registerExamplesForm = document.getElementById('registerExamplesForm');
 const registerExamplesMsg = document.getElementById('registerExamplesMsg');
 const teacherSummary = document.getElementById('teacherSummary');
+const referralAdminSummary = document.getElementById('referralAdminSummary');
 const pilotStatusFilter = document.getElementById('pilotStatusFilter');
 const pilotSearchInput = document.getElementById('pilotSearchInput');
 const pilotPageSize = document.getElementById('pilotPageSize');
@@ -114,6 +116,40 @@ function renderTeacherTable(payload) {
     const totalTeachers = payload?.summary?.total_teachers || 0;
     const totalAssignedStudents = payload?.summary?.total_assigned_students || 0;
     teacherSummary.textContent = `Teachers: ${totalTeachers} · Assigned Students: ${totalAssignedStudents}`;
+  }
+}
+
+function renderReferralAdminTable(payload) {
+  const tbody = document.querySelector('#referralAdminTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const items = payload?.items || [];
+
+  items.forEach((item) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.referrer_name || ''}<br /><span class="muted small">${item.referrer_email || ''}</span></td>
+      <td>${item.referrer_school_name || '-'}</td>
+      <td>${item.referred_name || ''}<br /><span class="muted small">${item.referred_email || ''}</span></td>
+      <td>${item.referred_school_name || '-'}</td>
+      <td>${item.code_used || ''}</td>
+      <td>${item.reward_status || ''}</td>
+      <td>${item.created_at || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (!items.length) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="7" class="muted">No referral activity yet.</td>`;
+    tbody.appendChild(tr);
+  }
+
+  if (referralAdminSummary) {
+    const total = payload?.summary?.total_referrals || 0;
+    const granted = payload?.summary?.granted_referrals || 0;
+    const pending = payload?.summary?.pending_referrals || 0;
+    referralAdminSummary.textContent = `Total: ${total} · Granted: ${granted} · Pending: ${pending}`;
   }
 }
 
@@ -217,6 +253,7 @@ function renderRegisterExamples(items) {
 async function load() {
   const data = await fetchUsers();
   const teachers = await fetch('/api/admin/teachers').then(r => r.ok ? r.json() : null);
+  const referrals = await fetch('/api/admin/referrals').then(r => r.ok ? r.json() : null);
   const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
   const pilot = await fetch('/api/admin/pilot-registrations').then(r => r.ok ? r.json() : null);
   const examples = await fetch('/api/admin/register-examples').then(r => r.ok ? r.json() : null);
@@ -224,6 +261,7 @@ async function load() {
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
   teacherMgmtCard.style.display = 'block';
+  referralAdminCard.style.display = 'block';
   chatSummaryCard.style.display = 'block';
   adminDeleteCard.style.display = 'block';
   schoolCodeCard.style.display = 'block';
@@ -231,6 +269,7 @@ async function load() {
   registerExamplesCard.style.display = 'block';
   renderTable(data.users || []);
   if (teachers) renderTeacherTable(teachers);
+  if (referrals) renderReferralAdminTable(referrals);
   if (chat?.items) renderChatTable(chat.items);
   if (pilot?.items) {
     pilotState.allItems = pilot.items;
@@ -257,6 +296,7 @@ adminLogout.addEventListener('click', async () => {
   await postJSON('/api/admin/logout', {});
   adminTableCard.style.display = 'none';
   teacherMgmtCard.style.display = 'none';
+  referralAdminCard.style.display = 'none';
   chatSummaryCard.style.display = 'none';
   adminDeleteCard.style.display = 'none';
   schoolCodeCard.style.display = 'none';

@@ -62,6 +62,24 @@ router.get("/essay-uploads", requireTeacher, async (req, res) => {
   res.json({ items });
 });
 
+router.get("/referrals", requireTeacher, async (req, res) => {
+  const rows = await all(
+    `SELECT sr.id, sr.code_used, sr.reward_status, sr.created_at,
+            referrer.name AS referrer_name,
+            referrer.email AS referrer_email,
+            referred.name AS referred_name,
+            referred.email AS referred_email
+     FROM student_referrals sr
+     JOIN users referrer ON referrer.id = sr.referrer_user_id
+     JOIN users referred ON referred.id = sr.referred_user_id
+     WHERE referrer.teacher_id = ? OR referred.teacher_id = ?
+     ORDER BY sr.created_at DESC`,
+    [req.teacher.id, req.teacher.id]
+  );
+
+  res.json({ items: rows });
+});
+
 router.post("/teacher-name", async (req, res) => {
   const { teacher_code } = req.body || {};
   if (!teacher_code) return res.status(400).json({ error: "missing_teacher_code" });

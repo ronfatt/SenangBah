@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { get, run } from "../db.js";
 import { nowIso, todayKey } from "../utils.js";
 import { runMode } from "../orchestrator.js";
+import { grantReferralRewardForCompletedLearner } from "../referral.js";
 
 const router = express.Router();
 
@@ -147,6 +148,7 @@ router.post("/next", requireAuth, async (req, res) => {
 
   if (idx === order.length - 1) {
     await run("UPDATE vocab_sessions SET current_step = ? WHERE id = ?", ["done", session.id]);
+    await grantReferralRewardForCompletedLearner(user.id);
     return res.json({ session_id: session.id, done: true });
   }
 

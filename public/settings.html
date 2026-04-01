@@ -29,9 +29,22 @@
         <label>Teacher
           <input type="text" name="teacher_name" placeholder="e.g. Mr. Ahmad" />
         </label>
+        <label>School
+          <input type="text" name="school_name" readonly />
+        </label>
+        <label>Your Referral Code
+          <input type="text" name="referral_code" readonly />
+        </label>
+        <label>You Joined With
+          <input type="text" name="referred_by_code" readonly />
+        </label>
+        <label>Referral Bonus Stars
+          <input type="text" name="bonus_stars" readonly />
+        </label>
         <label>Estimated Band
           <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
         </label>
+        <p class="muted small">Share your referral code with a friend so we can use it for future invite rewards.</p>
         <button class="btn primary" type="submit">Save Settings</button>
         <p id="profileMsg" class="muted"></p>
       </form>
