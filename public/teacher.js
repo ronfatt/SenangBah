@@ -47,6 +47,7 @@ async function loadStudents() {
       <td>${s.name || ''}</td>
       <td>${s.email || ''}</td>
       <td>${s.class_name || ''}</td>
+      <td>${s.access_label || 'Full Access Active'}<br /><span class="muted small">${s.access_days_left ?? 30} day(s) left</span></td>
       <td>${s.estimated_band || ''}</td>
       <td>${s.total_sessions || 0}</td>
       <td>${s.completed_sessions || 0}</td>

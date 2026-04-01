@@ -4,6 +4,19 @@ import { all, get, run } from "../db.js";
 import { ensureUserReferralCode } from "../referral.js";
 
 const router = express.Router();
+const ACCESS_DAYS_TOTAL = 30;
+
+function getAccessStatus(createdAtValue) {
+  const createdAt = createdAtValue ? new Date(createdAtValue) : null;
+  const elapsedDays = createdAt && !Number.isNaN(createdAt.getTime())
+    ? Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 86400000))
+    : 0;
+  return {
+    access_days_total: ACCESS_DAYS_TOTAL,
+    access_days_left: Math.max(0, ACCESS_DAYS_TOTAL - elapsedDays),
+    access_label: "30-Day Full Access"
+  };
+}
 
 router.get("/me", requireAuth, async (req, res) => {
   const user = await get(
@@ -17,6 +30,7 @@ router.get("/me", requireAuth, async (req, res) => {
   if (!user) return res.status(401).json({ error: "unauthorized" });
 
   const referralCode = await ensureUserReferralCode(user.id, user.name);
+  const accessStatus = getAccessStatus(user.created_at);
 
   res.json({
     id: user.id,
@@ -30,6 +44,9 @@ router.get("/me", requireAuth, async (req, res) => {
     referral_code: referralCode,
     referred_by_code: user.referred_by_code || "",
     bonus_stars: Number(user.bonus_stars || 0),
+    access_days_total: accessStatus.access_days_total,
+    access_days_left: accessStatus.access_days_left,
+    access_label: accessStatus.access_label,
     weaknesses: JSON.parse(user.weaknesses || "[]"),
     strengths: JSON.parse(user.strengths || "[]")
   });
@@ -38,7 +55,7 @@ router.get("/me", requireAuth, async (req, res) => {
 router.get("/dashboard", requireAuth, async (req, res) => {
   const userId = req.user.id;
   const user = await get(
-    `SELECT u.estimated_band, u.bonus_stars, u.name, u.referred_by_code, sc.school_name
+    `SELECT u.estimated_band, u.bonus_stars, u.name, u.referred_by_code, u.created_at, sc.school_name
      FROM users u
      LEFT JOIN teachers t ON t.id = u.teacher_id
      LEFT JOIN school_codes sc ON sc.code = t.school_code
@@ -130,6 +147,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
 
   const estimatedBand = Number(user?.estimated_band || 4);
   const weekImprovement = Math.max(2, Math.min(12, Math.round((avgScore - 50) / 4)));
+  const accessStatus = getAccessStatus(user?.created_at);
   const referralRows = await all(
     `SELECT sr.reward_status, sr.created_at, u.name, u.email
      FROM student_referrals sr
@@ -158,6 +176,9 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     completion_rate: Math.round((completedSessions / 14) * 100),
     total_stars: totalStars,
     bonus_stars: bonusStars,
+    access_days_total: accessStatus.access_days_total,
+    access_days_left: accessStatus.access_days_left,
+    access_label: accessStatus.access_label,
     referral_code: referralCode,
     referred_by_code: user?.referred_by_code || "",
     school_name: user?.school_name || "",

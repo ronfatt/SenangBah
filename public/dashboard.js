@@ -13,6 +13,8 @@ const avgScore = document.getElementById('avgScore');
 const avgDelta = document.getElementById('avgDelta');
 const totalStars = document.getElementById('totalStars');
 const weeklyChart = document.getElementById('weeklyChart');
+const trialAccessLabel = document.getElementById('trialAccessLabel');
+const trialDaysLeft = document.getElementById('trialDaysLeft');
 const vocabStars = document.getElementById('vocabStars');
 const grammarStars = document.getElementById('grammarStars');
 const writingStars = document.getElementById('writingStars');
@@ -172,6 +174,8 @@ async function loadDashboard() {
   if (weeklySessions) weeklySessions.textContent = String(data.weekly_sessions || 0);
   if (avgScore) avgScore.textContent = `${Number(data.avg_score || 0)}%`;
   if (avgDelta) avgDelta.textContent = `+${Number(data.week_improvement || 0)}% This Week`;
+  if (trialAccessLabel) trialAccessLabel.textContent = data.access_label || '30-Day Full Access';
+  if (trialDaysLeft) trialDaysLeft.textContent = String(data.access_days_left ?? 30);
   if (totalStars) totalStars.textContent = String(data.total_stars || 0);
   if (bonusStars) bonusStars.textContent = String(data.bonus_stars || 0);
   if (writingStars) writingStars.textContent = String(data.completed_days || 0);

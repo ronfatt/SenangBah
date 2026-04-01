@@ -15,6 +15,19 @@ const cookieOptions = {
   sameSite: "lax",
   secure: isProd
 };
+const ACCESS_DAYS_TOTAL = 30;
+
+function getAccessStatus(createdAtValue) {
+  const createdAt = createdAtValue ? new Date(createdAtValue) : null;
+  const elapsedDays = createdAt && !Number.isNaN(createdAt.getTime())
+    ? Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 86400000))
+    : 0;
+  const daysLeft = Math.max(0, ACCESS_DAYS_TOTAL - elapsedDays);
+  return {
+    access_days_left: daysLeft,
+    access_label: daysLeft > 0 ? "Full Access Active" : "Ended"
+  };
+}
 
 function signTeacherToken(teacher) {
   return jwt.sign({ id: teacher.id, email: teacher.email, name: teacher.name, role: "teacher" }, JWT_SECRET, {
@@ -77,7 +90,7 @@ router.get("/me", requireTeacher, async (req, res) => {
 
 router.get("/students", requireTeacher, async (req, res) => {
   const rows = await all(
-    `SELECT u.id, u.name, u.email, u.class_name, u.teacher_name, u.form, u.estimated_band,
+    `SELECT u.id, u.name, u.email, u.class_name, u.teacher_name, u.form, u.estimated_band, u.created_at,
             COUNT(s.id) as total_sessions,
             SUM(CASE WHEN s.current_step = 'done' THEN 1 ELSE 0 END) as completed_sessions,
             MAX(s.date) as last_active
@@ -93,7 +106,15 @@ router.get("/students", requireTeacher, async (req, res) => {
     const total = Number(r.total_sessions || 0);
     const completed = Number(r.completed_sessions || 0);
     const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { ...r, total_sessions: total, completed_sessions: completed, completion_rate: rate };
+    const accessStatus = getAccessStatus(r.created_at);
+    return {
+      ...r,
+      total_sessions: total,
+      completed_sessions: completed,
+      completion_rate: rate,
+      access_days_left: accessStatus.access_days_left,
+      access_label: accessStatus.access_label
+    };
   });
 
   res.json({ students });

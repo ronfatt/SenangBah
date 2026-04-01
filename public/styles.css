@@ -2198,6 +2198,37 @@ textarea { resize: vertical; }
   opacity: 0.35;
 }
 
+.dashboard-page .data-board-head {
+  margin-bottom: 16px;
+}
+
+.dashboard-page .trial-access-card {
+  min-width: 220px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(255, 107, 0, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
+.dashboard-page .trial-access-meta {
+  margin: 6px 0 4px;
+  color: #e2e8f0;
+  font-size: 16px;
+}
+
+.dashboard-page .trial-access-meta strong {
+  color: #f8fafc;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.dashboard-page .modules-board .module.module-upcoming {
+  opacity: 0.82;
+  background: rgba(30, 41, 59, 0.72);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .dashboard-page .assessment-panel {
   background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(17, 24, 39, 1));
 }
@@ -2376,6 +2407,18 @@ textarea { resize: vertical; }
   background: rgba(255, 255, 255, 0.05);
   border: 1px dashed rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
+}
+
+.settings-access-row {
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.settings-access-value {
+  margin: 6px 0 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #f8fafc;
 }
 
 @media (max-width: 900px) {

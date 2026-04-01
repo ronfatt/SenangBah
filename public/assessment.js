@@ -329,13 +329,13 @@ function renderEssayResult(data) {
           <p class="muted">Paragraphs: ${textStats.paragraphs} · Sentences: ${textStats.sentences} · Words: ${textStats.words}</p>
         </article>
       </div>
-      <p class="diag-unlock-note">Unlock Advanced Insights</p>
+      <p class="diag-unlock-note">More advanced insights are being prepared for testing.</p>
     </section>
 
     <section class="diag-layer diag-layer-advanced diag-pro-module">
       <div class="diag-layer-head">
-        <h3>🔒 Advanced Performance Insights</h3>
-        <p class="muted">Preview available now. Detailed metrics are Pro-locked.</p>
+        <h3>Advanced Performance Insights</h3>
+        <p class="muted">Preview available now. Detailed metrics are being expanded during the 30-day full access testing phase.</p>
       </div>
 
       <div class="diag-pro-grid">
@@ -344,7 +344,7 @@ function renderEssayResult(data) {
           <p>Top categories: ${escapeHtml(errorDist.categories.map((c) => `${c.name} (${c.freq})`).join(' · '))}</p>
           <p>Error density: <strong>${errorDist.density}</strong> / 100 words</p>
           <p class="muted">Benchmark: ${escapeHtml(errorDist.benchmark)}</p>
-          <div class="diag-pro-locked"><span class="lock">🔒</span> Detailed per-category trend, line-level mapping, and benchmark percentile are available in Pro.</div>
+          <div class="diag-pro-locked"><span class="lock">•</span> Detailed per-category trend, line-level mapping, and benchmark percentile are being prepared.</div>
         </article>
 
         <article class="diag-pro-item">
@@ -354,7 +354,7 @@ function renderEssayResult(data) {
           <p class="muted">Benchmark: ${escapeHtml(sentenceDist.benchmark)}</p>
           ${sentenceDist.observations.map((item) => `<p class="muted">• ${escapeHtml(item)}</p>`).join('')}
           <p class="muted">To reach Band 5: ${escapeHtml(sentenceDist.toBand5Hint)}</p>
-          <div class="diag-pro-locked"><span class="lock">🔒</span> Clause-level structure map and complexity progression are available in Pro.</div>
+          <div class="diag-pro-locked"><span class="lock">•</span> Clause-level structure map and complexity progression are being prepared.</div>
         </article>
 
         <article class="diag-pro-item">
@@ -362,7 +362,7 @@ function renderEssayResult(data) {
           <p>Estimated CEFR: <strong>${cefr.level}</strong></p>
           <p>Strength / Weakness signals: <strong>${(analysis.strengths || []).length}</strong> / <strong>${(analysis.weaknesses || []).length}</strong></p>
           <p class="muted">${escapeHtml(cefr.descriptor)}</p>
-          <div class="diag-pro-locked"><span class="lock">🔒</span> Skill-by-skill descriptor mapping and calibration notes are available in Pro.</div>
+          <div class="diag-pro-locked"><span class="lock">•</span> Skill-by-skill descriptor mapping and calibration notes are being prepared.</div>
         </article>
 
         <article class="diag-pro-item">
@@ -370,17 +370,17 @@ function renderEssayResult(data) {
           <p>Argument strength index: <strong>${paragraphDepth.argumentStrength}/100</strong></p>
           <p>Support sentence ratio: <strong>${paragraphDepth.supportRatio}%</strong></p>
           <p class="muted">${escapeHtml(paragraphDepth.suggestion)}</p>
-          <div class="diag-pro-locked"><span class="lock">🔒</span> Paragraph-by-paragraph development graph and evidence quality breakdown are available in Pro.</div>
+          <div class="diag-pro-locked"><span class="lock">•</span> Paragraph-by-paragraph development graph and evidence quality breakdown are being prepared.</div>
         </article>
 
         <article class="diag-pro-item diag-pro-item-wide">
           <h4>5) Band Upgrade Projection</h4>
           <p>Conditional model: based on correction quality + complexity + error density.</p>
           <p>Projected band after corrections: <strong>${projection.projectedRange}</strong> (model score: ${projection.projected})</p>
-          <div class="diag-pro-locked"><span class="lock">🔒</span> Full projection model assumptions and scenario simulation are available in Pro.</div>
+          <div class="diag-pro-locked"><span class="lock">•</span> Full projection model assumptions and scenario simulation are being prepared.</div>
         </article>
       </div>
-      <p class="diag-unlock-note">Unlock Advanced Insights</p>
+      <p class="diag-unlock-note">All current users are on 30-day full access while these deeper reports are being prepared.</p>
     </section>
   `;
 }

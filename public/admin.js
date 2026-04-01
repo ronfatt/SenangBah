@@ -13,26 +13,8 @@ const resetByEmailBtn = document.getElementById('resetByEmail');
 const schoolCodeCard = document.getElementById('schoolCodeCard');
 const schoolCodeForm = document.getElementById('schoolCodeForm');
 const schoolCodeMsg = document.getElementById('schoolCodeMsg');
-const pilotCard = document.getElementById('pilotCard');
-const registerExamplesCard = document.getElementById('registerExamplesCard');
-const registerExamplesForm = document.getElementById('registerExamplesForm');
-const registerExamplesMsg = document.getElementById('registerExamplesMsg');
 const teacherSummary = document.getElementById('teacherSummary');
 const referralAdminSummary = document.getElementById('referralAdminSummary');
-const pilotStatusFilter = document.getElementById('pilotStatusFilter');
-const pilotSearchInput = document.getElementById('pilotSearchInput');
-const pilotPageSize = document.getElementById('pilotPageSize');
-const pilotPrevBtn = document.getElementById('pilotPrevBtn');
-const pilotNextBtn = document.getElementById('pilotNextBtn');
-const pilotPageInfo = document.getElementById('pilotPageInfo');
-const pilotMeta = document.getElementById('pilotMeta');
-
-const pilotState = {
-  allItems: [],
-  filteredItems: [],
-  page: 1,
-  pageSize: 25
-};
 
 async function postJSON(url, data) {
   const res = await fetch(url, {
@@ -51,6 +33,7 @@ async function fetchUsers() {
 
 function renderTable(users) {
   const tbody = document.querySelector('#adminTable tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
   users.forEach((u) => {
     const tr = document.createElement('tr');
@@ -75,6 +58,7 @@ function renderTable(users) {
 
 function renderChatTable(items) {
   const tbody = document.querySelector('#chatTable tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
   items.forEach((u) => {
     const tr = document.createElement('tr');
@@ -153,111 +137,13 @@ function renderReferralAdminTable(payload) {
   }
 }
 
-function applyPilotFilters() {
-  const status = pilotStatusFilter?.value || 'ALL';
-  const query = (pilotSearchInput?.value || '').trim().toLowerCase();
-  let items = [...pilotState.allItems];
-  if (status !== 'ALL') {
-    items = items.filter((item) => item.status === status);
-  }
-  if (query) {
-    items = items.filter((item) => {
-      const hay = [item.full_name, item.email, item.school_name, item.role].join(' ').toLowerCase();
-      return hay.includes(query);
-    });
-  }
-  pilotState.filteredItems = items;
-}
-
-function renderPilotTable(items) {
-  const tbody = document.querySelector('#pilotTable tbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  if (!items.length) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="9" class="muted">No applications found.</td>`;
-    tbody.appendChild(tr);
-    return;
-  }
-  items.forEach((item) => {
-    const tr = document.createElement('tr');
-    const summary = item?.self_intro_analysis?.overall_comment || '-';
-    const canApprove = item.status !== 'APPROVED';
-    const summaryId = `pilotSummary_${item.id}`;
-    const summaryText = String(summary || '-');
-    const canExpand = summaryText.length > 180;
-    tr.innerHTML = `
-      <td>${item.created_at || ''}</td>
-      <td>${item.full_name || ''}</td>
-      <td>${item.role || ''}</td>
-      <td>${item.email || ''}</td>
-      <td>${item.school_name || ''}</td>
-      <td>${item.plan_choice || ''}</td>
-      <td>${item.status || ''}</td>
-      <td class="pilot-summary-cell">
-        <div id="${summaryId}" class="pilot-summary-text ${canExpand ? 'is-clamped' : ''}">${summaryText}</div>
-        ${canExpand ? `<button class="btn ghost pilot-summary-toggle" type="button" data-action="toggleSummary" data-target="${summaryId}" aria-expanded="false">Show more</button>` : ''}
-      </td>
-      <td>${canApprove ? `<button class="btn primary" data-action="approvePilot" data-id="${item.id}">Approve</button>` : '-'}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function renderPilotSection() {
-  applyPilotFilters();
-  const pageSize = Number(pilotPageSize?.value || pilotState.pageSize || 25);
-  pilotState.pageSize = pageSize;
-  const total = pilotState.filteredItems.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  if (pilotState.page > totalPages) pilotState.page = totalPages;
-  if (pilotState.page < 1) pilotState.page = 1;
-
-  const start = (pilotState.page - 1) * pageSize;
-  const end = start + pageSize;
-  const pageItems = pilotState.filteredItems.slice(start, end);
-  renderPilotTable(pageItems);
-
-  if (pilotMeta) {
-    const status = pilotStatusFilter?.value || 'ALL';
-    const statusText = status === 'ALL' ? 'All' : status.replace('_', ' ');
-    pilotMeta.textContent = `${total} record(s) · ${statusText}`;
-  }
-  if (pilotPageInfo) {
-    pilotPageInfo.textContent = `Page ${pilotState.page} / ${totalPages}`;
-  }
-  if (pilotPrevBtn) pilotPrevBtn.disabled = pilotState.page <= 1;
-  if (pilotNextBtn) pilotNextBtn.disabled = pilotState.page >= totalPages;
-}
-
-function renderRegisterExamples(items) {
-  const tbody = document.querySelector('#registerExamplesTable tbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  const rows = items.length ? items : [
-    { sort_order: 1, before_text: '', after_text: '' },
-    { sort_order: 2, before_text: '', after_text: '' },
-    { sort_order: 3, before_text: '', after_text: '' }
-  ];
-  rows.forEach((item, idx) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${idx + 1}</td>
-      <td><textarea rows="2" data-field="before_text">${item.before_text || ''}</textarea></td>
-      <td><textarea rows="2" data-field="after_text">${item.after_text || ''}</textarea></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
 async function load() {
   const data = await fetchUsers();
-  const teachers = await fetch('/api/admin/teachers').then(r => r.ok ? r.json() : null);
-  const referrals = await fetch('/api/admin/referrals').then(r => r.ok ? r.json() : null);
-  const chat = await fetch('/api/admin/chat-summary').then(r => r.ok ? r.json() : null);
-  const pilot = await fetch('/api/admin/pilot-registrations').then(r => r.ok ? r.json() : null);
-  const examples = await fetch('/api/admin/register-examples').then(r => r.ok ? r.json() : null);
+  const teachers = await fetch('/api/admin/teachers').then((r) => (r.ok ? r.json() : null));
+  const referrals = await fetch('/api/admin/referrals').then((r) => (r.ok ? r.json() : null));
+  const chat = await fetch('/api/admin/chat-summary').then((r) => (r.ok ? r.json() : null));
   if (!data) return;
+
   adminLoginCard.style.display = 'none';
   adminTableCard.style.display = 'block';
   teacherMgmtCard.style.display = 'block';
@@ -265,18 +151,11 @@ async function load() {
   chatSummaryCard.style.display = 'block';
   adminDeleteCard.style.display = 'block';
   schoolCodeCard.style.display = 'block';
-  pilotCard.style.display = 'block';
-  registerExamplesCard.style.display = 'block';
+
   renderTable(data.users || []);
   if (teachers) renderTeacherTable(teachers);
   if (referrals) renderReferralAdminTable(referrals);
   if (chat?.items) renderChatTable(chat.items);
-  if (pilot?.items) {
-    pilotState.allItems = pilot.items;
-    pilotState.page = 1;
-    renderPilotSection();
-  }
-  if (examples?.items) renderRegisterExamples(examples.items);
 }
 
 adminLoginForm.addEventListener('submit', async (e) => {
@@ -300,8 +179,6 @@ adminLogout.addEventListener('click', async () => {
   chatSummaryCard.style.display = 'none';
   adminDeleteCard.style.display = 'none';
   schoolCodeCard.style.display = 'none';
-  pilotCard.style.display = 'none';
-  registerExamplesCard.style.display = 'none';
   adminLoginCard.style.display = 'block';
 });
 
@@ -343,25 +220,19 @@ document.addEventListener('click', async (e) => {
   const id = btn.getAttribute('data-id');
   const action = btn.getAttribute('data-action');
   if (!id) return;
+
   if (action === 'reset') {
     if (!confirm('Reset all progress for this student?')) return;
     await postJSON('/api/admin/reset-user', { user_id: id });
     await load();
   }
+
   if (action === 'delete') {
     if (!confirm('Delete this student permanently?')) return;
     await postJSON('/api/admin/delete-user', { user_id: id });
     await load();
   }
-  if (action === 'approvePilot') {
-    if (!confirm('Approve this application?')) return;
-    const res = await postJSON('/api/admin/pilot-approve', { id });
-    if (!res.ok) {
-      alert(res.data?.error || 'Approve failed');
-      return;
-    }
-    await load();
-  }
+
   if (action === 'resetTeacherCode') {
     if (!confirm('Reset this teacher code?')) return;
     const res = await postJSON('/api/admin/teacher-reset-code', { teacher_id: id });
@@ -371,6 +242,7 @@ document.addEventListener('click', async (e) => {
     }
     await load();
   }
+
   if (action === 'deleteTeacher') {
     if (!confirm('Delete this teacher? Students will be unassigned.')) return;
     const res = await postJSON('/api/admin/delete-teacher', { teacher_id: id });
@@ -380,51 +252,7 @@ document.addEventListener('click', async (e) => {
     }
     await load();
   }
-  if (action === 'toggleSummary') {
-    const targetId = btn.getAttribute('data-target');
-    const target = targetId ? document.getElementById(targetId) : null;
-    if (!target) return;
-    const nextExpanded = target.classList.contains('is-clamped');
-    target.classList.toggle('is-clamped');
-    btn.textContent = nextExpanded ? 'Show less' : 'Show more';
-    btn.setAttribute('aria-expanded', String(nextExpanded));
-  }
 });
-
-if (pilotStatusFilter) {
-  pilotStatusFilter.addEventListener('change', () => {
-    pilotState.page = 1;
-    renderPilotSection();
-  });
-}
-
-if (pilotSearchInput) {
-  pilotSearchInput.addEventListener('input', () => {
-    pilotState.page = 1;
-    renderPilotSection();
-  });
-}
-
-if (pilotPageSize) {
-  pilotPageSize.addEventListener('change', () => {
-    pilotState.page = 1;
-    renderPilotSection();
-  });
-}
-
-if (pilotPrevBtn) {
-  pilotPrevBtn.addEventListener('click', () => {
-    pilotState.page -= 1;
-    renderPilotSection();
-  });
-}
-
-if (pilotNextBtn) {
-  pilotNextBtn.addEventListener('click', () => {
-    pilotState.page += 1;
-    renderPilotSection();
-  });
-}
 
 if (schoolCodeForm) {
   schoolCodeForm.addEventListener('submit', async (e) => {
@@ -439,27 +267,6 @@ if (schoolCodeForm) {
     }
     schoolCodeMsg.textContent = 'Created.';
     schoolCodeForm.reset();
-  });
-}
-
-if (registerExamplesForm) {
-  registerExamplesForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    registerExamplesMsg.textContent = '';
-    const rows = [...document.querySelectorAll('#registerExamplesTable tbody tr')];
-    const items = rows.map((row) => {
-      const before = row.querySelector('textarea[data-field="before_text"]')?.value || '';
-      const after = row.querySelector('textarea[data-field="after_text"]')?.value || '';
-      return { before_text: before.trim(), after_text: after.trim() };
-    }).filter((item) => item.before_text && item.after_text);
-
-    const res = await postJSON('/api/admin/register-examples', { items });
-    if (!res.ok) {
-      registerExamplesMsg.textContent = res.data?.error || 'Save failed';
-      return;
-    }
-    registerExamplesMsg.textContent = 'Saved.';
-    await load();
   });
 }
 

@@ -9,10 +9,10 @@
 <body class="auth-page">
   <main class="auth-shell">
     <section class="auth-brand card">
-      <p class="eyebrow">SPM English Performance System</p>
+      <p class="eyebrow">SENANGBAH TRAINING PORTAL</p>
       <h1>Enter Your Training Portal</h1>
-      <p class="sub">Secure Access to Your Training Dashboard</p>
-      <p class="auth-small">Based on Real SPM Marking Criteria</p>
+      <p class="sub">30-day full access is active for all current student accounts.</p>
+      <p class="auth-small">Daily training, clear scoring, and guided progress</p>
       <aside class="mini-grade-panel">
         <p class="mini-grade-title">Class Progress Linked</p>
         <p>Last Estimated Grade: C+</p>
@@ -47,7 +47,7 @@
       </section>
 
       <section id="registerSection" class="hidden">
-        <h2>Start Your SPM English Training</h2>
+        <h2>Start Your 30-Day Full Access</h2>
         <div class="auth-divider"><span>New Student?</span></div>
 
         <section class="verify-card access-key-card" id="verifyCard">
@@ -97,7 +97,7 @@
               </select>
             </label>
             <p class="muted small">If a friend invited you, enter their code so we can connect the referral later.</p>
-            <p class="muted small">By continuing, you agree to the pilot programme terms.</p>
+            <p class="muted small">By continuing, you start your 30-day full access testing period.</p>
             <button class="btn primary auth-cta" id="registerBtn" type="submit" disabled>Start My Training</button>
             <p id="registerError" class="error"></p>
           </form>
@@ -153,6 +153,9 @@
 
     tabLogin.addEventListener('click', () => setTab('login'));
     tabRegister.addEventListener('click', () => setTab('register'));
+    if (new URLSearchParams(window.location.search).get('mode') === 'register') {
+      setTab('register');
+    }
 
     function setLoading(button, loading, textLoading, textNormal) {
       button.disabled = loading;

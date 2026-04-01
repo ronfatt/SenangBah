@@ -41,6 +41,12 @@
         <label>Referral Bonus Stars
           <input type="text" name="bonus_stars" readonly />
         </label>
+        <label>Full Access Status
+          <input type="text" name="access_label" readonly />
+        </label>
+        <label>Days Left
+          <input type="text" name="access_days_left" readonly />
+        </label>
         <label>Estimated Band
           <input type="number" name="estimated_band" min="2" max="6" step="0.5" value="4" />
         </label>
@@ -48,6 +54,21 @@
         <button class="btn primary" type="submit">Save Settings</button>
         <p id="profileMsg" class="muted"></p>
       </form>
+    </section>
+
+    <section class="card">
+      <h2>30-Day Full Access</h2>
+      <p class="muted">All current student accounts can use the full training flow during the active testing period.</p>
+      <div class="row between settings-access-row">
+        <div>
+          <p class="eyebrow">CURRENT STATUS</p>
+          <p class="settings-access-value" id="accessStatusLabel">30-Day Full Access</p>
+        </div>
+        <div>
+          <p class="eyebrow">DAYS LEFT</p>
+          <p class="settings-access-value" id="accessDaysLeft">30</p>
+        </div>
+      </div>
     </section>
   </main>
   <script src="/settings.js"></script>
